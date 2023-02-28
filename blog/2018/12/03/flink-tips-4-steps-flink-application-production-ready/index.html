@@ -1,0 +1,888 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css">
+
+
+    <meta name="author" content="WuChong">
+
+
+
+  <meta name="keywords" content="Flink,Flink小贴士,生产就绪,HA">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jark's Blog" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0">
+
+
+
+
+
+
+<meta name="description" content="本文阐述了使 Flink 应用达到生产就绪状态所需要的一些配置步骤。在以下部分中，我们概述了重要的配置参数，这些参数是技术领导、DevOps、工程师们在将 Flink 应用程序上线生产之前都需要仔细考虑的。Apache Flink 为大多数配置都提供了开箱即用的默认选项，在许多情况下，它们是POC阶段（概念验证）或探索 Flink 不同 API 和抽象的很好的起点。">
+<meta name="keywords" content="Flink,Flink小贴士,生产就绪,HA">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flink 小贴士 (7): 4个步骤，让 Flink 应用达到生产状态">
+<meta property="og:url" content="http://wuchong.me/blog/2018/12/03/flink-tips-4-steps-flink-application-production-ready/index.html">
+<meta property="og:site_name" content="Jark&#39;s Blog">
+<meta property="og:description" content="本文阐述了使 Flink 应用达到生产就绪状态所需要的一些配置步骤。在以下部分中，我们概述了重要的配置参数，这些参数是技术领导、DevOps、工程师们在将 Flink 应用程序上线生产之前都需要仔细考虑的。Apache Flink 为大多数配置都提供了开箱即用的默认选项，在许多情况下，它们是POC阶段（概念验证）或探索 Flink 不同 API 和抽象的很好的起点。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://img.alicdn.com/tfs/TB1qClwtNjaK1RjSZFAXXbdLFXa-1168-1125.png">
+<meta property="og:updated_time" content="2022-08-03T06:46:44.505Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Flink 小贴士 (7): 4个步骤，让 Flink 应用达到生产状态">
+<meta name="twitter:description" content="本文阐述了使 Flink 应用达到生产就绪状态所需要的一些配置步骤。在以下部分中，我们概述了重要的配置参数，这些参数是技术领导、DevOps、工程师们在将 Flink 应用程序上线生产之前都需要仔细考虑的。Apache Flink 为大多数配置都提供了开箱即用的默认选项，在许多情况下，它们是POC阶段（概念验证）或探索 Flink 不同 API 和抽象的很好的起点。">
+<meta name="twitter:image" content="https://img.alicdn.com/tfs/TB1qClwtNjaK1RjSZFAXXbdLFXa-1168-1125.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 4141040,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> Flink 小贴士 (7): 4个步骤，让 Flink 应用达到生产状态 | Jark's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Jark's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-talks">
+          <a href="/talks" rel="section">
+            
+              <i class="menu-item-icon fa fa-microphone-stand fa-fw"></i> <br>
+            
+            演讲
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input">
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', '8Exkz7xsCTJyyCHiK9TY','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Flink 小贴士 (7): 4个步骤，让 Flink 应用达到生产状态
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-12-03T21:36:21+08:00" content="2018-12-03">
+              2018-12-03
+            </time>
+          </span>
+
+          
+            <span class="post-category">
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Flink/" itemprop="url" rel="index">
+                    <span itemprop="name">Flink</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2018/12/03/flink-tips-4-steps-flink-application-production-ready/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="blog/2018/12/03/flink-tips-4-steps-flink-application-production-ready/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+<!--
+    
+      <div class="post-body">
+    
+    -->
+
+
+    <div class="post-body" itemprop="articleBody">
+    
+
+      
+      
+
+      
+        <blockquote>
+<p>原文：<a href="https://data-artisans.com/blog/4-steps-flink-application-production-ready" target="_blank" rel="noopener">https://data-artisans.com/blog/4-steps-flink-application-production-ready</a><br>作者：Nico Kruber, Markos Sfikas<br>译者：云邪（Jark）</p>
+</blockquote>
+<p>本文阐述了使 Flink 应用达到生产就绪状态所需要的一些配置步骤。在以下部分中，我们概述了重要的配置参数，这些参数是技术领导、DevOps、工程师们在将 Flink 应用程序上线生产之前都需要仔细考虑的。Apache Flink 为大多数配置都提供了开箱即用的默认选项，在许多情况下，它们是POC阶段（概念验证）或探索 Flink 不同 API 和抽象的很好的起点。</p>
+<p>然而，将 Flink 应用程序投入生产还需要额外的配置，这些配置可以高效地调整应用的规模，使其达到生产就绪状态，并能与不同系统之间保持兼容，以保证未来迭代升级的需求。</p>
+<p>下面几点是我们收集的需要在 Flink 应用上线前做的检查：</p>
+<p><img src="https://img.alicdn.com/tfs/TB1qClwtNjaK1RjSZFAXXbdLFXa-1168-1125.png" alt></p>
+<h2 id="1-明确定义-Flink-算子的最大并发度"><a href="#1-明确定义-Flink-算子的最大并发度" class="headerlink" title="1. 明确定义 Flink 算子的最大并发度"></a>1. 明确定义 Flink 算子的最大并发度</h2><p>Flink 的 keyed state 是由 <a href="https://ci.apache.org/projects/flink/flink-docs-stable/dev/stream/state/state.html#keyed-state" target="_blank" rel="noopener">key group</a> 进行组织的，并分布在 Flink 算子（operator）的各个并发实例上。Key group 是用来分布和影响 Flink 应用程序可扩展性的最小原子单元，每个算子上的 key group 个数即为最大并发数（maxParallelism），可以手动配置也可以直接使用默认配置。默认值粗略地使用 <code>operatorParallelism * 1.5</code> ，下限 128，上限 32768 。可以通过 <a href="https://ci.apache.org/projects/flink/flink-docs-release-1.6/dev/parallel.html#setting-the-maximum-parallelism" target="_blank" rel="noopener"><code>setMaxParallelism(int maxParallelism)</code></a> 来手动地设定作业或具体算子的最大并发。</p>
+<p>任何进入生产的作业都应该指定最大并发数。但是，一定要仔细考虑后再决定该值的大小。因为一旦设置了最大并发度（<strong>无论是手动设置，还是默认设置</strong>），之后就无法再对该值做更新。想要改变一个作业的最大并发度，就只能将作业从全新的状态重新开始执行。目前还无法在更改最大并发度后，从上一个 checkpoint 或 savepoint 恢复。</p>
+<p>最大并发度的取值建议设定一个足够高的值以满足应用未来的可扩展性和可用性，同时，又要选一个相对较低的值以避免影响应用程序整体的性能。这是由于一个很高的最大并发度会导致 Flink 需要维护大量的元数据（用于扩缩容），这可能会增加 Flink 应用程序的整体状态大小。</p>
+<h2 id="2-为-Flink-算子指定唯一用户ID（UUID）"><a href="#2-为-Flink-算子指定唯一用户ID（UUID）" class="headerlink" title="2. 为 Flink 算子指定唯一用户ID（UUID）"></a>2. 为 Flink 算子指定唯一用户ID（UUID）</h2><p>对于有状态的 Flink 应用，推荐给每个算子都<a href="https://ci.apache.org/projects/flink/flink-docs-release-1.6/ops/state/savepoints.html#should-i-assign-ids-to-all-operators-in-my-job" target="_blank" rel="noopener">指定唯一用户ID（UUID）</a>。 严格地说，仅需要给有状态的算子设置就足够了。但是因为 Flink 的某些内置算子（如 window）是有状态的，而有些是无状态的，可能用户不是很清楚哪些内置算子是有状态的，哪些不是。所以从实践经验上来说，我们建议每个算子都指定上 UUID。</p>
+<p>Flink 算子的 UUID 可以通过 <code>uid(String uid)</code> 方法指定。算子 UUID 使得 Flink 有效地将算子的状态从 savepoint 映射到作业修改后（拓扑图可能也有改变）的正确的算子上，这是 <a href="https://data-artisans.com/blog/turning-back-time-savepoints" target="_blank" rel="noopener">savepoint</a> 在 Flink 应用中正常工作的一个基本要素。</p>
+<h2 id="3-充分考虑-Flink-程序的状态后端"><a href="#3-充分考虑-Flink-程序的状态后端" class="headerlink" title="3. 充分考虑 Flink 程序的状态后端"></a>3. 充分考虑 Flink 程序的状态后端</h2><p>当前 Flink 还不支持状态后端之间的互换功能，也就是当我们用内存状态后端做了一个 savepoint，我们无法把作业改成 RocksDB 状态后端然后恢复。所以，开发人员和工程负责人在将作业投向生产之前要仔细考虑好该 Flink 应用的最合适的状态后端类型。</p>
+<p>关于 Flink 当前支持的三种不同的状态后端类型，可以阅读我们的上一篇文章：<a href="http://wuchong.me/blog/2018/11/21/flink-tips-how-to-choose-state-backends/">《Flink 小贴士 (4): 如何选择状态后端》</a></p>
+<p>对于生产用例来说，强烈建议使用 RocksDB 状态后端，因为这是目前唯一一种支持大型状态和异步操作（如快照过程）的状态后端，异步操作能使 Flink 不阻塞正常数据流的处理的情况下做快照操作。另一方面，使用 RocksDB 状态后端可能存在性能折衷，因为所有状态访问和检索都需要序列化（和反序列化）来跨越 JNI 边界，这与内存状态后端相比可能会影响应用程序的吞吐量。</p>
+<h2 id="4-配置-JobManager-的高可用性（HA）"><a href="#4-配置-JobManager-的高可用性（HA）" class="headerlink" title="4. 配置 JobManager 的高可用性（HA）"></a>4. 配置 JobManager 的高可用性（HA）</h2><p>高可用性（HA）配置确保了 Flink 应用中 JobManager 组件发生潜在故障后的自动恢复，从而将停机时间降到最低。JobManager 的主要职责是协调 Flink 的部署，例如调度和适当的资源分配。</p>
+<p>默认情况下，Flink 为每个集群设置一个 JobManager 实例。这会导致单点故障（SPOF）：如果 JobManager 崩溃了，则无法提交新的作业，而且正在运行的程序也会失败。因此，强烈建议为生产用例<a href="https://ci.apache.org/projects/flink/flink-docs-stable/ops/config.html#high-availability-ha" target="_blank" rel="noopener">配置高可用性（HA）</a>。</p>
+<p>上述 4 个步骤总结自社区的最佳实践，使得 Flink 应用能够保持状态的同时任意地扩缩容，处理更大规模的数据和状态，并提高系统的可用性。我们强烈建议您在将应用投入生产之前，仔细阅读上述步骤。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+        
+<hr>
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+  <img id="wechat_subscriber_qcode" src="https://img.alicdn.com/tfs/TB1.ajIlIbpK1RjSZFyXXX_qFXa-1004-541.png" alt="hoxis wechat" style="width: auto; height:200px; max-width: 100%;">
+</div>
+<div class="copyright-txt">
+  <a href="/copyright"><i class="fa fa-copyright"></i>著作权归作者所有</a>
+</div>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Flink/" rel="tag">#Flink</a>
+          
+            <a href="/tags/Flink小贴士/" rel="tag">#Flink小贴士</a>
+          
+        </div>
+      
+
+      
+      <div class="post-spread">
+        
+          <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-56d648eefec3350b" async="async"></script>
+<!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_sharing_toolbox"></div>
+        
+      </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2018/11/28/flink-tips-broadcast-state-pattern-flink-considerations/" rel="next" title="Flink 小贴士 (6): 使用 Broadcast State 的 4 个注意事项">
+                <i class="fa fa-chevron-left"></i> Flink 小贴士 (6): 使用 Broadcast State 的 4 个注意事项
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2019/01/31/blink-opensource-and-flink-community/" rel="prev" title="聊聊Blink开源和Flink社区近况">
+                聊聊Blink开源和Flink社区近况 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/default_avatar.jpg" alt="WuChong">
+          <p class="site-author-name" itemprop="name">WuChong</p>
+          <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，<br>你就应该静下心来学习。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">86</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+<!--
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">分类</span>
+            </a>
+          </div>
+          -->
+
+          
+          
+          
+            <div class="site-state-item site-state-categories">
+              
+              <a href="/categories">
+              
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">72</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-sa/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="http://flink-china.org" target="_blank">Apache Flink China</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://zh.ververica.com" target="_blank">Ververica</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-明确定义-Flink-算子的最大并发度"><span class="nav-number">1.</span> <span class="nav-text">1. 明确定义 Flink 算子的最大并发度</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-为-Flink-算子指定唯一用户ID（UUID）"><span class="nav-number">2.</span> <span class="nav-text">2. 为 Flink 算子指定唯一用户ID（UUID）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-充分考虑-Flink-程序的状态后端"><span class="nav-number">3.</span> <span class="nav-text">3. 充分考虑 Flink 程序的状态后端</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-配置-JobManager-的高可用性（HA）"><span class="nav-number">4.</span> <span class="nav-text">4. 配置 JobManager 的高可用性（HA）</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WuChong</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.scheme !== 'Pisces' && (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always')) {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'wuchong';
+      var disqus_identifier = 'blog/2018/12/03/flink-tips-4-steps-flink-application-production-ready/';
+      var disqus_title = 'Flink 小贴士 (7): 4个步骤，让 Flink 应用达到生产状态';
+      var disqus_url = 'http://wuchong.me/blog/2018/12/03/flink-tips-4-steps-flink-application-production-ready/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
+  
+
+
+  
+  
+
+
+</body>
+</html>

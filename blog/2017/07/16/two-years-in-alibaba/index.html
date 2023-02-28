@@ -1,0 +1,882 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css">
+
+
+    <meta name="author" content="WuChong">
+
+
+
+  <meta name="keywords" content="阿里巴巴,晋升,Flink">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jark's Blog" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0">
+
+
+
+
+
+
+<meta name="description" content="这两天，团队来了不少新人，有实习生也有刚毕业的大学生。看着他们稚气的面庞，文静而腼腆的样子，跟我两年前刚进公司的时候好像。今天内网提示我这是我在阿里的第732天，两周年快乐。突然觉得，我应该写点什么东西，一方面给自己一个总结，分享一下自己成长的故事。另一方面，希望能帮助刚毕业的大学生们消除一些成长路上的疑惑。">
+<meta name="keywords" content="阿里巴巴,晋升,Flink">
+<meta property="og:type" content="article">
+<meta property="og:title" content="我在阿里的这两年">
+<meta property="og:url" content="http://wuchong.me/blog/2017/07/16/two-years-in-alibaba/index.html">
+<meta property="og:site_name" content="Jark&#39;s Blog">
+<meta property="og:description" content="这两天，团队来了不少新人，有实习生也有刚毕业的大学生。看着他们稚气的面庞，文静而腼腆的样子，跟我两年前刚进公司的时候好像。今天内网提示我这是我在阿里的第732天，两周年快乐。突然觉得，我应该写点什么东西，一方面给自己一个总结，分享一下自己成长的故事。另一方面，希望能帮助刚毕业的大学生们消除一些成长路上的疑惑。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/81b78497gy1fhljtdhofaj21ue0s6x6q.jpg">
+<meta property="og:updated_time" content="2022-08-03T06:46:44.512Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="我在阿里的这两年">
+<meta name="twitter:description" content="这两天，团队来了不少新人，有实习生也有刚毕业的大学生。看着他们稚气的面庞，文静而腼腆的样子，跟我两年前刚进公司的时候好像。今天内网提示我这是我在阿里的第732天，两周年快乐。突然觉得，我应该写点什么东西，一方面给自己一个总结，分享一下自己成长的故事。另一方面，希望能帮助刚毕业的大学生们消除一些成长路上的疑惑。">
+<meta name="twitter:image" content="http://ww1.sinaimg.cn/large/81b78497gy1fhljtdhofaj21ue0s6x6q.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 4141040,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> 我在阿里的这两年 | Jark's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Jark's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-talks">
+          <a href="/talks" rel="section">
+            
+              <i class="menu-item-icon fa fa-microphone-stand fa-fw"></i> <br>
+            
+            演讲
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input">
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', '8Exkz7xsCTJyyCHiK9TY','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                我在阿里的这两年
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-07-16T20:43:38+08:00" content="2017-07-16">
+              2017-07-16
+            </time>
+          </span>
+
+          
+            <span class="post-category">
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/职场生涯/" itemprop="url" rel="index">
+                    <span itemprop="name">职场生涯</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2017/07/16/two-years-in-alibaba/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="blog/2017/07/16/two-years-in-alibaba/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+<!--
+    
+      <div class="post-body">
+    
+    -->
+
+
+    <div class="post-body" itemprop="articleBody">
+    
+
+      
+      
+
+      
+        <p>这两天，团队来了不少新人，有实习生也有刚毕业的大学生。看着他们稚气的面庞，文静而腼腆的样子，跟我两年前刚进公司的时候好像。今天内网提示我这是我在阿里的第732天，两周年快乐。突然觉得，我应该写点什么东西，一方面给自己一个总结，分享一下自己成长的故事。另一方面，希望能帮助刚毕业的大学生们消除一些成长路上的疑惑。</p>
+<p><img src="http://ww1.sinaimg.cn/large/81b78497gy1fhljtdhofaj21ue0s6x6q.jpg" alt></p>
+<a id="more"></a>
+<h2 id="JStorm"><a href="#JStorm" class="headerlink" title="JStorm"></a>JStorm</h2><p>我是2015年7月毕业后加入的公司，当时进入的是中间件-实时计算 JStorm 团队。JStorm 是用 Java 语言代替 Clojure 语言重写了 Apache Storm，并在原有的基础上做了诸多性能和功能优化。JStorm 是阿里巴巴开源的几个明星产品之一，在国内的用户非常多。很多国内做流计算，实时计算的应该都知道 JStorm。</p>
+<p>但是我当时并不知道 JStorm 或是 Storm，我当时只知道 Spark，也不懂什么是实时计算，流计算。所以<br>都是入职之后现学，看文档，看源码，学习 Clojure。差不多11月份的时候，阿里正式向 Apache 基金会捐赠了 JStorm。这是阿里捐赠给 Apache 的第一个项目，后面还有 <a href="https://rocketmq.incubator.apache.org/" target="_blank" rel="noopener">Apache RocketMQ</a>, <a href="https://weex.incubator.apache.org/cn/" target="_blank" rel="noopener">Apache Weex</a>。JStorm 火了一把，当时有很多报道转载这件事情，还放了一张我们团队油头垢面、屌丝气十足的合照。</p>
+<p>在第一个半年里，我重写了 JStorm 的开源 UI，参与了管控平台的开发，做了 JStorm 的一些开发工作。到了半年 Review 的时候，我觉得我做的并不好（虽然老板一直鼓励我做的挺好…）。其实作为一个新人，半年时间是很难做出成绩的。但是从一开始我对自己的期望就比较高，所以失望也比较大。而且看到同期的应届生半年就有非常出色的成果，相比之下就相形见绌了。那段时间，自己的心情也比较低落，比较迷茫。我觉得我脑子不笨，学习能力也不差，工作也很努力，为什么就做不出什么“成果”呢？</p>
+<p>在阿里中间件，有很多非常耀眼的新人，有的在我还在熟悉工作的时候人家已经成为了项目 owner，有的已经成为了 Apache 项目的 PMC，有的一年就晋升到了 P6。他们有很多地方是值得学习的，聪明，拼搏，机遇，是我觉得最重要的几个关键词。但是工作后你就会发现，哪有那么多的机会在等你呢。不过，关于个人成长和晋升，阿里有句老话叫做“没有坑，就让自己先成为萝卜”，我非常认同，是萝卜的话，那个坑是迟早的事情。</p>
+<h2 id="Flink"><a href="#Flink" class="headerlink" title="Flink"></a>Flink</h2><p>2015 年是流计算百花齐放的时代，各个流计算框架层出不穷。Storm, JStorm, Heron, Flink, Spark Streaming, Google Dataflow (后来的 Beam) 等等。其中 Flink 的一致性语义和最接近 Dataflow 模型的开源实现，使其成为流计算框架中最耀眼的一颗。我也是看中了 Flink 在流计算上的先进性，所以在 2016 年春节过后回来上班的第一天，我跟老板提议，希望能去研究 Flink，我们团队需要有个人透彻了解 Flink 的原理（我希望成为 Flink 的萝卜，事实证明这为我之后带来了很多机会）。Boss 同意了，并且给了我一个 KPI：一年内成为 Flink Committer。</p>
+<p>后来我才知道搜索部门已经研究 Flink 有一年了，并且有了个内部版本，名叫“Blink”。所以之后，我们便与 Blink 开始共建 Table API &amp; SQL。我也是在那个时候进入 Flink 社区工作。那个时候在社区工作是非常孤独，非常艰难的，因为很多时候没有人可以一起讨论，一个人在社区推进事情也很困难。不过，当你推进的提议被社区所接受并落地的那种心情是非常有成就感的。</p>
+<p>记得刚进入社区工作的时候，我也只能挑一些非常简单的修复 Bug 的任务，学习社区的工作流程，用我非常蹩脚的英文在 GitHub 上与他们交流。有时候，每写一句话都要粘贴到 Google 翻译中翻译一遍，确保自己语句没有问题。我对学习英语没什么天赋，大学考英语四级考了三次才过。但是孰能生巧，现在我也可以流畅地在 GitHub 、邮件列表上与他们交流，能洋洋洒洒地写几千单词的英文设计文档与社区讨论，能与 dataArtisans 电话会议讨论设计细节。英语是 IT 人士非常重要的软实力，我觉得至少要做到读英文技术文章不吃力，其次要做到能用英语流畅交流技术。我现在已经越来越体会到英语的重要性，我觉得英语在某些方面甚至决定了你的潜力，为此我还买了一个半年的英语课程，每天练习自己的听力和口语，现在已经坚持了一个半月了，希望能坚持到底。</p>
+<p>在社区工作了将近一年，终于在 2017 年春节的时候，收到了社区邀请我成为 Flink Committer 的邮件，这是对我过去一年工作的肯定，也算是踩点完成了 KPI … 我很荣幸是阿里第一位成为 Flink Committer 的。截止到目前，阿里已经发展了 5 位 Flink Committer，当然都在我们大团队 😉。</p>
+<h2 id="Blink"><a href="#Blink" class="headerlink" title="Blink"></a>Blink</h2><p>阿里还有一句老话叫“拥抱变化”。大概五月份的时候，为了打造世界级的流计算引擎和服务，我们团队和 Blink 都加入了新成立的计算平台事业部。在新的事业部，我迎来了自己的第一次晋升。晋升的过程非常愉快。令我印象深刻的是，在这么一个P5到P6的晋升面试上居然要出动1个P10，1个P9，3个P8，1个HRG的阵容。公司也真是舍得下成本啊。</p>
+<p>虽然“拥抱变化”了，不过在新事业部我做的事情没什么改变，仍然是 Flink/Blink SQL 相关的工作。从一开始我们就意识 SQL 在抽象和统一用户业务逻辑上的强大之处。而且，流和批的计算可以自然而然的在传统SQL这一层统一。SQL 可以把一个非常复杂的计算用简单的抽象表达出来。这是我认为我现在工作有意思有挑战的地方。在社区方面，Flink SQL 总共有 5 位 Committer，我们团队占据了其中三位。我们与社区的合作是非常紧密的，平均每个星期都有与 dataArtisans （Flink 背后的公司） 的视频会议，讨论每周的技术设计细节。可以说，流计算 SQL 在开源范围内我们是比较领先的，甚至是在定义流计算SQL的标准。dataArtisans 的 CTO Stephan 说，阿里巴巴是 Flink 现在的最大的贡献者。确实如此，不仅在 Flink SQL，在 Runtime 方面，我们帮助社区贡献了若干从大规模部署到性能，再到容错方面的优化。这些优化使得 Flink 的易用性和性能得到了大大的提升。</p>
+<p>哈哈，是的，这里不免落俗地发个招聘广告。阿里实时计算团队（杭州，北京，美国）诚邀各种牛人（存储，计算，分布式，大数据，甚至前端）加入，有感兴趣的可以直接联系我：imjark#gmail.com 。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+        
+<hr>
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+  <img id="wechat_subscriber_qcode" src="https://img.alicdn.com/tfs/TB1.ajIlIbpK1RjSZFyXXX_qFXa-1004-541.png" alt="hoxis wechat" style="width: auto; height:200px; max-width: 100%;">
+</div>
+<div class="copyright-txt">
+  <a href="/copyright"><i class="fa fa-copyright"></i>著作权归作者所有</a>
+</div>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/职场生涯/" rel="tag">#职场生涯</a>
+          
+        </div>
+      
+
+      
+      <div class="post-spread">
+        
+          <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-56d648eefec3350b" async="async"></script>
+<!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_sharing_toolbox"></div>
+        
+      </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2017/05/17/flink-internals-async-io/" rel="next" title="Flink 原理与实现：Aysnc I/O">
+                <i class="fa fa-chevron-left"></i> Flink 原理与实现：Aysnc I/O
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2018/08/25/flink-in-meituan-practice/" rel="prev" title="Flink在美团的实践与应用">
+                Flink在美团的实践与应用 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/default_avatar.jpg" alt="WuChong">
+          <p class="site-author-name" itemprop="name">WuChong</p>
+          <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，<br>你就应该静下心来学习。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">86</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+<!--
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">分类</span>
+            </a>
+          </div>
+          -->
+
+          
+          
+          
+            <div class="site-state-item site-state-categories">
+              
+              <a href="/categories">
+              
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">72</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-sa/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="http://flink-china.org" target="_blank">Apache Flink China</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://zh.ververica.com" target="_blank">Ververica</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#JStorm"><span class="nav-number">1.</span> <span class="nav-text">JStorm</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Flink"><span class="nav-number">2.</span> <span class="nav-text">Flink</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Blink"><span class="nav-number">3.</span> <span class="nav-text">Blink</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WuChong</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.scheme !== 'Pisces' && (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always')) {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'wuchong';
+      var disqus_identifier = 'blog/2017/07/16/two-years-in-alibaba/';
+      var disqus_title = '我在阿里的这两年';
+      var disqus_url = 'http://wuchong.me/blog/2017/07/16/two-years-in-alibaba/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
+  
+
+
+  
+  
+
+
+</body>
+</html>

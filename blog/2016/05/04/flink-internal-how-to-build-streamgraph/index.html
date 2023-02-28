@@ -1,0 +1,921 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css">
+
+
+    <meta name="author" content="WuChong">
+
+
+
+  <meta name="keywords" content="Flink原理与实现,源码分析,Flink">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jark's Blog" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0">
+
+
+
+
+
+
+<meta name="description" content="继上文Flink 原理与实现：架构和拓扑概览中介绍了Flink的四层执行图模型，本文将主要介绍 Flink 是如何根据用户用Stream API编写的程序，构造出一个代表拓扑结构的StreamGraph的。 注：本文比较偏源码分析，所有代码都是基于 flink-1.0.x 版本，建议在阅读本文前先对Stream API有个了解，详见官方文档。 StreamGraph 相关的代码主要在 org.ap">
+<meta name="keywords" content="Flink原理与实现,源码分析,Flink">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flink 原理与实现：如何生成 StreamGraph">
+<meta property="og:url" content="http://wuchong.me/blog/2016/05/04/flink-internal-how-to-build-streamgraph/index.html">
+<meta property="og:site_name" content="Jark&#39;s Blog">
+<meta property="og:description" content="继上文Flink 原理与实现：架构和拓扑概览中介绍了Flink的四层执行图模型，本文将主要介绍 Flink 是如何根据用户用Stream API编写的程序，构造出一个代表拓扑结构的StreamGraph的。 注：本文比较偏源码分析，所有代码都是基于 flink-1.0.x 版本，建议在阅读本文前先对Stream API有个了解，详见官方文档。 StreamGraph 相关的代码主要在 org.ap">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB1yQmNJFXXXXXnXpXXXXXXXXXX">
+<meta property="og:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB12u5yJFXXXXXhaXXXXXXXXXXX">
+<meta property="og:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB1XgmOJFXXXXaYXpXXXXXXXXXX">
+<meta property="og:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB1l9aYJFXXXXbAXXXXXXXXXXXX">
+<meta property="og:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB1w3SQJFXXXXalXVXXXXXXXXXX">
+<meta property="og:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB1s7SpJFXXXXXjaXXXXXXXXXXX">
+<meta property="og:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB1y_1FJFXXXXapaXXXXXXXXXXX">
+<meta property="og:updated_time" content="2022-08-03T06:46:44.503Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Flink 原理与实现：如何生成 StreamGraph">
+<meta name="twitter:description" content="继上文Flink 原理与实现：架构和拓扑概览中介绍了Flink的四层执行图模型，本文将主要介绍 Flink 是如何根据用户用Stream API编写的程序，构造出一个代表拓扑结构的StreamGraph的。 注：本文比较偏源码分析，所有代码都是基于 flink-1.0.x 版本，建议在阅读本文前先对Stream API有个了解，详见官方文档。 StreamGraph 相关的代码主要在 org.ap">
+<meta name="twitter:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB1yQmNJFXXXXXnXpXXXXXXXXXX">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 4141040,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> Flink 原理与实现：如何生成 StreamGraph | Jark's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Jark's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-talks">
+          <a href="/talks" rel="section">
+            
+              <i class="menu-item-icon fa fa-microphone-stand fa-fw"></i> <br>
+            
+            演讲
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input">
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', '8Exkz7xsCTJyyCHiK9TY','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Flink 原理与实现：如何生成 StreamGraph
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-05-04T23:56:27+08:00" content="2016-05-04">
+              2016-05-04
+            </time>
+          </span>
+
+          
+            <span class="post-category">
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Flink/" itemprop="url" rel="index">
+                    <span itemprop="name">Flink</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2016/05/04/flink-internal-how-to-build-streamgraph/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="blog/2016/05/04/flink-internal-how-to-build-streamgraph/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+<!--
+    
+      <div class="post-body">
+    
+    -->
+
+
+    <div class="post-body" itemprop="articleBody">
+    
+
+      
+      
+
+      
+        <p>继上文<a href="http://wuchong.me/blog/2016/05/03/flink-internals-overview/">Flink 原理与实现：架构和拓扑概览</a>中介绍了Flink的四层执行图模型，本文将主要介绍 Flink 是如何根据用户用Stream API编写的程序，构造出一个代表拓扑结构的StreamGraph的。</p>
+<p><em>注：本文比较偏源码分析，所有代码都是基于 flink-1.0.x 版本，建议在阅读本文前先对Stream API有个了解，详见<a href="https://ci.apache.org/projects/flink/flink-docs-master/apis/streaming/index.html" target="_blank" rel="noopener">官方文档</a>。</em></p>
+<p>StreamGraph 相关的代码主要在 <code>org.apache.flink.streaming.api.graph</code> 包中。构造StreamGraph的入口函数是 <code>StreamGraphGenerator.generate(env, transformations)</code>。该函数会由触发程序执行的方法<code>StreamExecutionEnvironment.execute()</code>调用到。也就是说 StreamGraph 是在 Client 端构造的，这也意味着我们可以在本地通过调试观察 StreamGraph 的构造过程。</p>
+<a id="more"></a>
+<h2 id="Transformation"><a href="#Transformation" class="headerlink" title="Transformation"></a>Transformation</h2><p><code>StreamGraphGenerator.generate</code> 的一个关键的参数是 <code>List&lt;StreamTransformation&lt;?&gt;&gt;</code>。<code>StreamTransformation</code>代表了从一个或多个<code>DataStream</code>生成新<code>DataStream</code>的操作。<code>DataStream</code>的底层其实就是一个 <code>StreamTransformation</code>，描述了这个<code>DataStream</code>是怎么来的。</p>
+<p>StreamTransformation的类图如下图所示：</p>
+<p><img src="http://img3.tbcdn.cn/5476e8b07b923/TB1yQmNJFXXXXXnXpXXXXXXXXXX" alt></p>
+<p>DataStream 上常见的 transformation 有 map、flatmap、filter等（见<a href="https://ci.apache.org/projects/flink/flink-docs-master/apis/streaming/index.html#datastream-transformations" target="_blank" rel="noopener">DataStream Transformation</a>了解更多）。这些transformation会构造出一棵 StreamTransformation 树，通过这棵树转换成 StreamGraph。比如 <code>DataStream.map</code>源码如下，其中<code>SingleOutputStreamOperator</code>为DataStream的子类：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> &lt;R&gt; <span class="function">SingleOutputStreamOperator&lt;R&gt; <span class="title">map</span><span class="params">(MapFunction&lt;T, R&gt; mapper)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 通过java reflection抽出mapper的返回值类型</span></span><br><span class="line">  TypeInformation&lt;R&gt; outType = TypeExtractor.getMapReturnTypes(clean(mapper), getType(),</span><br><span class="line">      Utils.getCallLocationName(), <span class="keyword">true</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 返回一个新的DataStream，SteramMap 为 StreamOperator 的实现类</span></span><br><span class="line">  <span class="keyword">return</span> transform(<span class="string">"Map"</span>, outType, <span class="keyword">new</span> StreamMap&lt;&gt;(clean(mapper)));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> &lt;R&gt; <span class="function">SingleOutputStreamOperator&lt;R&gt; <span class="title">transform</span><span class="params">(String operatorName, TypeInformation&lt;R&gt; outTypeInfo, OneInputStreamOperator&lt;T, R&gt; operator)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// read the output type of the input Transform to coax out errors about MissingTypeInfo</span></span><br><span class="line">  transformation.getOutputType();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 新的transformation会连接上当前DataStream中的transformation，从而构建成一棵树</span></span><br><span class="line">  OneInputTransformation&lt;T, R&gt; resultTransform = <span class="keyword">new</span> OneInputTransformation&lt;&gt;(</span><br><span class="line">      <span class="keyword">this</span>.transformation,</span><br><span class="line">      operatorName,</span><br><span class="line">      operator,</span><br><span class="line">      outTypeInfo,</span><br><span class="line">      environment.getParallelism());</span><br><span class="line"></span><br><span class="line">  <span class="meta">@SuppressWarnings</span>(&#123; <span class="string">"unchecked"</span>, <span class="string">"rawtypes"</span> &#125;)</span><br><span class="line">  SingleOutputStreamOperator&lt;R&gt; returnStream = <span class="keyword">new</span> SingleOutputStreamOperator(environment, resultTransform);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 所有的transformation都会存到 env 中，调用execute时遍历该list生成StreamGraph</span></span><br><span class="line">  getExecutionEnvironment().addOperator(resultTransform);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> returnStream;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从上方代码可以了解到，map转换将用户自定义的函数<code>MapFunction</code>包装到<code>StreamMap</code>这个Operator中，再将<code>StreamMap</code>包装到<code>OneInputTransformation</code>，最后该transformation存到env中，当调用<code>env.execute</code>时，遍历其中的transformation集合构造出StreamGraph。其分层实现如下图所示：</p>
+<p><img src="http://img3.tbcdn.cn/5476e8b07b923/TB12u5yJFXXXXXhaXXXXXXXXXXX" alt></p>
+<p>另外，并不是每一个 StreamTransformation 都会转换成 runtime 层中物理操作。有一些只是逻辑概念，比如 union、split/select、partition等。如下图所示的转换树，在运行时会优化成下方的操作图。</p>
+<p><img src="http://img3.tbcdn.cn/5476e8b07b923/TB1XgmOJFXXXXaYXpXXXXXXXXXX" alt></p>
+<p>union、split/select、partition中的信息会被写入到 Source –&gt; Map 的边中。通过源码也可以发现，<code>UnionTransformation</code>,<code>SplitTransformation</code>,<code>SelectTransformation</code>,<code>PartitionTransformation</code>由于不包含具体的操作所以都没有StreamOperator成员变量，而其他StreamTransformation的子类基本上都有。</p>
+<h2 id="StreamOperator"><a href="#StreamOperator" class="headerlink" title="StreamOperator"></a>StreamOperator</h2><p>DataStream 上的每一个 Transformation 都对应了一个 StreamOperator，StreamOperator是运行时的具体实现，会决定UDF(User-Defined Funtion)的调用方式。下图所示为 StreamOperator 的类图（点击查看大图）：</p>
+<p><img src="http://img3.tbcdn.cn/5476e8b07b923/TB1l9aYJFXXXXbAXXXXXXXXXXXX" alt></p>
+<p>可以发现，所有实现类都继承了<code>AbstractStreamOperator</code>。另外除了 project 操作，其他所有可以执行UDF代码的实现类都继承自<code>AbstractUdfStreamOperator</code>，该类是封装了UDF的StreamOperator。UDF就是实现了<code>Function</code>接口的类，如<code>MapFunction</code>,<code>FilterFunction</code>。</p>
+<h2 id="生成-StreamGraph-的源码分析"><a href="#生成-StreamGraph-的源码分析" class="headerlink" title="生成 StreamGraph 的源码分析"></a>生成 StreamGraph 的源码分析</h2><p>我们通过在DataStream上做了一系列的转换（map、filter等）得到了StreamTransformation集合，然后通过<code>StreamGraphGenerator.generate</code>获得StreamGraph，该方法的源码如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 构造 StreamGraph 入口函数</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> StreamGraph <span class="title">generate</span><span class="params">(StreamExecutionEnvironment env, List&lt;StreamTransformation&lt;?&gt;&gt; transformations)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> StreamGraphGenerator(env).generateInternal(transformations);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 自底向上（sink-&gt;source）对转换树的每个transformation进行转换。</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> StreamGraph <span class="title">generateInternal</span><span class="params">(List&lt;StreamTransformation&lt;?&gt;&gt; transformations)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">for</span> (StreamTransformation&lt;?&gt; transformation: transformations) &#123;</span><br><span class="line">    transform(transformation);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> streamGraph;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 对具体的一个transformation进行转换，转换成 StreamGraph 中的 StreamNode 和 StreamEdge</span></span><br><span class="line"><span class="comment">// 返回值为该transform的id集合，通常大小为1个（除FeedbackTransformation）</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> Collection&lt;Integer&gt; <span class="title">transform</span><span class="params">(StreamTransformation&lt;?&gt; transform)</span> </span>&#123;  </span><br><span class="line">  <span class="comment">// 跳过已经转换过的transformation</span></span><br><span class="line">  <span class="keyword">if</span> (alreadyTransformed.containsKey(transform)) &#123;</span><br><span class="line">    <span class="keyword">return</span> alreadyTransformed.get(transform);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  LOG.debug(<span class="string">"Transforming "</span> + transform);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 为了触发 MissingTypeInfo 的异常</span></span><br><span class="line">  transform.getOutputType();</span><br><span class="line"></span><br><span class="line">  Collection&lt;Integer&gt; transformedIds;</span><br><span class="line">  <span class="keyword">if</span> (transform <span class="keyword">instanceof</span> OneInputTransformation&lt;?, ?&gt;) &#123;</span><br><span class="line">    transformedIds = transformOnInputTransform((OneInputTransformation&lt;?, ?&gt;) transform);</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (transform <span class="keyword">instanceof</span> TwoInputTransformation&lt;?, ?, ?&gt;) &#123;</span><br><span class="line">    transformedIds = transformTwoInputTransform((TwoInputTransformation&lt;?, ?, ?&gt;) transform);</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (transform <span class="keyword">instanceof</span> SourceTransformation&lt;?&gt;) &#123;</span><br><span class="line">    transformedIds = transformSource((SourceTransformation&lt;?&gt;) transform);</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (transform <span class="keyword">instanceof</span> SinkTransformation&lt;?&gt;) &#123;</span><br><span class="line">    transformedIds = transformSink((SinkTransformation&lt;?&gt;) transform);</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (transform <span class="keyword">instanceof</span> UnionTransformation&lt;?&gt;) &#123;</span><br><span class="line">    transformedIds = transformUnion((UnionTransformation&lt;?&gt;) transform);</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (transform <span class="keyword">instanceof</span> SplitTransformation&lt;?&gt;) &#123;</span><br><span class="line">    transformedIds = transformSplit((SplitTransformation&lt;?&gt;) transform);</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (transform <span class="keyword">instanceof</span> SelectTransformation&lt;?&gt;) &#123;</span><br><span class="line">    transformedIds = transformSelect((SelectTransformation&lt;?&gt;) transform);</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (transform <span class="keyword">instanceof</span> FeedbackTransformation&lt;?&gt;) &#123;</span><br><span class="line">    transformedIds = transformFeedback((FeedbackTransformation&lt;?&gt;) transform);</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (transform <span class="keyword">instanceof</span> CoFeedbackTransformation&lt;?&gt;) &#123;</span><br><span class="line">    transformedIds = transformCoFeedback((CoFeedbackTransformation&lt;?&gt;) transform);</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (transform <span class="keyword">instanceof</span> PartitionTransformation&lt;?&gt;) &#123;</span><br><span class="line">    transformedIds = transformPartition((PartitionTransformation&lt;?&gt;) transform);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"Unknown transformation: "</span> + transform);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// need this check because the iterate transformation adds itself before</span></span><br><span class="line">  <span class="comment">// transforming the feedback edges</span></span><br><span class="line">  <span class="keyword">if</span> (!alreadyTransformed.containsKey(transform)) &#123;</span><br><span class="line">    alreadyTransformed.put(transform, transformedIds);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (transform.getBufferTimeout() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    streamGraph.setBufferTimeout(transform.getId(), transform.getBufferTimeout());</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (transform.getUid() != <span class="keyword">null</span>) &#123;</span><br><span class="line">    streamGraph.setTransformationId(transform.getId(), transform.getUid());</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> transformedIds;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最终都会调用 <code>transformXXX</code> 来对具体的StreamTransformation进行转换。我们可以看下<code>transformOnInputTransform(transform)</code>的实现：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> &lt;IN, OUT&gt; <span class="function">Collection&lt;Integer&gt; <span class="title">transformOnInputTransform</span><span class="params">(OneInputTransformation&lt;IN, OUT&gt; transform)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 递归对该transform的直接上游transform进行转换，获得直接上游id集合</span></span><br><span class="line">  Collection&lt;Integer&gt; inputIds = transform(transform.getInput());</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 递归调用可能已经处理过该transform了</span></span><br><span class="line">  <span class="keyword">if</span> (alreadyTransformed.containsKey(transform)) &#123;</span><br><span class="line">    <span class="keyword">return</span> alreadyTransformed.get(transform);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  String slotSharingGroup = determineSlotSharingGroup(transform.getSlotSharingGroup(), inputIds);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 添加 StreamNode</span></span><br><span class="line">  streamGraph.addOperator(transform.getId(),</span><br><span class="line">      slotSharingGroup,</span><br><span class="line">      transform.getOperator(),</span><br><span class="line">      transform.getInputType(),</span><br><span class="line">      transform.getOutputType(),</span><br><span class="line">      transform.getName());</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (transform.getStateKeySelector() != <span class="keyword">null</span>) &#123;</span><br><span class="line">    TypeSerializer&lt;?&gt; keySerializer = transform.getStateKeyType().createSerializer(env.getConfig());</span><br><span class="line">    streamGraph.setOneInputStateKey(transform.getId(), transform.getStateKeySelector(), keySerializer);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  streamGraph.setParallelism(transform.getId(), transform.getParallelism());</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 添加 StreamEdge</span></span><br><span class="line">  <span class="keyword">for</span> (Integer inputId: inputIds) &#123;</span><br><span class="line">    streamGraph.addEdge(inputId, transform.getId(), <span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> Collections.singleton(transform.getId());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该函数首先会对该transform的上游transform进行递归转换，确保上游的都已经完成了转化。然后通过transform构造出StreamNode，最后与上游的transform进行连接，构造出StreamNode。</p>
+<p>最后再来看下对逻辑转换（partition、union等）的处理，如下是<code>transformPartition</code>函数的源码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> &lt;T&gt; <span class="function">Collection&lt;Integer&gt; <span class="title">transformPartition</span><span class="params">(PartitionTransformation&lt;T&gt; partition)</span> </span>&#123;</span><br><span class="line">  StreamTransformation&lt;T&gt; input = partition.getInput();</span><br><span class="line">  List&lt;Integer&gt; resultIds = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 直接上游的id</span></span><br><span class="line">  Collection&lt;Integer&gt; transformedIds = transform(input);</span><br><span class="line">  <span class="keyword">for</span> (Integer transformedId: transformedIds) &#123;</span><br><span class="line">    <span class="comment">// 生成一个新的虚拟id</span></span><br><span class="line">    <span class="keyword">int</span> virtualId = StreamTransformation.getNewNodeId();</span><br><span class="line">    <span class="comment">// 添加一个虚拟分区节点，不会生成 StreamNode</span></span><br><span class="line">    streamGraph.addVirtualPartitionNode(transformedId, virtualId, partition.getPartitioner());</span><br><span class="line">    resultIds.add(virtualId);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> resultIds;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对partition的转换没有生成具体的StreamNode和StreamEdge，而是添加一个虚节点。当partition的下游transform（如map）添加edge时（调用<code>StreamGraph.addEdge</code>），会把partition信息写入到edge中。如<code>StreamGraph.addEdgeInternal</code>所示：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addEdge</span><span class="params">(Integer upStreamVertexID, Integer downStreamVertexID, <span class="keyword">int</span> typeNumber)</span> </span>&#123;</span><br><span class="line">  addEdgeInternal(upStreamVertexID, downStreamVertexID, typeNumber, <span class="keyword">null</span>, <span class="keyword">new</span> ArrayList&lt;String&gt;());</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">addEdgeInternal</span><span class="params">(Integer upStreamVertexID,</span></span></span><br><span class="line"><span class="function"><span class="params">    Integer downStreamVertexID,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">int</span> typeNumber,</span></span></span><br><span class="line"><span class="function"><span class="params">    StreamPartitioner&lt;?&gt; partitioner,</span></span></span><br><span class="line"><span class="function"><span class="params">    List&lt;String&gt; outputNames)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 当上游是select时，递归调用，并传入select信息</span></span><br><span class="line">  <span class="keyword">if</span> (virtualSelectNodes.containsKey(upStreamVertexID)) &#123;</span><br><span class="line">    <span class="keyword">int</span> virtualId = upStreamVertexID;</span><br><span class="line">    <span class="comment">// select上游的节点id</span></span><br><span class="line">    upStreamVertexID = virtualSelectNodes.get(virtualId).f0;</span><br><span class="line">    <span class="keyword">if</span> (outputNames.isEmpty()) &#123;</span><br><span class="line">      <span class="comment">// selections that happen downstream override earlier selections</span></span><br><span class="line">      outputNames = virtualSelectNodes.get(virtualId).f1;</span><br><span class="line">    &#125;</span><br><span class="line">    addEdgeInternal(upStreamVertexID, downStreamVertexID, typeNumber, partitioner, outputNames);</span><br><span class="line">  &#125; </span><br><span class="line">  <span class="comment">// 当上游是partition时，递归调用，并传入partitioner信息</span></span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span> (virtuaPartitionNodes.containsKey(upStreamVertexID)) &#123;</span><br><span class="line">    <span class="keyword">int</span> virtualId = upStreamVertexID;</span><br><span class="line">    <span class="comment">// partition上游的节点id</span></span><br><span class="line">    upStreamVertexID = virtuaPartitionNodes.get(virtualId).f0;</span><br><span class="line">    <span class="keyword">if</span> (partitioner == <span class="keyword">null</span>) &#123;</span><br><span class="line">      partitioner = virtuaPartitionNodes.get(virtualId).f1;</span><br><span class="line">    &#125;</span><br><span class="line">    addEdgeInternal(upStreamVertexID, downStreamVertexID, typeNumber, partitioner, outputNames);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// 真正构建StreamEdge</span></span><br><span class="line">    StreamNode upstreamNode = getStreamNode(upStreamVertexID);</span><br><span class="line">    StreamNode downstreamNode = getStreamNode(downStreamVertexID);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 未指定partitioner的话，会为其选择 forward 或 rebalance 分区。</span></span><br><span class="line">    <span class="keyword">if</span> (partitioner == <span class="keyword">null</span> &amp;&amp; upstreamNode.getParallelism() == downstreamNode.getParallelism()) &#123;</span><br><span class="line">      partitioner = <span class="keyword">new</span> ForwardPartitioner&lt;Object&gt;();</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (partitioner == <span class="keyword">null</span>) &#123;</span><br><span class="line">      partitioner = <span class="keyword">new</span> RebalancePartitioner&lt;Object&gt;();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 健康检查， forward 分区必须要上下游的并发度一致</span></span><br><span class="line">    <span class="keyword">if</span> (partitioner <span class="keyword">instanceof</span> ForwardPartitioner) &#123;</span><br><span class="line">      <span class="keyword">if</span> (upstreamNode.getParallelism() != downstreamNode.getParallelism()) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> UnsupportedOperationException(<span class="string">"Forward partitioning does not allow "</span> +</span><br><span class="line">            <span class="string">"change of parallelism. Upstream operation: "</span> + upstreamNode + <span class="string">" parallelism: "</span> + upstreamNode.getParallelism() +</span><br><span class="line">            <span class="string">", downstream operation: "</span> + downstreamNode + <span class="string">" parallelism: "</span> + downstreamNode.getParallelism() +</span><br><span class="line">            <span class="string">" You must use another partitioning strategy, such as broadcast, rebalance, shuffle or global."</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 创建 StreamEdge</span></span><br><span class="line">    StreamEdge edge = <span class="keyword">new</span> StreamEdge(upstreamNode, downstreamNode, typeNumber, outputNames, partitioner);</span><br><span class="line">    <span class="comment">// 将该 StreamEdge 添加到上游的输出，下游的输入</span></span><br><span class="line">    getStreamNode(edge.getSourceId()).addOutEdge(edge);</span><br><span class="line">    getStreamNode(edge.getTargetId()).addInEdge(edge);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="实例讲解"><a href="#实例讲解" class="headerlink" title="实例讲解"></a>实例讲解</h2><p>如下程序，是一个从 Source 中按行切分成单词并过滤输出的简单流程序，其中包含了逻辑转换：随机分区shuffle。我们会分析该程序是如何生成StreamGraph的。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">DataStream&lt;String&gt; text = env.socketTextStream(hostName, port);</span><br><span class="line">text.flatMap(<span class="keyword">new</span> LineSplitter()).shuffle().filter(<span class="keyword">new</span> HelloFilter()).print();</span><br></pre></td></tr></table></figure>
+<p>首先会在env中生成一棵transformation树，用<code>List&lt;StreamTransformation&lt;?&gt;&gt;</code>保存。其结构图如下：</p>
+<p><img src="http://img3.tbcdn.cn/5476e8b07b923/TB1w3SQJFXXXXalXVXXXXXXXXXX" alt></p>
+<p>其中符号<code>*</code>为input指针，指向上游的transformation，从而形成了一棵transformation树。然后，通过调用<code>StreamGraphGenerator.generate(env, transformations)</code>来生成StreamGraph。自底向上递归调用每一个transformation，也就是说处理顺序是Source-&gt;FlatMap-&gt;Shuffle-&gt;Filter-&gt;Sink。</p>
+<p><img src="http://img3.tbcdn.cn/5476e8b07b923/TB1s7SpJFXXXXXjaXXXXXXXXXXX" alt></p>
+<p>如上图所示：</p>
+<ol>
+<li>首先处理的Source，生成了Source的StreamNode。</li>
+<li>然后处理的FlatMap，生成了FlatMap的StreamNode，并生成StreamEdge连接上游Source和FlatMap。由于上下游的并发度不一样（1:4），所以此处是Rebalance分区。</li>
+<li>然后处理的Shuffle，由于是逻辑转换，并不会生成实际的节点。将partitioner信息暂存在<code>virtuaPartitionNodes</code>中。</li>
+<li>在处理Filter时，生成了Filter的StreamNode。发现上游是shuffle，找到shuffle的上游FlatMap，创建StreamEdge与Filter相连。并把ShufflePartitioner的信息写到StreamEdge中。</li>
+<li>最后处理Sink，创建Sink的StreamNode，并生成StreamEdge与上游Filter相连。由于上下游并发度一样（4:4），所以此处选择 Forward 分区。</li>
+</ol>
+<p>最后可以通过 <a href="http://flink.apache.org/visualizer/" target="_blank" rel="noopener">UI可视化</a> 来观察得到的 StreamGraph。</p>
+<p><img src="http://img3.tbcdn.cn/5476e8b07b923/TB1y_1FJFXXXXapaXXXXXXXXXXX" alt></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文主要介绍了 Stream API 中 Transformation 和 Operator 的概念，以及如何根据Stream API编写的程序，构造出一个代表拓扑结构的StreamGraph的。本文的源码分析涉及到较多代码，如果有兴趣建议结合完整源码进行学习。下一篇文章将介绍 StreamGraph 如何转换成 JobGraph 的，其中设计到了图优化的技巧。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+        
+<hr>
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+  <img id="wechat_subscriber_qcode" src="https://img.alicdn.com/tfs/TB1.ajIlIbpK1RjSZFyXXX_qFXa-1004-541.png" alt="hoxis wechat" style="width: auto; height:200px; max-width: 100%;">
+</div>
+<div class="copyright-txt">
+  <a href="/copyright"><i class="fa fa-copyright"></i>著作权归作者所有</a>
+</div>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Flink/" rel="tag">#Flink</a>
+          
+            <a href="/tags/Flink原理与实现/" rel="tag">#Flink原理与实现</a>
+          
+            <a href="/tags/源码分析/" rel="tag">#源码分析</a>
+          
+        </div>
+      
+
+      
+      <div class="post-spread">
+        
+          <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-56d648eefec3350b" async="async"></script>
+<!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_sharing_toolbox"></div>
+        
+      </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/05/03/flink-internals-overview/" rel="next" title="Flink 原理与实现：架构和拓扑概览">
+                <i class="fa fa-chevron-left"></i> Flink 原理与实现：架构和拓扑概览
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/05/09/flink-internals-understanding-execution-resources/" rel="prev" title="Flink 原理与实现：理解 Flink 中的计算资源">
+                Flink 原理与实现：理解 Flink 中的计算资源 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/default_avatar.jpg" alt="WuChong">
+          <p class="site-author-name" itemprop="name">WuChong</p>
+          <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，<br>你就应该静下心来学习。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">86</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+<!--
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">分类</span>
+            </a>
+          </div>
+          -->
+
+          
+          
+          
+            <div class="site-state-item site-state-categories">
+              
+              <a href="/categories">
+              
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">72</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-sa/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="http://flink-china.org" target="_blank">Apache Flink China</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://zh.ververica.com" target="_blank">Ververica</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Transformation"><span class="nav-number">1.</span> <span class="nav-text">Transformation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#StreamOperator"><span class="nav-number">2.</span> <span class="nav-text">StreamOperator</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#生成-StreamGraph-的源码分析"><span class="nav-number">3.</span> <span class="nav-text">生成 StreamGraph 的源码分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实例讲解"><span class="nav-number">4.</span> <span class="nav-text">实例讲解</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WuChong</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.scheme !== 'Pisces' && (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always')) {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'wuchong';
+      var disqus_identifier = 'blog/2016/05/04/flink-internal-how-to-build-streamgraph/';
+      var disqus_title = 'Flink 原理与实现：如何生成 StreamGraph';
+      var disqus_url = 'http://wuchong.me/blog/2016/05/04/flink-internal-how-to-build-streamgraph/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
+  
+
+
+  
+  
+
+
+</body>
+</html>

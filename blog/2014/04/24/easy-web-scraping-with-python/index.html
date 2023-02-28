@@ -1,0 +1,957 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css">
+
+
+    <meta name="author" content="WuChong">
+
+
+
+  <meta name="keywords" content="Python,爬虫,译文,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jark's Blog" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0">
+
+
+
+
+
+
+<meta name="description" content="翻译自 Miguel 写的一篇 Python 爬虫入门教学。以一个很有趣的目标为驱动，一步一步教你如何抓取网页，浅显易懂，非常适合初学者。知识点涉及网页下载、信息抽取、多进程等。由于下载的页面被墙，加入通过设置代理让爬虫翻墙的章节。">
+<meta name="keywords" content="Python,爬虫,译文">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用 Python 轻松抓取网页">
+<meta property="og:url" content="http://wuchong.me/blog/2014/04/24/easy-web-scraping-with-python/index.html">
+<meta property="og:site_name" content="Jark&#39;s Blog">
+<meta property="og:description" content="翻译自 Miguel 写的一篇 Python 爬虫入门教学。以一个很有趣的目标为驱动，一步一步教你如何抓取网页，浅显易懂，非常适合初学者。知识点涉及网页下载、信息抽取、多进程等。由于下载的页面被墙，加入通过设置代理让爬虫翻墙的章节。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2022-08-03T06:46:44.502Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用 Python 轻松抓取网页">
+<meta name="twitter:description" content="翻译自 Miguel 写的一篇 Python 爬虫入门教学。以一个很有趣的目标为驱动，一步一步教你如何抓取网页，浅显易懂，非常适合初学者。知识点涉及网页下载、信息抽取、多进程等。由于下载的页面被墙，加入通过设置代理让爬虫翻墙的章节。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 4141040,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> 使用 Python 轻松抓取网页 | Jark's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Jark's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-talks">
+          <a href="/talks" rel="section">
+            
+              <i class="menu-item-icon fa fa-microphone-stand fa-fw"></i> <br>
+            
+            演讲
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input">
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', '8Exkz7xsCTJyyCHiK9TY','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                使用 Python 轻松抓取网页
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2014-04-24T23:04:00+08:00" content="2014-04-24">
+              2014-04-24
+            </time>
+          </span>
+
+          
+            <span class="post-category">
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Python/" itemprop="url" rel="index">
+                    <span itemprop="name">Python</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2014/04/24/easy-web-scraping-with-python/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="blog/2014/04/24/easy-web-scraping-with-python/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+<!--
+    
+      <div class="post-body">
+    
+    -->
+
+
+    <div class="post-body" itemprop="articleBody">
+    
+
+      
+      
+
+      
+        <p>[ 翻译自英文原文：<a href="http://blog.miguelgrinberg.com/post/easy-web-scraping-with-python" target="_blank" rel="noopener">Easy Web Scraping with Python</a> ]</p>
+<p>一年多以前我写了一篇文章<a href="http://blog.miguelgrinberg.com/post/easy-web-scraping-with-nodejs" target="_blank" rel="noopener">「web scraping using Node.js」</a>。今天我重新回顾了这个话题，但是这一次我将使用 Python，这样这两种语言所提供的技术就能进行对比和比较。</p>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>我敢肯定你知道，我在本月初参加了在蒙特利尔举办的 PyCon 大会。所有的演讲和教程的视频都已经发布到 YouTube 上了，目录在 <a href="http://pyvideo.org/category/50/pycon-us-2014" target="_blank" rel="noopener">pyvideo.org</a>。</p>
+<p>我认为知道这个大会上的哪些视频最受欢迎将会是非常有用的，所以我们将要写一个爬虫脚本。这个脚本将会从 pyvideo.org 上获取有效的视频列表，然后从每个 YouTube 页面获取观看的统计数据。听起来很有趣？让我们开始吧！</p>
+<h2 id="工具"><a href="#工具" class="headerlink" title="工具"></a>工具</h2><p>在抓取网站中有两个基本的任务：</p>
+<ol>
+<li>加载网页到一个 string 里。</li>
+<li>从网页中解析 HTML 来定位感兴趣的位置。</li>
+</ol>
+<p>Python 为上面两个任务提供了两个超棒的工具。我将使用 <a href="http://docs.python-requests.org/en/latest/" target="_blank" rel="noopener">requests</a> 去加载网页，用 <a href="http://www.crummy.com/software/BeautifulSoup/bs4/doc/" target="_blank" rel="noopener">BeautifulSoup</a> 去做解析。</p>
+<p>我们可以把上面两个包放到一个虚拟环境：</p>
+<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>mkdir pycon-scraper</span><br><span class="line"><span class="variable">$ </span>virtualenv venv</span><br><span class="line"><span class="variable">$ </span>source venv/bin/activate</span><br><span class="line">(venv) <span class="variable">$ </span>pip install requests beautifulsoup4</span><br></pre></td></tr></table></figure>
+<p>如果使用的是 Windows 操作系统，注意上面虚拟环境的激活命令是不同的，你应该使用<code>venv\Scripts\activate</code>。<br><a id="more"></a></p>
+<h2 id="基本的抓取技术"><a href="#基本的抓取技术" class="headerlink" title="基本的抓取技术"></a>基本的抓取技术</h2><p>在写一个爬虫脚本时，第一件事情就是手动观察要抓取的页面来确定数据如何定位。</p>
+<p>首先，我们要看一看在 <a href="http://pyvideo.org/category/50/pycon-us-2014" target="_blank" rel="noopener">http://pyvideo.org/category/50/pycon-us-2014</a> 上的 PyCon 大会视频列表。检查这个页面的 HTML 源代码我们发现视频列表的结果差不多是长这样的：</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"video-summary-content"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"video-summary"</span>&gt;</span>    <span class="comment">&lt;!-- first video --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"thumbnail-data"</span>&gt;</span>...<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"video-summary-data"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">div</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">strong</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"#link to video page#"</span>&gt;</span>#title#<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">strong</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"video-summary"</span>&gt;</span>    <span class="comment">&lt;!-- second video --&gt;</span></span><br><span class="line">        ...</span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    ...</span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>那么第一个任务就是加载这个页面，然后抽取每个单独页面的链接，因为到 YouTube 视频的链接都在这些单独页面上。</p>
+<p>使用<code>requests</code>来加载一个 web 页面是非常简单的：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">response = requests.get(<span class="string">'http://pyvideo.org/category/50/pycon-us-2014'</span>)</span><br></pre></td></tr></table></figure>
+<p>就是它！在这个函数返回后就能从<code>response.text</code>中获得这个页面的 HTML 。</p>
+<p>下一个任务是抽取每一个单独视频页面的链接。通过 BeautifulSoup 使用 CSS 选择器语法就能完成它，如果你是客户端开发者的话你可能对这会很熟悉。</p>
+<p>为了获得这些链接，我们要使用一个选择器，它能抓取在每一个 id 为<code>video-summary-data</code>的<code>&lt;div&gt;</code>中所有的<code>&lt;a&gt;</code>元素。由于每个视频都有几个<code>&lt;a&gt;</code>元素，我们将只保留那些 URL 以<code>/video</code>开头的<code>&lt;a&gt;</code>元素，这些就是唯一的单独视频页面。实现上述标准的 CSS 选择器是<code>div.video-summary-data a[href^=/video]</code>。下面的代码片段通过 BeautifulSoup 使用这个选择器来获得指向视频页面的<code>&lt;a&gt;</code>元素：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> bs4</span><br><span class="line">soup = bs4.BeautifulSoup(response.text)</span><br><span class="line">links = soup.select(<span class="string">'div.video-summary-data a[href^=/video]'</span>)</span><br></pre></td></tr></table></figure>
+<p>因为我们真正关心的是这个链接本身而不是包含它的<code>&lt;a&gt;</code>元素，我们可以使用列表解析来改善上述代码。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">links = [a.attrs.get(<span class="string">'href'</span>) <span class="keyword">for</span> a <span class="keyword">in</span> soup.select(<span class="string">'div.video-summary-data a[href^=/video]'</span>)]</span><br></pre></td></tr></table></figure>
+<p>现在，我们已经有了一个包含所有链接的数组，这些链接指向了每个单独页面。</p>
+<p>下面这段脚本整理了目前我们提到的所有技术：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> bs4</span><br><span class="line"></span><br><span class="line">root_url = <span class="string">'http://pyvideo.org'</span></span><br><span class="line">index_url = root_url + <span class="string">'/category/50/pycon-us-2014'</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_video_page_urls</span><span class="params">()</span>:</span></span><br><span class="line">    response = requests.get(index_url)</span><br><span class="line">    soup = bs4.BeautifulSoup(response.text)</span><br><span class="line">    <span class="keyword">return</span> [a.attrs.get(<span class="string">'href'</span>) <span class="keyword">for</span> a <span class="keyword">in</span> soup.select(<span class="string">'div.video-summary-data a[href^=/video]'</span>)]</span><br><span class="line"></span><br><span class="line">print(get_video_page_urls())</span><br></pre></td></tr></table></figure>
+<p>如果你运行上面这段脚本你将会获得一个满是 URL 的数组。现在我们需要去解析每个 URL 以获得更多关于每场 PyCon 会议的信息。</p>
+<h2 id="抓取相连页面"><a href="#抓取相连页面" class="headerlink" title="抓取相连页面"></a>抓取相连页面</h2><p>下一步是加载我们的 URL 数组中每一个页面。如果你想要看看这些页面长什么样的话，这儿是个样例：<a href="http://pyvideo.org/video/2668/writing-restful-web-services-with-flask" target="_blank" rel="noopener">http://pyvideo.org/video/2668/writing-restful-web-services-with-flask</a>。没错，那就是我，那是我会议中的一个！</p>
+<p>从这些页面我们可以抓取到会议的标题，在页面的顶部能看到它。我们也可以从侧边栏获得演讲者的姓名和 YouTube 的链接，侧边栏在嵌入视频的右下方。获取这些元素的代码展示在下方：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_video_data</span><span class="params">(video_page_url)</span>:</span></span><br><span class="line">    video_data = &#123;&#125;</span><br><span class="line">    response = requests.get(root_url + video_page_url)</span><br><span class="line">    soup = bs4.BeautifulSoup(response.text)</span><br><span class="line">    video_data[<span class="string">'title'</span>] = soup.select(<span class="string">'div#videobox h3'</span>)[<span class="number">0</span>].get_text()</span><br><span class="line">    video_data[<span class="string">'speakers'</span>] = [a.get_text() <span class="keyword">for</span> a <span class="keyword">in</span> soup.select(<span class="string">'div#sidebar a[href^=/speaker]'</span>)]</span><br><span class="line">    video_data[<span class="string">'youtube_url'</span>] = soup.select(<span class="string">'div#sidebar a[href^=http://www.youtube.com]'</span>)[<span class="number">0</span>].get_text()</span><br></pre></td></tr></table></figure>
+<p>关于这个函数需要注意的一些事情：</p>
+<ul>
+<li>从首页抓取的 URL 是相对路径，所以<code>root_url</code>需要加到前面。</li>
+<li>大会标题是从 id 为<code>videobox</code>的<code>&lt;div&gt;</code>里的<code>&lt;h3&gt;</code>元素中获得的。注意<code>[0]</code>是必须的，因为调用<code>select()</code>返回的是一个数组，即使只有一个匹配。</li>
+<li>演讲者的姓名和 YouTube 链接的获取方式与首页上的链接获取方式类似。</li>
+</ul>
+<p>现在就剩下从每个视频的 YouTube 页面抓取观看数了。接着上面的函数写下去其实是非常简单的。同样，我们也可以抓取 like 数和 dislike 数。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_video_data</span><span class="params">(video_page_url)</span>:</span></span><br><span class="line">    <span class="comment"># ...</span></span><br><span class="line">    response = requests.get(video_data[<span class="string">'youtube_url'</span>])</span><br><span class="line">    soup = bs4.BeautifulSoup(response.text)</span><br><span class="line">    video_data[<span class="string">'views'</span>] = int(re.sub(<span class="string">'[^0-9]'</span>, <span class="string">''</span>,</span><br><span class="line">                                     soup.select(<span class="string">'.watch-view-count'</span>)[<span class="number">0</span>].get_text().split()[<span class="number">0</span>]))</span><br><span class="line">    video_data[<span class="string">'likes'</span>] = int(re.sub(<span class="string">'[^0-9]'</span>, <span class="string">''</span>,</span><br><span class="line">                                     soup.select(<span class="string">'.likes-count'</span>)[<span class="number">0</span>].get_text().split()[<span class="number">0</span>]))</span><br><span class="line">    video_data[<span class="string">'dislikes'</span>] = int(re.sub(<span class="string">'[^0-9]'</span>, <span class="string">''</span>, </span><br><span class="line">                                        soup.select(<span class="string">'.dislikes-count'</span>)[<span class="number">0</span>].get_text().split()[<span class="number">0</span>]))</span><br><span class="line">    <span class="keyword">return</span> video_data</span><br></pre></td></tr></table></figure>
+<p>上述调用<code>soup.select()</code>函数，使用指定了 id 名字的选择器，采集到了视频的统计数据。但是元素的文本需要被处理一下才能变成数字。考虑观看数的例子，在 YouTube 上显示的是<code>&quot;1,344 views&quot;</code>。用一个空格分开（split）数字和文本后，只有第一部分是有用的。由于数字里有逗号，可以用正则表达式过滤掉任何不是数字的字符。</p>
+<p>为了完成爬虫，下面的函数调用了之前提到的所有代码：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">show_video_stats</span><span class="params">()</span>:</span></span><br><span class="line">    video_page_urls = get_video_page_urls()</span><br><span class="line">    <span class="keyword">for</span> video_page_url <span class="keyword">in</span> video_page_urls:</span><br><span class="line">        <span class="keyword">print</span> get_video_data(video_page_url)</span><br></pre></td></tr></table></figure>
+<h2 id="并行处理"><a href="#并行处理" class="headerlink" title="并行处理"></a>并行处理</h2><p>上面到目前为止的脚本工作地很好，但是有一百多个视频它就要跑个一会儿了。事实上我们没做什么工作，大部分时间都浪费在了下载页面上，在这段时间脚本时被阻塞的。如果脚本能同时跑多个下载任务，可能就会更高效了，是吗？</p>
+<p>回顾当时写一篇使用 Node.js 的爬虫文章的时候，并发性是伴随 JavaScript 的异步特性自带来的。使用 Python 也能做到，不过需要显示地指定一下。像这个例子，我将开启一个拥有8个可并行化进程的进程池。代码出人意料的简洁：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> multiprocessing <span class="keyword">import</span> Pool</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">show_video_stats</span><span class="params">(options)</span>:</span></span><br><span class="line">    pool = Pool(<span class="number">8</span>)</span><br><span class="line">    video_page_urls = get_video_page_urls()</span><br><span class="line">    results = pool.map(get_video_data, video_page_urls)</span><br></pre></td></tr></table></figure>
+<p><code>multiprocessing.Pool</code> 类开启了8个工作进程等待分配任务运行。为什么是8个？这是我电脑上核数的两倍。当时实验不同大小的进程池时，我发现这是最佳的大小。小于8个使脚本跑的太慢，多于8个也不会让它更快。</p>
+<p>调用<code>pool.map()</code>类似于调用常规的<code>map()</code>，它将会对第二个参数指定的迭代变量中的每个元素调用一次第一个参数指定的函数。最大的不同是，它将发送这些给进程池所拥有的进程运行，所以在这个例子中八个任务将会并行运行。</p>
+<p>节省下来的时间是相当大的。在我的电脑上，第一个版本的脚本用了75秒完成，然而进程池的版本做了同样的工作只用了16秒！</p>
+<h2 id="完成爬虫脚本"><a href="#完成爬虫脚本" class="headerlink" title="完成爬虫脚本"></a>完成爬虫脚本</h2><p>我最终版本的爬虫脚本在获得数据后还做了更多的事情。</p>
+<p>我添加了一个<code>--sort</code>命令行参数去指定一个排序标准，可以指定views，likes或者dislikes。脚本将会根据指定属性对结果数组进行递减排序。另一个参数，<code>--max</code>代表了要显示的结果数的个数，万一你只想看排名靠前的几条而已。最后，我还添加了一个<code>--csv</code>选项，为了可以轻松地将数据导到电子制表软件中，可以指定数据以 CSV 格式打印出来，而不是表对齐格式。</p>
+<p>完整脚本显示在下方：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> argparse</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> multiprocessing <span class="keyword">import</span> Pool</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> bs4</span><br><span class="line"></span><br><span class="line">root_url = <span class="string">'http://pyvideo.org'</span></span><br><span class="line">index_url = root_url + <span class="string">'/category/50/pycon-us-2014'</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_video_page_urls</span><span class="params">()</span>:</span></span><br><span class="line">    response = requests.get(index_url)</span><br><span class="line">    soup = bs4.BeautifulSoup(response.text)</span><br><span class="line">    <span class="keyword">return</span> [a.attrs.get(<span class="string">'href'</span>) <span class="keyword">for</span> a <span class="keyword">in</span> soup.select(<span class="string">'div.video-summary-data a[href^=/video]'</span>)]</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_video_data</span><span class="params">(video_page_url)</span>:</span></span><br><span class="line">    video_data = &#123;&#125;</span><br><span class="line">    response = requests.get(root_url + video_page_url)</span><br><span class="line">    soup = bs4.BeautifulSoup(response.text)</span><br><span class="line">    video_data[<span class="string">'title'</span>] = soup.select(<span class="string">'div#videobox h3'</span>)[<span class="number">0</span>].get_text()</span><br><span class="line">    video_data[<span class="string">'speakers'</span>] = [a.get_text() <span class="keyword">for</span> a <span class="keyword">in</span> soup.select(<span class="string">'div#sidebar a[href^=/speaker]'</span>)]</span><br><span class="line">    video_data[<span class="string">'youtube_url'</span>] = soup.select(<span class="string">'div#sidebar a[href^=http://www.youtube.com]'</span>)[<span class="number">0</span>].get_text()</span><br><span class="line">    response = requests.get(video_data[<span class="string">'youtube_url'</span>])</span><br><span class="line">    soup = bs4.BeautifulSoup(response.text)</span><br><span class="line">    video_data[<span class="string">'views'</span>] = int(re.sub(<span class="string">'[^0-9]'</span>, <span class="string">''</span>,</span><br><span class="line">                                     soup.select(<span class="string">'.watch-view-count'</span>)[<span class="number">0</span>].get_text().split()[<span class="number">0</span>]))</span><br><span class="line">    video_data[<span class="string">'likes'</span>] = int(re.sub(<span class="string">'[^0-9]'</span>, <span class="string">''</span>,</span><br><span class="line">                                     soup.select(<span class="string">'.likes-count'</span>)[<span class="number">0</span>].get_text().split()[<span class="number">0</span>]))</span><br><span class="line">    video_data[<span class="string">'dislikes'</span>] = int(re.sub(<span class="string">'[^0-9]'</span>, <span class="string">''</span>,</span><br><span class="line">                                        soup.select(<span class="string">'.dislikes-count'</span>)[<span class="number">0</span>].get_text().split()[<span class="number">0</span>]))</span><br><span class="line">    <span class="keyword">return</span> video_data</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">parse_args</span><span class="params">()</span>:</span></span><br><span class="line">    parser = argparse.ArgumentParser(description=<span class="string">'Show PyCon 2014 video statistics.'</span>)</span><br><span class="line">    parser.add_argument(<span class="string">'--sort'</span>, metavar=<span class="string">'FIELD'</span>, choices=[<span class="string">'views'</span>, <span class="string">'likes'</span>, <span class="string">'dislikes'</span>],</span><br><span class="line">                        default=<span class="string">'views'</span>,</span><br><span class="line">                        help=<span class="string">'sort by the specified field. Options are views, likes and dislikes.'</span>)</span><br><span class="line">    parser.add_argument(<span class="string">'--max'</span>, metavar=<span class="string">'MAX'</span>, type=int, help=<span class="string">'show the top MAX entries only.'</span>)</span><br><span class="line">    parser.add_argument(<span class="string">'--csv'</span>, action=<span class="string">'store_true'</span>, default=<span class="literal">False</span>,</span><br><span class="line">                        help=<span class="string">'output the data in CSV format.'</span>)</span><br><span class="line">    parser.add_argument(<span class="string">'--workers'</span>, type=int, default=<span class="number">8</span>,</span><br><span class="line">                        help=<span class="string">'number of workers to use, 8 by default.'</span>)</span><br><span class="line">    <span class="keyword">return</span> parser.parse_args()</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">show_video_stats</span><span class="params">(options)</span>:</span></span><br><span class="line">    pool = Pool(options.workers)</span><br><span class="line">    video_page_urls = get_video_page_urls()</span><br><span class="line">    results = sorted(pool.map(get_video_data, video_page_urls), key=<span class="keyword">lambda</span> video: video[options.sort],</span><br><span class="line">                     reverse=<span class="literal">True</span>)</span><br><span class="line">    max = options.max</span><br><span class="line">    <span class="keyword">if</span> max <span class="keyword">is</span> <span class="literal">None</span> <span class="keyword">or</span> max &gt; len(results):</span><br><span class="line">        max = len(results)</span><br><span class="line">    <span class="keyword">if</span> options.csv:</span><br><span class="line">        print(<span class="string">u'"title","speakers", "views","likes","dislikes"'</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        print(<span class="string">u'Views  +1  -1 Title (Speakers)'</span>)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(max):</span><br><span class="line">        <span class="keyword">if</span> options.csv:</span><br><span class="line">            print(<span class="string">u'"&#123;0&#125;","&#123;1&#125;",&#123;2&#125;,&#123;3&#125;,&#123;4&#125;'</span>.format(</span><br><span class="line">                results[i][<span class="string">'title'</span>], <span class="string">', '</span>.join(results[i][<span class="string">'speakers'</span>]), results[i][<span class="string">'views'</span>],</span><br><span class="line">                results[i][<span class="string">'likes'</span>], results[i][<span class="string">'dislikes'</span>]))</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            print(<span class="string">u'&#123;0:5d&#125; &#123;1:3d&#125; &#123;2:3d&#125; &#123;3&#125; (&#123;4&#125;)'</span>.format(</span><br><span class="line">                results[i][<span class="string">'views'</span>], results[i][<span class="string">'likes'</span>], results[i][<span class="string">'dislikes'</span>], results[i][<span class="string">'title'</span>],</span><br><span class="line">                <span class="string">', '</span>.join(results[i][<span class="string">'speakers'</span>])))</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    show_video_stats(parse_args())</span><br></pre></td></tr></table></figure>
+<p>下方输出的是在我写完代码时前25个观看数最多的会议：</p>
+<pre><code>(venv) $ python pycon-scraper.py --sort views --max 25 --workers 8
+Views  +1  -1 Title (Speakers)
+ 3002  27   0 Keynote - Guido Van Rossum (Guido Van Rossum)
+ 2564  21   0 Computer science fundamentals for self-taught programmers (Justin Abrahms)
+ 2369  17   0 Ansible - Python-Powered Radically Simple IT Automation (Michael Dehaan)
+ 2165  27   6 Analyzing Rap Lyrics with Python (Julie Lavoie)
+ 2158  24   3 Exploring Machine Learning with Scikit-learn (Jake Vanderplas, Olivier Grisel)
+ 2065  13   0 Fast Python, Slow Python (Alex Gaynor)
+ 2024  24   0 Getting Started with Django, a crash course (Kenneth Love)
+ 1986  47   0 It&apos;s Dangerous to Go Alone: Battling the Invisible Monsters in Tech (Julie Pagano)
+ 1843  24   0 Discovering Python (David Beazley)
+ 1672  22   0 All Your Ducks In A Row: Data Structures in the Standard Library and Beyond (Brandon Rhodes)
+ 1558  17   1 Keynote - Fernando Pérez (Fernando Pérez)
+ 1449   6   0 Descriptors and Metaclasses - Understanding and Using Python&apos;s More Advanced Features (Mike Müller)
+ 1402  12   0 Flask by Example (Miguel Grinberg)
+ 1342   6   0 Python Epiphanies (Stuart Williams)
+ 1219   5   0 0 to 00111100 with web2py (G. Clifford Williams)
+ 1169  18   0 Cheap Helicopters In My Living Room (Ned Jackson Lovely)
+ 1146  11   0 IPython in depth: high productivity interactive and parallel python (Fernando Perez)
+ 1127   5   0 2D/3D graphics with Python on mobile platforms (Niko Skrypnik)
+ 1081   8   0 Generators: The Final Frontier (David Beazley)
+ 1067  12   0 Designing Poetic APIs (Erik Rose)
+ 1064   6   0 Keynote - John Perry Barlow (John Perry Barlow)
+ 1029  10   0 What Is Async, How Does It Work, And When Should I Use It? (A. Jesse Jiryu Davis)
+  981  11   0 The Sorry State of SSL (Hynek Schlawack)
+  961  12   2 Farewell and Welcome Home: Python in Two Genders (Naomi Ceder)
+  958   6   0 Getting Started Testing (Ned Batchelder)
+</code></pre><h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>我希望这篇文章作为使用 Python 抓取网页的入门介绍对你是有帮助的。我在使用 Python 的过程中一直很惊喜，这些工具健壮又强大，而且相比于 JavaScript 的一个事实是异步调优可以放在最后，而对于 JavaScript 你不可能避免从一开始就工作在异步模式下</p>
+<p>————————————————- 原 文 完 —————————————————-</p>
+<h2 id="爬虫翻墙"><a href="#爬虫翻墙" class="headerlink" title="爬虫翻墙"></a>爬虫翻墙</h2><p>但是如果我们直接运行上面那段最终代码的话是妥妥的会超时报错的。原因你肯定知道，就是不可逾越的长城。一般 Pyvideo.org 是能上去，但是 YouTube 被墙了。所以这里就需要代理出马了。最简单的可以安装 <a href="https://code.google.com/p/goagent/wiki/InstallGuide" target="_blank" rel="noopener">GoAgent</a> 。在本地运行 GoAgent 后，使用 <a href="http://docs.python-requests.org/en/latest/user/advanced/#proxies" target="_blank" rel="noopener">requests.get()</a> 的 proxies 参数，将代理设置成本地的 127.0.0.1 端口为 8087 ，爬虫就能够通过代理访问网页了。使用的代码如下：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">proxy = &#123;<span class="string">"http"</span>:<span class="string">"http://127.0.0.1:8087"</span>,<span class="string">"https"</span>:<span class="string">"https://127.0.0.1:8087"</span>&#125;</span><br><span class="line">response = requests.get(video_data[<span class="string">'youtube_url'</span>],proxies = proxy,verify=<span class="literal">False</span>)</span><br></pre></td></tr></table></figure>
+<p>将最终版本的代码的第22行<code>response = requests.get(video_data[&#39;youtube_url&#39;])</code>替换成上面的代码即可。如果 Pyvideo.org 也上不了（校园网有时候就是这么抽风），就把 proxy 设成全局的，在所有调用 <code>requests.get()</code> 的地方设置 proxies 参数即可。</p>
+<p>你可能会疑惑 <code>verify</code> 参数是干嘛的。这是对 HTTPS 请求做 SSL 验证的（YouTube 是 HTTPS 连接）。调用<code>requests.get()</code>的时候默认<code>verify</code>参数为<code>True</code>，就是会进行验证。如果我们通过代理爬取站点，SSL 验证一般是不会通过的，会返回 <code>[SSL: CERTIFICATE_VERIFY_FAILED]</code> 错误。所以需要将<code>verify</code>关闭。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+        
+<hr>
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+  <img id="wechat_subscriber_qcode" src="https://img.alicdn.com/tfs/TB1.ajIlIbpK1RjSZFyXXX_qFXa-1004-541.png" alt="hoxis wechat" style="width: auto; height:200px; max-width: 100%;">
+</div>
+<div class="copyright-txt">
+  <a href="/copyright"><i class="fa fa-copyright"></i>著作权归作者所有</a>
+</div>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Python/" rel="tag">#Python</a>
+          
+            <a href="/tags/爬虫/" rel="tag">#爬虫</a>
+          
+            <a href="/tags/译文/" rel="tag">#译文</a>
+          
+        </div>
+      
+
+      
+      <div class="post-spread">
+        
+          <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-56d648eefec3350b" async="async"></script>
+<!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_sharing_toolbox"></div>
+        
+      </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2014/04/19/recsys-cf-study/" rel="next" title="推荐系统学习：协同过滤实现">
+                <i class="fa fa-chevron-left"></i> 推荐系统学习：协同过滤实现
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2014/04/26/odps-sql-introduction/" rel="prev" title="阿里推荐大赛：ODPS SQL 入门">
+                阿里推荐大赛：ODPS SQL 入门 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/default_avatar.jpg" alt="WuChong">
+          <p class="site-author-name" itemprop="name">WuChong</p>
+          <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，<br>你就应该静下心来学习。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">86</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+<!--
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">分类</span>
+            </a>
+          </div>
+          -->
+
+          
+          
+          
+            <div class="site-state-item site-state-categories">
+              
+              <a href="/categories">
+              
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">72</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-sa/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="http://flink-china.org" target="_blank">Apache Flink China</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://zh.ververica.com" target="_blank">Ververica</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题"><span class="nav-number">1.</span> <span class="nav-text">问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#工具"><span class="nav-number">2.</span> <span class="nav-text">工具</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基本的抓取技术"><span class="nav-number">3.</span> <span class="nav-text">基本的抓取技术</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#抓取相连页面"><span class="nav-number">4.</span> <span class="nav-text">抓取相连页面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#并行处理"><span class="nav-number">5.</span> <span class="nav-text">并行处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#完成爬虫脚本"><span class="nav-number">6.</span> <span class="nav-text">完成爬虫脚本</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结论"><span class="nav-number">7.</span> <span class="nav-text">结论</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#爬虫翻墙"><span class="nav-number">8.</span> <span class="nav-text">爬虫翻墙</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WuChong</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.scheme !== 'Pisces' && (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always')) {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'wuchong';
+      var disqus_identifier = 'blog/2014/04/24/easy-web-scraping-with-python/';
+      var disqus_title = '使用 Python 轻松抓取网页';
+      var disqus_url = 'http://wuchong.me/blog/2014/04/24/easy-web-scraping-with-python/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
+  
+
+
+  
+  
+
+
+</body>
+</html>

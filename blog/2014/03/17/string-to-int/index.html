@@ -1,0 +1,902 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css">
+
+
+    <meta name="author" content="WuChong">
+
+
+
+  <meta name="keywords" content="Java,面试,源码,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jark's Blog" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0">
+
+
+
+
+
+
+<meta name="description" content="在笔试面试中，atoi 即「字符串转换成整数」是一个经典问题了，此题无关算法，考察的更多是编码能力和细节考虑能力。因此自己就动手写了下，写完之后，打开 JDK 的源码想看看大牛是怎么写的，所谓「站在巨人的肩膀上」，果然还是有很多有意思的东西的。">
+<meta name="keywords" content="Java,面试,源码">
+<meta property="og:type" content="article">
+<meta property="og:title" content="字符串转换成整数——从源码学习">
+<meta property="og:url" content="http://wuchong.me/blog/2014/03/17/string-to-int/index.html">
+<meta property="og:site_name" content="Jark&#39;s Blog">
+<meta property="og:description" content="在笔试面试中，atoi 即「字符串转换成整数」是一个经典问题了，此题无关算法，考察的更多是编码能力和细节考虑能力。因此自己就动手写了下，写完之后，打开 JDK 的源码想看看大牛是怎么写的，所谓「站在巨人的肩膀上」，果然还是有很多有意思的东西的。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2022-08-03T06:46:44.512Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="字符串转换成整数——从源码学习">
+<meta name="twitter:description" content="在笔试面试中，atoi 即「字符串转换成整数」是一个经典问题了，此题无关算法，考察的更多是编码能力和细节考虑能力。因此自己就动手写了下，写完之后，打开 JDK 的源码想看看大牛是怎么写的，所谓「站在巨人的肩膀上」，果然还是有很多有意思的东西的。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 4141040,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> 字符串转换成整数——从源码学习 | Jark's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Jark's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-talks">
+          <a href="/talks" rel="section">
+            
+              <i class="menu-item-icon fa fa-microphone-stand fa-fw"></i> <br>
+            
+            演讲
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input">
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', '8Exkz7xsCTJyyCHiK9TY','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                字符串转换成整数——从源码学习
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2014-03-17T23:24:28+08:00" content="2014-03-17">
+              2014-03-17
+            </time>
+          </span>
+
+          
+            <span class="post-category">
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/程序设计/" itemprop="url" rel="index">
+                    <span itemprop="name">程序设计</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2014/03/17/string-to-int/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="blog/2014/03/17/string-to-int/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+<!--
+    
+      <div class="post-body">
+    
+    -->
+
+
+    <div class="post-body" itemprop="articleBody">
+    
+
+      
+      
+
+      
+        <p>字符串转换成整数：输入一个表示整数的字符串，把该字符串转换成整数并输出，例如输入字符串”345”，则输出整数345。</p>
+<p>在笔试面试中，atoi 即「字符串转换成整数」是一个经典问题了，此题无关算法，考察的更多是编码能力和细节考虑能力。因此自己就动手写了下，写完之后，打开 JDK 的源码想看看大牛是怎么写的，所谓「站在巨人的肩膀上」，果然还是有很多有意思的东西的。 </p>
+<p>首先，实现的思路是扫描整个字符串，扫描到当前字符时，将之前的结果乘以10加上当前字符代表的数字。</p>
+<p>思路是很简单，但是有很多细节需要考虑，也是本题考查的重点。</p>
+<ol>
+<li>开头可能会有 ‘+’ 和 ‘-‘，表示整数的正负。</li>
+<li>字符串为 null 或是空（””）呢？ </li>
+<li>字符串中包含非数字的字符</li>
+<li>只有一个 “+” 或 “-“ 字符呢？</li>
+<li>最后就是溢出问题。<a id="more"></a>
+先放出我的代码吧！<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">atoi</span><span class="params">(String s)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (s == <span class="keyword">null</span> || s.length() == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> Exception(<span class="string">"illegal number input"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> MAX_DIV = Integer.MAX_VALUE / <span class="number">10</span>;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> MIN_DIV = -(Integer.MIN_VALUE / <span class="number">10</span>);</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> MAX_M = Integer.MAX_VALUE % <span class="number">10</span>;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> MIN_M = - (Integer.MIN_VALUE % <span class="number">10</span>);</span><br><span class="line">    <span class="keyword">int</span> result = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> i = <span class="number">0</span>, len = s.length();</span><br><span class="line">    <span class="keyword">int</span> sign = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">int</span> digit = s.charAt(<span class="number">0</span>);            <span class="comment">//当前字符</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (digit == <span class="string">'-'</span> || digit == <span class="string">'+'</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (digit == <span class="string">'-'</span>) &#123;</span><br><span class="line">            sign = -<span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (len == <span class="number">1</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> Exception(<span class="string">"illegal number input"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        i++;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (i &lt; len) &#123;</span><br><span class="line">        digit = s.charAt(i++) - <span class="string">'0'</span>;</span><br><span class="line">        <span class="keyword">if</span> (digit &gt;= <span class="number">0</span> &amp;&amp; digit &lt;= <span class="number">9</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (sign &gt; <span class="number">0</span> &amp;&amp; (result &gt; MAX_DIV || (result == MAX_DIV &amp;&amp; digit &gt; MAX_M))) &#123; <span class="comment">// 正数溢出</span></span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> Exception(<span class="string">"number overflow"</span>);</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (sign &lt; <span class="number">0</span> &amp;&amp; (result &gt; MIN_DIV || (result == MIN_DIV &amp;&amp; digit &gt; MIN_M))) &#123; <span class="comment">//负数溢出</span></span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> Exception(<span class="string">"number overflow"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            result = result * <span class="number">10</span> + digit;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> Exception(<span class="string">"illegal number input"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> sign &gt; <span class="number">0</span> ? result : -result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>上述代码中对于一些非法输入都做了异常处理，主要需要看的地方是溢出的判断。</p>
+<p>一般判断溢出会这样判断 <code>digit &gt; INT_MAX - result*10</code> （先不考虑正负问题），但是这段代码是有问题的。</p>
+<p>我们知道<code>INT_MAX = 2147483647</code>， 如果输入的字符串是<code>2147483657</code>，那么执行到最后一位时，会有 <code>result*10 = 2147483650 &gt; INT_MAX</code>，此时已经溢出，所以答案必然出错。</p>
+<p>在<a href="http://blog.csdn.net/v_july_v/article/details/9024123" target="_blank" rel="noopener">July的博客</a>中提到比较好的解决方法是用除法和取模。</p>
+<ul>
+<li>先用 result 与 INT_MAX /10 进行比较： 若 result &gt; INT_MAX/10（当然同时还要考虑 result=INT_MAX/10 的情况）， 说明最终得到的整数一定会溢出， 故此时可以当即进行溢出处理，从而也就免去了计算 result*10 这一步骤。 </li>
+<li>当 result=INT_MAX/10 时，若 digit &gt; INT_MAX%10，说明 result*10+digit 最终还是会溢出，也直接当溢出处理。</li>
+</ul>
+<p>比如，对于正数来说，溢出有两种可能：</p>
+<ol>
+<li>一种是诸如 2147483650，即 result &gt; MAX/10 的； </li>
+<li>一种是诸如 2147483649，即 result  == MAX/10 &amp;&amp; digit &gt; MAX%10 的。</li>
+</ol>
+<p>由于<code>INT_MAX = 2147483647</code> 而 <code>INT_MIN = -2147483648</code>，两者绝对值不相等。因此，正负数溢出的条件不一样，代码中用了两个条件来判断溢出情况。</p>
+<p>再来学习下 JDK 中 parseInt 的实现吧！<br><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Integer 类中的 parseInt 函数</span></span><br><span class="line"><span class="comment"> * Copyright (c) 1994, 2010, Oracle and/or its affiliates. All rights reserved.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">parseInt</span> <span class="params">(String s)</span> <span class="keyword">throws</span> NumberFormatException </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> parseInt(s,<span class="number">10</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">parseInt</span><span class="params">(String s, <span class="keyword">int</span> radix)</span></span></span><br><span class="line"><span class="function">            <span class="keyword">throws</span> NumberFormatException</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * WARNING: This method may be invoked early during VM initialization</span></span><br><span class="line"><span class="comment">     * before IntegerCache is initialized. Care must be taken to not use</span></span><br><span class="line"><span class="comment">     * the valueOf method.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (s == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> NumberFormatException( <span class="string">"null"</span>);        <span class="comment">//判断null的情况</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (radix &lt; Character. MIN_RADIX) &#123;                  <span class="comment">//转换的进制不能小于2</span></span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> NumberFormatException( <span class="string">"radix "</span> + radix +</span><br><span class="line">                                        <span class="string">" less than Character.MIN_RADIX"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (radix &gt; Character. MAX_RADIX) &#123;               <span class="comment">//转换的进制不能大于36</span></span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> NumberFormatException( <span class="string">"radix "</span> + radix +</span><br><span class="line">                                        <span class="string">" greater than Character.MAX_RADIX"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> result = <span class="number">0</span>;                    <span class="comment">//对应整数结果</span></span><br><span class="line">    <span class="keyword">boolean</span> negative = <span class="keyword">false</span>;          <span class="comment">//保存整数的正负状态</span></span><br><span class="line">    <span class="keyword">int</span> i = <span class="number">0</span>, len = s.length();</span><br><span class="line">    <span class="keyword">int</span> limit = -Integer. MAX_VALUE;     <span class="comment">//合法数字的上限（下限）</span></span><br><span class="line">    <span class="keyword">int</span> multmin;                         <span class="comment">//在做乘法计算时能走到的合法上限（下限）</span></span><br><span class="line">    <span class="keyword">int</span> digit;     <span class="comment">//当前字符对应的数字</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (len &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">char</span> firstChar = s.charAt(<span class="number">0</span>);</span><br><span class="line">        <span class="keyword">if</span> (firstChar &lt; <span class="string">'0'</span>) &#123; <span class="comment">// Possible leading "+" or "-"</span></span><br><span class="line">            <span class="keyword">if</span> (firstChar == <span class="string">'-'</span>) &#123;</span><br><span class="line">                negative = <span class="keyword">true</span>;</span><br><span class="line">                limit = Integer. MIN_VALUE;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (firstChar != <span class="string">'+'</span>)</span><br><span class="line">                <span class="keyword">throw</span> NumberFormatException. forInputString(s);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (len == <span class="number">1</span>) <span class="comment">//不能只有一个"+"或者"-"</span></span><br><span class="line">                <span class="keyword">throw</span> NumberFormatException. forInputString(s);</span><br><span class="line">            i++;</span><br><span class="line">        &#125;</span><br><span class="line">        multmin = limit / radix;</span><br><span class="line">        <span class="keyword">while</span> (i &lt; len) &#123;</span><br><span class="line">            <span class="comment">// Accumulating negatively avoids surprises near MAX_VALUE</span></span><br><span class="line">            digit = Character. digit(s.charAt(i++),radix);     <span class="comment">//以指定的进制转换整数字符</span></span><br><span class="line">            <span class="keyword">if</span> (digit &lt; <span class="number">0</span>) &#123;                                   <span class="comment">//不能是非数字</span></span><br><span class="line">                <span class="keyword">throw</span> NumberFormatException. forInputString(s);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (result &lt; multmin) &#123;                         <span class="comment">//判断溢出</span></span><br><span class="line">                <span class="keyword">throw</span> NumberFormatException. forInputString(s);</span><br><span class="line">            &#125;</span><br><span class="line">            result *= radix;</span><br><span class="line">            <span class="keyword">if</span> (result &lt; limit + digit) &#123;</span><br><span class="line">                <span class="keyword">throw</span> NumberFormatException. forInputString(s);</span><br><span class="line">            &#125;</span><br><span class="line">            result -= digit;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;     <span class="comment">//字符串不能为""，即长度要大于0</span></span><br><span class="line">        <span class="keyword">throw</span> NumberFormatException. forInputString(s);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> negative ? result : -result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>可以看到<code>parseInt(String s)</code>函数调用了<code>parseInt(String s, int radix)</code>，源码中参数的检查，异常输入的判断都非常全面。可以说严谨和巧妙是这段程序最大的特点。比较难懂的可能是溢出判断那一段。<br><figure class="highlight nimrod"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="literal">result</span> &lt; multmin) &#123;                         //判断溢出</span><br><span class="line">    throw <span class="type">NumberFormatException</span>. forInputString(s);</span><br><span class="line">&#125;</span><br><span class="line"><span class="literal">result</span> *= radix;</span><br><span class="line"><span class="keyword">if</span> (<span class="literal">result</span> &lt; limit + digit) &#123;</span><br><span class="line">    throw <span class="type">NumberFormatException</span>. forInputString(s);</span><br><span class="line">&#125;</span><br><span class="line"><span class="literal">result</span> -= digit;</span><br></pre></td></tr></table></figure></p>
+<p>其实与上文的溢出判断思想是差不多的， 只不过可以发现 JDK 将所有的整数先当做负数来处理了，这有什么妙处呢？</p>
+<p>我们知道有符号 int 的上下限是<code>-2147483648 ~ 2147483647</code>，可见负数表达的范围比正数多一个，这样就好理解为什么在开头要把 limit 全部表达为负数（下限）。这样的操作减少了后续的判断，可以一步到位，相当于二者选择取其大一样，大的包含了小的，不用像我的代码一样正负数情况都判断一次。同理，那么 multmin 也都是负数了，而且可以认为是只和进制参数 radix 有关系。在这里 multmin 就是<code>-INT_MAX/10</code>，当负数时就是<code>INT_MIN/10</code>。所以与上文类似，第一个条件就是若<code>-result &lt; -INT_MAX/10</code>则是溢出。不满足第一个条件的情况下，<code>result*10</code>肯定不会溢出了。所以第二个条件判断若 <code>- result*10 &lt; -INT_MAX  + digit</code>，则是溢出。</p>
+<p>比如对于最大的负数来说，当扫描到最后一位时，<code>result = -214748364</code>，<code>multmin=-214748364</code><br>第一个条件<code>result &lt; multmin</code>不满足， 执行<code>result *= radix</code>之后，<code>result = -2147483640</code><br>第二个条件<code>result &lt; limit + digit</code>，即 <code>-2147483640&lt;-2147483648+8</code> 也不满足条件。<br>所以正常输出。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+        
+<hr>
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+  <img id="wechat_subscriber_qcode" src="https://img.alicdn.com/tfs/TB1.ajIlIbpK1RjSZFyXXX_qFXa-1004-541.png" alt="hoxis wechat" style="width: auto; height:200px; max-width: 100%;">
+</div>
+<div class="copyright-txt">
+  <a href="/copyright"><i class="fa fa-copyright"></i>著作权归作者所有</a>
+</div>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag">#Java</a>
+          
+            <a href="/tags/面试/" rel="tag">#面试</a>
+          
+            <a href="/tags/源码/" rel="tag">#源码</a>
+          
+        </div>
+      
+
+      
+      <div class="post-spread">
+        
+          <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-56d648eefec3350b" async="async"></script>
+<!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_sharing_toolbox"></div>
+        
+      </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2014/03/14/use-latex-in-blog/" rel="next" title="在博客上写LaTex数学公式">
+                <i class="fa fa-chevron-left"></i> 在博客上写LaTex数学公式
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2014/03/25/interview-link-questions/" rel="prev" title="面试精选：链表问题集锦">
+                面试精选：链表问题集锦 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/default_avatar.jpg" alt="WuChong">
+          <p class="site-author-name" itemprop="name">WuChong</p>
+          <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，<br>你就应该静下心来学习。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">86</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+<!--
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">分类</span>
+            </a>
+          </div>
+          -->
+
+          
+          
+          
+            <div class="site-state-item site-state-categories">
+              
+              <a href="/categories">
+              
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">72</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-sa/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="http://flink-china.org" target="_blank">Apache Flink China</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://zh.ververica.com" target="_blank">Ververica</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <p class="post-toc-empty">此文章未包含目录</p>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WuChong</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.scheme !== 'Pisces' && (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always')) {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'wuchong';
+      var disqus_identifier = 'blog/2014/03/17/string-to-int/';
+      var disqus_title = '字符串转换成整数——从源码学习';
+      var disqus_url = 'http://wuchong.me/blog/2014/03/17/string-to-int/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
+  
+
+
+  
+  
+
+
+</body>
+</html>

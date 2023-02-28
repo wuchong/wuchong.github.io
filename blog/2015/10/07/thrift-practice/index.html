@@ -1,0 +1,897 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css">
+
+
+    <meta name="author" content="WuChong">
+
+
+
+  <meta name="keywords" content="thrift,教程,入门,实践">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jark's Blog" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0">
+
+
+
+
+
+
+<meta name="description" content="上一篇文章我们了解了thrift的概念以及类型系统，本文我们通过一个简单的实例来更深入地了解thrift的使用。我们的实例非常简单，就是实现一个登录注册功能，其用户名密码缓存在内存中。 编写thrift文件我们编写一个account.thrift的文件。 namespace java me.wuchong.thrift.generatedenum Operation&amp;#123;  LOGIN =">
+<meta name="keywords" content="thrift,教程,入门,实践">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Thrift 实践">
+<meta property="og:url" content="http://wuchong.me/blog/2015/10/07/thrift-practice/index.html">
+<meta property="og:site_name" content="Jark&#39;s Blog">
+<meta property="og:description" content="上一篇文章我们了解了thrift的概念以及类型系统，本文我们通过一个简单的实例来更深入地了解thrift的使用。我们的实例非常简单，就是实现一个登录注册功能，其用户名密码缓存在内存中。 编写thrift文件我们编写一个account.thrift的文件。 namespace java me.wuchong.thrift.generatedenum Operation&amp;#123;  LOGIN =">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://ww1.sinaimg.cn/mw690/81b78497jw1ewsui5oaftj20he058t92.jpg">
+<meta property="og:updated_time" content="2022-08-03T06:46:44.512Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Thrift 实践">
+<meta name="twitter:description" content="上一篇文章我们了解了thrift的概念以及类型系统，本文我们通过一个简单的实例来更深入地了解thrift的使用。我们的实例非常简单，就是实现一个登录注册功能，其用户名密码缓存在内存中。 编写thrift文件我们编写一个account.thrift的文件。 namespace java me.wuchong.thrift.generatedenum Operation&amp;#123;  LOGIN =">
+<meta name="twitter:image" content="http://ww1.sinaimg.cn/mw690/81b78497jw1ewsui5oaftj20he058t92.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 4141040,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> Thrift 实践 | Jark's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Jark's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-talks">
+          <a href="/talks" rel="section">
+            
+              <i class="menu-item-icon fa fa-microphone-stand fa-fw"></i> <br>
+            
+            演讲
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input">
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', '8Exkz7xsCTJyyCHiK9TY','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Thrift 实践
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-10-07T20:22:35+08:00" content="2015-10-07">
+              2015-10-07
+            </time>
+          </span>
+
+          
+            <span class="post-category">
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/程序设计/" itemprop="url" rel="index">
+                    <span itemprop="name">程序设计</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2015/10/07/thrift-practice/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="blog/2015/10/07/thrift-practice/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+<!--
+    
+      <div class="post-body">
+    
+    -->
+
+
+    <div class="post-body" itemprop="articleBody">
+    
+
+      
+      
+
+      
+        <p><a href="/blog/2015/10/07/thrift-induction">上一篇文章</a>我们了解了thrift的概念以及类型系统，本文我们通过一个简单的实例来更深入地了解thrift的使用。我们的实例非常简单，就是实现一个登录注册功能，其用户名密码缓存在内存中。</p>
+<h2 id="编写thrift文件"><a href="#编写thrift文件" class="headerlink" title="编写thrift文件"></a>编写thrift文件</h2><p>我们编写一个<code>account.thrift</code>的文件。</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">namespace</span> java me.wuchong.thrift.generated</span><br><span class="line"></span><br><span class="line"><span class="keyword">enum</span> Operation&#123;</span><br><span class="line">  LOGIN = <span class="number">1</span>,</span><br><span class="line">  REGISTER = <span class="number">2</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">struct Request&#123;</span><br><span class="line">  <span class="number">1</span>: <span class="built_in">string</span> name,</span><br><span class="line">  <span class="number">2</span>: <span class="built_in">string</span> password,</span><br><span class="line">  <span class="number">3</span>: Operation op</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">exception InvalidOperation&#123;</span><br><span class="line">  <span class="number">1</span>: i32 code,</span><br><span class="line">  <span class="number">2</span>: <span class="built_in">string</span> reason</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">service Account&#123;</span><br><span class="line">  <span class="built_in">string</span> doAction(<span class="number">1</span>: Request request) throws (<span class="number">1</span>: InvalidOperation e);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+<p>然后在命令行下运行如下命令：<br><figure class="highlight ada"><table><tr><td class="code"><pre><span class="line">thrift <span class="comment">--gen java account.thrift</span></span><br></pre></td></tr></table></figure></p>
+<p>则会在当前目录生成<code>gen-java</code>目录，该目录下会按照namespace定义的路径名一次一层层生成文件夹，如下图所示，在指定的包路径下生成了4个类。<br><img src="http://ww1.sinaimg.cn/mw690/81b78497jw1ewsui5oaftj20he058t92.jpg" alt>￼</p>
+<h2 id="服务实现"><a href="#服务实现" class="headerlink" title="服务实现"></a>服务实现</h2><p>到此为止，thrift已经完成了其工作。接下来我们需要做的就是实现<code>Account</code>接口里的具体逻辑。我们创建一个<code>AccountService</code>类，实现<code>Account.Iface</code>接口。逻辑非常简单，将用户账户信息缓存在内存中，实现登录注册的功能，并且对一些非法输入状况抛出异常。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> me.wuchong.thrift.impl;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> me.wuchong.thrift.generated.Account;</span><br><span class="line"><span class="keyword">import</span> me.wuchong.thrift.generated.InvalidOperation;</span><br><span class="line"><span class="keyword">import</span> me.wuchong.thrift.generated.Operation;</span><br><span class="line"><span class="keyword">import</span> me.wuchong.thrift.generated.Request;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Created by wuchong on 15/10/7.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AccountService</span> <span class="keyword">implements</span> <span class="title">Account</span>.<span class="title">Iface</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Map&lt;String, String&gt; accounts = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">doAction</span><span class="params">(Request request)</span> <span class="keyword">throws</span> InvalidOperation </span>&#123;</span><br><span class="line">        String name = request.getName();</span><br><span class="line">        String pass = request.getPassword();</span><br><span class="line">        Operation op = request.getOp();</span><br><span class="line"></span><br><span class="line">        System.out.println(String.format(<span class="string">"Get request[name:%s, pass:%s, op:%d]"</span>, name, pass, op.getValue()));</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (name == <span class="keyword">null</span> || name.length() == <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> InvalidOperation(<span class="number">100</span>, <span class="string">"param name should not be empty"</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (op == Operation.LOGIN) &#123;</span><br><span class="line">            String password = accounts.get(name);</span><br><span class="line">            <span class="keyword">if</span> (password != <span class="keyword">null</span> &amp;&amp; password.equals(pass)) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="string">"Login success!! Hello "</span> + name;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="string">"Login failed!! please check your username and password"</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (op == Operation.REGISTER) &#123;</span><br><span class="line">            <span class="keyword">if</span> (accounts.containsKey(name)) &#123;</span><br><span class="line">                <span class="keyword">return</span> String.format(<span class="string">"The username '%s' has been registered, please change one."</span>, name);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                accounts.put(name, pass);</span><br><span class="line">                <span class="keyword">return</span> <span class="string">"Register success!! Hello "</span> + name;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> InvalidOperation(<span class="number">101</span>, <span class="string">"unknown operation: "</span> + op.getValue());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="启动服务端和客户端"><a href="#启动服务端和客户端" class="headerlink" title="启动服务端和客户端"></a>启动服务端和客户端</h2><p>我们实现了服务的具体逻辑，接下来需要启动该服务。这里我们需要用到thrift的依赖包。在pom.xml中加入对thrift的依赖。</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.thrift<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>libthrift<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">version</span>&gt;</span>0.9.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><em>注：如果你的依赖中没有加入slf4j的实现，则需要加上slf4j-log4j12或者logback的依赖，因为thrift有用到slf4j</em></p>
+<p>启动服务的实现如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> me.wuchong.thrift.impl;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> me.wuchong.thrift.generated.Account;</span><br><span class="line"><span class="keyword">import</span> org.apache.thrift.server.TServer;</span><br><span class="line"><span class="keyword">import</span> org.apache.thrift.server.TSimpleServer;</span><br><span class="line"><span class="keyword">import</span> org.apache.thrift.transport.TServerSocket;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Created by wuchong on 15/10/7.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AccountServer</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        TServerSocket socket = <span class="keyword">new</span> TServerSocket(<span class="number">9999</span>);</span><br><span class="line">        Account.Processor processor = <span class="keyword">new</span> Account.Processor&lt;&gt;(<span class="keyword">new</span> AccountService());</span><br><span class="line">        TServer server = <span class="keyword">new</span> TSimpleServer(<span class="keyword">new</span> TServer.Args(socket).processor(processor));</span><br><span class="line">        System.out.println(<span class="string">"Starting the Account server..."</span>);</span><br><span class="line">        server.serve();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行之后，可以在控制台看到输出：<br><figure class="highlight gams"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="title">Starting</span></span> the Account server...</span><br></pre></td></tr></table></figure></p>
+<p>目前服务已经启动，则在客户端就可以进行RPC调用了。启动客户端的代码如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> me.wuchong.thrift.impl;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> me.wuchong.thrift.generated.Account;</span><br><span class="line"><span class="keyword">import</span> me.wuchong.thrift.generated.InvalidOperation;</span><br><span class="line"><span class="keyword">import</span> me.wuchong.thrift.generated.Operation;</span><br><span class="line"><span class="keyword">import</span> me.wuchong.thrift.generated.Request;</span><br><span class="line"><span class="keyword">import</span> org.apache.thrift.TException;</span><br><span class="line"><span class="keyword">import</span> org.apache.thrift.protocol.TBinaryProtocol;</span><br><span class="line"><span class="keyword">import</span> org.apache.thrift.protocol.TProtocol;</span><br><span class="line"><span class="keyword">import</span> org.apache.thrift.transport.TSocket;</span><br><span class="line"><span class="keyword">import</span> org.apache.thrift.transport.TTransport;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Created by wuchong on 15/10/7.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AccountClient</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> TException </span>&#123;</span><br><span class="line">        TTransport transport = <span class="keyword">new</span> TSocket(<span class="string">"localhost"</span>, <span class="number">9999</span>);</span><br><span class="line">        transport.open();   <span class="comment">//建立连接</span></span><br><span class="line"></span><br><span class="line">        TProtocol protocol = <span class="keyword">new</span> TBinaryProtocol(transport);</span><br><span class="line">        Account.Client client = <span class="keyword">new</span> Account.Client(protocol);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//第一个请求， 登录 wuchong 帐号</span></span><br><span class="line">        Request req = <span class="keyword">new</span> Request(<span class="string">"wuchong"</span>, <span class="string">"1234"</span>, Operation.LOGIN);</span><br><span class="line">        request(client, req);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//第二个请求， 注册 wuchong 帐号</span></span><br><span class="line">        req.setOp(Operation.REGISTER);</span><br><span class="line">        request(client, req);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//第三个请求， 登录 wuchong 帐号</span></span><br><span class="line">        req.setOp(Operation.LOGIN);</span><br><span class="line">        request(client, req);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//第四个请求， name 为空的请求</span></span><br><span class="line">        req.setName(<span class="string">""</span>);</span><br><span class="line">        request(client, req);</span><br><span class="line"></span><br><span class="line">        transport.close();  <span class="comment">//关闭连接</span></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">request</span><span class="params">(Account.Client client, Request req)</span> <span class="keyword">throws</span> TException</span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            String result = client.doAction(req);</span><br><span class="line">            System.out.println(result);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InvalidOperation e) &#123;</span><br><span class="line">            System.out.println(e.reason);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行客户端，其结果如下所示。</p>
+<figure class="highlight smali"><table><tr><td class="code"><pre><span class="line">Login failed!! please<span class="built_in"> check </span>your username<span class="built_in"> and </span>password</span><br><span class="line">Register success!! Hello wuchong</span><br><span class="line">Login success!! Hello wuchong</span><br><span class="line">param name should<span class="built_in"> not </span>be empty</span><br></pre></td></tr></table></figure>
+<p>而此时，服务端会打印出收到的请求信息。</p>
+<figure class="highlight groovy"><table><tr><td class="code"><pre><span class="line">Starting the Account server...</span><br><span class="line">Get request[<span class="string">name:</span>wuchong, <span class="string">pass:</span><span class="number">1234</span>, <span class="string">op:</span><span class="number">1</span>]</span><br><span class="line">Get request[<span class="string">name:</span>wuchong, <span class="string">pass:</span><span class="number">1234</span>, <span class="string">op:</span><span class="number">2</span>]</span><br><span class="line">Get request[<span class="string">name:</span>wuchong, <span class="string">pass:</span><span class="number">1234</span>, <span class="string">op:</span><span class="number">1</span>]</span><br><span class="line">Get request[<span class="string">name:</span>, <span class="string">pass:</span><span class="number">1234</span>, <span class="string">op:</span><span class="number">1</span>]</span><br></pre></td></tr></table></figure>
+<p>你可以发现，只需要几行代码，我们就实现了高效的RPC通信。</p>
+<p>##参考资料</p>
+<ul>
+<li><a href="https://diwakergupta.github.io/thrift-missing-guide/" target="_blank" rel="noopener">Thrift: The Missing Guide</a></li>
+<li><a href="http://thrift-tutorial.readthedocs.org/en/latest/index.html" target="_blank" rel="noopener">Thrift Tutorial</a></li>
+<li><a href="http://www.jianshu.com/p/0f4113d6ec4b" target="_blank" rel="noopener">thrift入门教程</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+        
+<hr>
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+  <img id="wechat_subscriber_qcode" src="https://img.alicdn.com/tfs/TB1.ajIlIbpK1RjSZFyXXX_qFXa-1004-541.png" alt="hoxis wechat" style="width: auto; height:200px; max-width: 100%;">
+</div>
+<div class="copyright-txt">
+  <a href="/copyright"><i class="fa fa-copyright"></i>著作权归作者所有</a>
+</div>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/教程/" rel="tag">#教程</a>
+          
+            <a href="/tags/thrift/" rel="tag">#thrift</a>
+          
+        </div>
+      
+
+      
+      <div class="post-spread">
+        
+          <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-56d648eefec3350b" async="async"></script>
+<!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_sharing_toolbox"></div>
+        
+      </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2015/10/07/thrift-induction/" rel="next" title="Thrift 入门">
+                <i class="fa fa-chevron-left"></i> Thrift 入门
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2015/11/06/learn-clojure-1-datastruct/" rel="prev" title="Clojure学习笔记（一）：数据结构">
+                Clojure学习笔记（一）：数据结构 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/default_avatar.jpg" alt="WuChong">
+          <p class="site-author-name" itemprop="name">WuChong</p>
+          <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，<br>你就应该静下心来学习。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">86</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+<!--
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">分类</span>
+            </a>
+          </div>
+          -->
+
+          
+          
+          
+            <div class="site-state-item site-state-categories">
+              
+              <a href="/categories">
+              
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">72</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-sa/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="http://flink-china.org" target="_blank">Apache Flink China</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://zh.ververica.com" target="_blank">Ververica</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#编写thrift文件"><span class="nav-number">1.</span> <span class="nav-text">编写thrift文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#服务实现"><span class="nav-number">2.</span> <span class="nav-text">服务实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#启动服务端和客户端"><span class="nav-number">3.</span> <span class="nav-text">启动服务端和客户端</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WuChong</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.scheme !== 'Pisces' && (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always')) {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'wuchong';
+      var disqus_identifier = 'blog/2015/10/07/thrift-practice/';
+      var disqus_title = 'Thrift 实践';
+      var disqus_url = 'http://wuchong.me/blog/2015/10/07/thrift-practice/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
+  
+
+
+  
+  
+
+
+</body>
+</html>

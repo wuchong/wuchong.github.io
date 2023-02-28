@@ -1,0 +1,915 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css">
+
+
+    <meta name="author" content="WuChong">
+
+
+
+  <meta name="keywords" content="Flink,Table,SQL,原理与实现">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jark's Blog" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0">
+
+
+
+
+
+
+<meta name="description" content="Flink 已经拥有了强大的 DataStream/DataSet API，可以基本满足流计算和批计算中的所有需求。为什么还需要 Table &amp;amp; SQL API 呢？ 首先 Table API 是一种关系型API，类 SQL 的API，用户可以像操作表一样地操作数据，非常的直观和方便。用户只需要说需要什么东西，系统就会自动地帮你决定如何最高效地计算它，而不需要像 DataStream 一样">
+<meta name="keywords" content="Flink,Table,SQL,原理与实现">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flink 原理与实现：Table &amp; SQL API">
+<meta property="og:url" content="http://wuchong.me/blog/2017/03/30/flink-internals-table-and-sql-api/index.html">
+<meta property="og:site_name" content="Jark&#39;s Blog">
+<meta property="og:description" content="Flink 已经拥有了强大的 DataStream/DataSet API，可以基本满足流计算和批计算中的所有需求。为什么还需要 Table &amp;amp; SQL API 呢？ 首先 Table API 是一种关系型API，类 SQL 的API，用户可以像操作表一样地操作数据，非常的直观和方便。用户只需要说需要什么东西，系统就会自动地帮你决定如何最高效地计算它，而不需要像 DataStream 一样">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB15GhOQpXXXXaYapXXXXXXXXXX">
+<meta property="og:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB1mENHQpXXXXacaFXXXXXXXXXX">
+<meta property="og:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB1cr1qQpXXXXaMXpXXXXXXXXXX">
+<meta property="og:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB1EW5eQpXXXXamXFXXXXXXXXXX">
+<meta property="og:updated_time" content="2022-08-03T06:46:44.504Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Flink 原理与实现：Table &amp; SQL API">
+<meta name="twitter:description" content="Flink 已经拥有了强大的 DataStream/DataSet API，可以基本满足流计算和批计算中的所有需求。为什么还需要 Table &amp;amp; SQL API 呢？ 首先 Table API 是一种关系型API，类 SQL 的API，用户可以像操作表一样地操作数据，非常的直观和方便。用户只需要说需要什么东西，系统就会自动地帮你决定如何最高效地计算它，而不需要像 DataStream 一样">
+<meta name="twitter:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB15GhOQpXXXXaYapXXXXXXXXXX">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 4141040,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> Flink 原理与实现：Table & SQL API | Jark's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Jark's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-talks">
+          <a href="/talks" rel="section">
+            
+              <i class="menu-item-icon fa fa-microphone-stand fa-fw"></i> <br>
+            
+            演讲
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input">
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', '8Exkz7xsCTJyyCHiK9TY','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Flink 原理与实现：Table & SQL API
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-03-30T23:51:16+08:00" content="2017-03-30">
+              2017-03-30
+            </time>
+          </span>
+
+          
+            <span class="post-category">
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Flink/" itemprop="url" rel="index">
+                    <span itemprop="name">Flink</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2017/03/30/flink-internals-table-and-sql-api/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="blog/2017/03/30/flink-internals-table-and-sql-api/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+<!--
+    
+      <div class="post-body">
+    
+    -->
+
+
+    <div class="post-body" itemprop="articleBody">
+    
+
+      
+      
+
+      
+        <p>Flink 已经拥有了强大的 DataStream/DataSet API，可以基本满足流计算和批计算中的所有需求。为什么还需要 Table &amp; SQL API 呢？</p>
+<p>首先 Table API 是一种关系型API，类 SQL 的API，用户可以像操作表一样地操作数据，非常的直观和方便。用户只需要说需要什么东西，系统就会自动地帮你决定如何最高效地计算它，而不需要像 DataStream 一样写一大堆 Function，优化还得纯靠手工调优。另外，SQL 作为一个“人所皆知”的语言，如果一个引擎提供 SQL，它将很容易被人们接受。这已经是业界很常见的现象了。值得学习的是，Flink 的 Table API 与 SQL API 的实现，有 80% 的代码是共用的。所以当我们讨论 Table API 时，常常是指 Table &amp; SQL API。</p>
+<p>Table &amp; SQL API 还有另一个职责，就是流处理和批处理统一的API层。Flink 在runtime层是统一的，因为Flink将批任务看做流的一种特例来执行，这也是 Flink 向外鼓吹的一点。然而在编程模型上，Flink 却为批和流提供了两套API （DataSet 和 DataStream）。为什么 runtime 统一，而编程模型不统一呢？ 在我看来，这是本末倒置的事情。用户才不管你 runtime 层是否统一，用户更关心的是写一套代码。这也是为什么现在 Apache Beam 能这么火的原因。所以 Table &amp; SQL API 就扛起了统一API的大旗，批上的查询会随着输入数据的结束而结束并生成有限结果集，流上的查询会一直运行并生成结果流。Table &amp; SQL API 做到了批与流上的查询具有同样的语法，因此不用改代码就能同时在批和流上跑。</p>
+<p><img src="http://img3.tbcdn.cn/5476e8b07b923/TB15GhOQpXXXXaYapXXXXXXXXXX" width="450px"></p>
+<a id="more"></a>
+<h2 id="聊聊历史"><a href="#聊聊历史" class="headerlink" title="聊聊历史"></a>聊聊历史</h2><p>Table API 始于 Flink 0.9，Flink 0.9 是一个类库百花齐放的版本，众所周知的 Table API, Gelly, FlinkML 都是在这个版本加进去的。Flink 0.9 大概是在2015年6月正式发布的，在 Flink 0.9 发布之前，社区对 SQL 展开过好几次争论，不过当时社区认为应该首先完善 Table API 的功能，再去搞SQL，如果两头一起搞很容易什么都做不好。而且在整个Hadoop生态圈中已经有大量的所谓 “SQL-on-Hadoop” 的解决方案，譬如 <a href="https://hive.apache.org/" target="_blank" rel="noopener">Apache Hive</a>, <a href="https://drill.apache.org/" target="_blank" rel="noopener">Apache Drill</a>, <a href="http://impala.io/" target="_blank" rel="noopener">Apache Impala</a>。”SQL-on-Flink”的事情也可以像 Hadoop 一样丢给其他社区去搞。</p>
+<p>不过，随着 Flink 0.9 的发布，意味着抽象语法树、代码生成、运行时函数等都已经成熟，这为SQL的集成铺好了前进道路。另一方面，用户对 SQL 的呼声越来越高。2015年下半年，Timo 大神也加入了 dataArtisans，于是对Table API的改造开始了。2016 年初的时候，改造基本上完成了。我们也是在这个时间点发现了 Table API 的潜力，并加入了社区。经过这一年的努力，Flink 已经发展成 Apache 中最火热的项目之一，而 Flink 中最活跃的类库目前非 Table API 莫属。这其中离不开国内公司的支持，Table API 的贡献者绝大多数都来自于阿里巴巴和华为，并且主导着 Table API 的发展方向，这是非常令国人自豪的。而我在社区贡献了一年后，幸运地成为了 Flink Committer。</p>
+<h2 id="Table-API-amp-SQL-长什么样？"><a href="#Table-API-amp-SQL-长什么样？" class="headerlink" title="Table API &amp; SQL 长什么样？"></a>Table API &amp; SQL 长什么样？</h2><p>这里不会详细介绍 Table API &amp; SQL 的使用，只是做一个展示。更多使用细节方面的问题请访问<a href="https://ci.apache.org/projects/flink/flink-docs-release-1.3/dev/table_api.html" target="_blank" rel="noopener">官网文档</a>。</p>
+<p>下面这个例子展示了如何用 Table API 处理温度传感器数据。计算每天每个以<code>room</code>开头的location的平均温度。例子中涉及了如何使用window，event-time等。</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> sensorData: <span class="type">DataStream</span>[(<span class="type">String</span>, <span class="type">Long</span>, <span class="type">Double</span>)] = ???</span><br><span class="line"></span><br><span class="line"><span class="comment">// convert DataSet into Table</span></span><br><span class="line"><span class="keyword">val</span> sensorTable: <span class="type">Table</span> = sensorData</span><br><span class="line">  .toTable(tableEnv, <span class="symbol">'location</span>, <span class="symbol">'time</span>, <span class="symbol">'tempF</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// define query on Table</span></span><br><span class="line"><span class="keyword">val</span> avgTempCTable: <span class="type">Table</span> = sensorTable </span><br><span class="line">  .window(<span class="type">Tumble</span> over <span class="number">1.</span>day on <span class="symbol">'rowtime</span> as <span class="symbol">'w</span>) </span><br><span class="line">  .groupBy(<span class="symbol">'location</span>, <span class="symbol">'w</span>)</span><br><span class="line">  .select(<span class="symbol">'w</span>.start as <span class="symbol">'day</span>, <span class="symbol">'location</span>, ((<span class="symbol">'tempF</span>.avg - <span class="number">32</span>) * <span class="number">0.556</span>) as <span class="symbol">'avgTempC</span>)</span><br><span class="line">  .where(<span class="symbol">'location</span> like <span class="string">"room%"</span>)</span><br></pre></td></tr></table></figure>
+<p>下面的例子是展示了如何用 SQL 来实现。</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> sensorData: <span class="type">DataStream</span>[(<span class="type">String</span>, <span class="type">Long</span>, <span class="type">Double</span>)] = ???</span><br><span class="line"></span><br><span class="line"><span class="comment">// register DataStream</span></span><br><span class="line">tableEnv.registerDataStream(<span class="string">"sensorData"</span>, sensorData, <span class="symbol">'location</span>, ’time, <span class="symbol">'tempF</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// query registered Table</span></span><br><span class="line"><span class="keyword">val</span> avgTempCTable: <span class="type">Table</span> = tableEnv.sql(<span class="string">""</span><span class="string">"</span></span><br><span class="line"><span class="string">  SELECT FLOOR(rowtime() TO DAY) AS day, location, </span></span><br><span class="line"><span class="string">    AVG((tempF - 32) * 0.556) AS  avgTempC</span></span><br><span class="line"><span class="string">  FROM sensorData</span></span><br><span class="line"><span class="string">  WHERE location LIKE 'room%'</span></span><br><span class="line"><span class="string">  GROUP BY location, FLOOR(rowtime() TO DAY) "</span><span class="string">""</span>)</span><br></pre></td></tr></table></figure>
+<h2 id="Table-API-amp-SQL-原理"><a href="#Table-API-amp-SQL-原理" class="headerlink" title="Table API &amp; SQL 原理"></a>Table API &amp; SQL 原理</h2><p>Flink 非常明智，没有像Spark那样重复造轮子(Spark Catalyst)，而是将 SQL 校验、SQL 解析以及 SQL 优化交给了 <a href="https://calcite.apache.org/" target="_blank" rel="noopener">Apache Calcite</a>。Calcite 在其他很多开源项目里也都应用到了，譬如Apache Hive, Apache Drill, Apache Kylin, Cascading。Calcite 在新的架构中处于核心的地位，如下图所示。</p>
+<p><img src="http://img3.tbcdn.cn/5476e8b07b923/TB1mENHQpXXXXacaFXXXXXXXXXX" alt></p>
+<p>新的架构中，构建抽象语法树的事情全部交给了 Calcite 去做。SQL query 会经过 Calcite 解析器转变成 SQL 节点树，通过验证后构建成 Calcite 的抽象语法树（也就是图中的 Logical Plan）。另一边，Table API 上的调用会构建成 Table API 的抽象语法树，并通过 Calcite 提供的 RelBuilder 转变成 Calcite 的抽象语法树。</p>
+<p>以上面的温度计代码为样例，Table API 和 SQL 的转换流程如下，绿色的节点代表 Flink Table Nodes，蓝色的节点代表 Calcite Logical Nodes。最终都转化成了相同的 Logical Plan 表现形式。</p>
+<p><img src="http://img3.tbcdn.cn/5476e8b07b923/TB1cr1qQpXXXXaMXpXXXXXXXXXX" alt></p>
+<p>之后会进入优化器，Calcite 会基于优化规则来优化这些 Logical Plan，根据运行环境的不同会应用不同的优化规则（Flink提供了批的优化规则，和流的优化规则）。这里的优化规则分为两类，一类是Calcite提供的内置优化规则（如条件下推，剪枝等），另一类是是将Logical Node转变成 Flink Node 的规则。这两类规则的应用体现为下图中的①和②步骤，这两步骤都属于 Calcite 的优化阶段。得到的 DataStream Plan 封装了如何将节点翻译成对应 DataStream/DataSet 程序的逻辑。步骤③就是将不同的 DataStream/DataSet Node 通过代码生成（CodeGen）翻译成最终可执行的 DataStream/DataSet 程序。</p>
+<p><img src="http://img3.tbcdn.cn/5476e8b07b923/TB1EW5eQpXXXXamXFXXXXXXXXXX" alt></p>
+<p>代码生成是 Table API &amp; SQL 中最核心的一块内容。表达式、条件、内置函数等等是需要CodeGen出具体的Function 代码的，这部分跟Spark SQL的结构很相似。CodeGen 出的Function以字符串的形式存在。在提交任务后会分发到各个 TaskManager 中运行，在运行时会使用 <a href="http://janino-compiler.github.io/janino/" target="_blank" rel="noopener">Janino</a> 编译器编译代码后运行。</p>
+<h2 id="Table-API-amp-SQL-现状"><a href="#Table-API-amp-SQL-现状" class="headerlink" title="Table API &amp; SQL 现状"></a>Table API &amp; SQL 现状</h2><p>目前 Table API 对于批和流都已经支持了基本的Selection, Projection, Union，以及 Window 操作（包括固定窗口、滑动窗口、会话窗口）。SQL 的话由于 Calcite 在最近的版本中才支持 Window 语法，所以目前 Flink SQL 还不支持 Window 的语法。并且 Table API 和 SQL 都支持了UDF,UDTF,UDAF(开发中)。</p>
+<h2 id="Table-API-amp-SQL-未来"><a href="#Table-API-amp-SQL-未来" class="headerlink" title="Table API &amp; SQL 未来"></a>Table API &amp; SQL 未来</h2><ol>
+<li><p>Dynamic Tables</p>
+<p>Dynamic Table 就是传统意义上的表，只不过表中的数据是会变化更新的。Flink 提出 Stream <--> Dynamic Table 之间是可以等价转换的。不过这需要引入Retraction机制。有机会的话，我会专门写一篇文章来介绍。</--></p>
+</li>
+<li><p>Joins</p>
+<p>包括了支持流与流的 Join，以及流与表的 Join。</p>
+</li>
+<li><p>SQL 客户端</p>
+<p>目前 SQL 是需要内嵌到 Java/Scala 代码中运行的，不是纯 SQL 的使用方式。未来需要支持 SQL 客户端执行提交 SQL 纯文本运行任务。</p>
+</li>
+<li><p>并行度设置</p>
+<p>目前 Table API &amp; SQL 是无法设置并行度的，这使得 Table API 看起来仍像个玩具。</p>
+</li>
+</ol>
+<p>在我看来，Flink 的 Table &amp; SQL API 是走在时代前沿的，在很多方面在做着定义业界标准的事情，比如 SQL 上Window的表达，时间语义的表达，流和批语义的统一等。在我看来，SQL 拥有更天然的流与批统一的特性，并且能够自动帮用户做很多SQL优化（下推、剪枝等），这是 Beam 所做不到的地方。当然，未来如果 Table &amp; SQL API 发展成熟的话，剥离出来作为业界标准的流与批统一的API也不是不可能（叫BeamTable，BeamSQL ？），哈哈。这也是我非常看好 Table &amp; SQL API，认为其大有潜力的一个原因。当然就目前来说，需要走的路还很长，Table API 现在还只是个玩具。</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ul>
+<li><a href="http://flink.apache.org/news/2016/05/24/stream-sql.html" target="_blank" rel="noopener">Stream Processing for Everyone with SQL and Apache Flink</a></li>
+<li><a href="http://flink.apache.org/news/2017/03/29/table-sql-api-update.html" target="_blank" rel="noopener">From Streams to Tables and Back Again: An Update on Flink’s Table &amp; SQL API</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+        
+<hr>
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+  <img id="wechat_subscriber_qcode" src="https://img.alicdn.com/tfs/TB1.ajIlIbpK1RjSZFyXXX_qFXa-1004-541.png" alt="hoxis wechat" style="width: auto; height:200px; max-width: 100%;">
+</div>
+<div class="copyright-txt">
+  <a href="/copyright"><i class="fa fa-copyright"></i>著作权归作者所有</a>
+</div>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Flink/" rel="tag">#Flink</a>
+          
+            <a href="/tags/Table/" rel="tag">#Table</a>
+          
+            <a href="/tags/SQL/" rel="tag">#SQL</a>
+          
+        </div>
+      
+
+      
+      <div class="post-spread">
+        
+          <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-56d648eefec3350b" async="async"></script>
+<!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_sharing_toolbox"></div>
+        
+      </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/06/06/flink-internals-session-window/" rel="next" title="Flink 原理与实现：Session Window">
+                <i class="fa fa-chevron-left"></i> Flink 原理与实现：Session Window
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2017/05/17/flink-internals-async-io/" rel="prev" title="Flink 原理与实现：Aysnc I/O">
+                Flink 原理与实现：Aysnc I/O <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/default_avatar.jpg" alt="WuChong">
+          <p class="site-author-name" itemprop="name">WuChong</p>
+          <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，<br>你就应该静下心来学习。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">86</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+<!--
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">分类</span>
+            </a>
+          </div>
+          -->
+
+          
+          
+          
+            <div class="site-state-item site-state-categories">
+              
+              <a href="/categories">
+              
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">72</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-sa/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="http://flink-china.org" target="_blank">Apache Flink China</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://zh.ververica.com" target="_blank">Ververica</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#聊聊历史"><span class="nav-number">1.</span> <span class="nav-text">聊聊历史</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Table-API-amp-SQL-长什么样？"><span class="nav-number">2.</span> <span class="nav-text">Table API &amp; SQL 长什么样？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Table-API-amp-SQL-原理"><span class="nav-number">3.</span> <span class="nav-text">Table API &amp; SQL 原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Table-API-amp-SQL-现状"><span class="nav-number">4.</span> <span class="nav-text">Table API &amp; SQL 现状</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Table-API-amp-SQL-未来"><span class="nav-number">5.</span> <span class="nav-text">Table API &amp; SQL 未来</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文献"><span class="nav-number">6.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WuChong</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.scheme !== 'Pisces' && (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always')) {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'wuchong';
+      var disqus_identifier = 'blog/2017/03/30/flink-internals-table-and-sql-api/';
+      var disqus_title = 'Flink 原理与实现：Table & SQL API';
+      var disqus_url = 'http://wuchong.me/blog/2017/03/30/flink-internals-table-and-sql-api/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
+  
+
+
+  
+  
+
+
+</body>
+</html>

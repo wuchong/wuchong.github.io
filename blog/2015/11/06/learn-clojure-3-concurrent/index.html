@@ -1,0 +1,922 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css">
+
+
+    <meta name="author" content="WuChong">
+
+
+
+  <meta name="keywords" content="Clojure,学习笔记,笔记,教程,并发,引用类型">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jark's Blog" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0">
+
+
+
+
+
+
+<meta name="description" content="很多人是为了更好地进行并发编程而选择了Clojure，但Clojure所有的数据都是只读的，除非你使用引用类型（Vars、Ref、Atom、Agent）来标明它们是可以修改的。Clojure处理并发的思路与众不同，采用的是Software Transactional Memory (STM)来实现的，即软事务内存。你可以将STM想象成数据库，只不过是内存型的，它只支持事务的ACI，也就是原子性、一">
+<meta name="keywords" content="Clojure,学习笔记,笔记,教程,并发,引用类型">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Clojure学习笔记（三）：并发与引用">
+<meta property="og:url" content="http://wuchong.me/blog/2015/11/06/learn-clojure-3-concurrent/index.html">
+<meta property="og:site_name" content="Jark&#39;s Blog">
+<meta property="og:description" content="很多人是为了更好地进行并发编程而选择了Clojure，但Clojure所有的数据都是只读的，除非你使用引用类型（Vars、Ref、Atom、Agent）来标明它们是可以修改的。Clojure处理并发的思路与众不同，采用的是Software Transactional Memory (STM)来实现的，即软事务内存。你可以将STM想象成数据库，只不过是内存型的，它只支持事务的ACI，也就是原子性、一">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2022-08-03T06:46:44.509Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Clojure学习笔记（三）：并发与引用">
+<meta name="twitter:description" content="很多人是为了更好地进行并发编程而选择了Clojure，但Clojure所有的数据都是只读的，除非你使用引用类型（Vars、Ref、Atom、Agent）来标明它们是可以修改的。Clojure处理并发的思路与众不同，采用的是Software Transactional Memory (STM)来实现的，即软事务内存。你可以将STM想象成数据库，只不过是内存型的，它只支持事务的ACI，也就是原子性、一">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 4141040,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> Clojure学习笔记（三）：并发与引用 | Jark's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Jark's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-talks">
+          <a href="/talks" rel="section">
+            
+              <i class="menu-item-icon fa fa-microphone-stand fa-fw"></i> <br>
+            
+            演讲
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input">
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', '8Exkz7xsCTJyyCHiK9TY','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Clojure学习笔记（三）：并发与引用
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-11-06T14:45:03+08:00" content="2015-11-06">
+              2015-11-06
+            </time>
+          </span>
+
+          
+            <span class="post-category">
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/编程语言/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2015/11/06/learn-clojure-3-concurrent/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="blog/2015/11/06/learn-clojure-3-concurrent/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+<!--
+    
+      <div class="post-body">
+    
+    -->
+
+
+    <div class="post-body" itemprop="articleBody">
+    
+
+      
+      
+
+      
+        <p>很多人是为了更好地进行并发编程而选择了Clojure，但Clojure所有的数据都是只读的，除非你使用引用类型（Vars、Ref、Atom、Agent）来标明它们是可以修改的。Clojure处理并发的思路与众不同，采用的是<a href="http://en.wikipedia.org/wiki/Software_transactional_memory" target="_blank" rel="noopener">Software Transactional Memory</a> (STM)来实现的，即软事务内存。你可以将STM想象成数据库，只不过是内存型的，它只支持事务的ACI，也就是原子性、一致性、隔离性，但是不包括持久性，因为状态的保存都在内存里。引用类型是一种可变引用指向不可变数据的一种机制。Clojure的并发API分为四种模型：</p>
+<ol>
+<li>管理Thread local变量的Var。</li>
+<li>管理协作式、同步修改可变状态的Ref</li>
+<li>管理非协作式、同步修改可变状态的Atom</li>
+<li>管理异步修改可变状态的Agent</li>
+</ol>
+<a id="more"></a>
+<h2 id="Vars"><a href="#Vars" class="headerlink" title="Vars"></a>Vars</h2><p>Vars 是一种引用类型，它可以有一个被所有线程共享的root binding，并且每个线程还能拥有自己(thread-local)的值。</p>
+<ul>
+<li><p><strong>def</strong><br><code>def</code> 定义, 将会影响全局定义。</p>
+<figure class="highlight clojure"><table><tr><td class="code"><pre><span class="line">(<span class="name"><span class="builtin-name">def</span></span> v <span class="number">2</span>) <span class="comment">; -&gt; 2</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>let</strong><br><code>let</code> 定义, 将会影响自身生命周期内,以及自己作用域内,如果超出自己的作用域,则无效。</p>
+<figure class="highlight clojure"><table><tr><td class="code"><pre><span class="line">(<span class="name"><span class="builtin-name">def</span></span> name <span class="string">"jark"</span>)</span><br><span class="line">(<span class="name"><span class="builtin-name">let</span></span> [name <span class="string">"wuchong"</span>] </span><br><span class="line">  (<span class="name">println</span> name)) <span class="comment">; -&gt; 输出 wuchong</span></span><br><span class="line">(<span class="name">println</span> name) <span class="comment">; -&gt; 输出 jark</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>binding</strong><br><code>binding</code>, 将会影响自身生命周期以及自己作用域内，即使超出自身作用域,也都有效。</p>
+<p>这个例子演示了binding和set!一起使用，用set!来修改一个由binding bind的Var的线程本地的值。</p>
+<figure class="highlight clojure"><table><tr><td class="code"><pre><span class="line">(<span class="name"><span class="builtin-name">def</span></span> ^<span class="symbol">:dynamic</span> v <span class="number">1</span>) <span class="comment">; 需要声明成"dynamic"，v才能用binding来改变值。</span></span><br><span class="line"></span><br><span class="line">(<span class="name"><span class="builtin-name">defn</span></span> change-it []</span><br><span class="line">  (<span class="name">println</span> <span class="string">"2) v ="</span> v) <span class="comment">; -&gt; 1</span></span><br><span class="line"></span><br><span class="line">  (<span class="name"><span class="builtin-name">def</span></span> v <span class="number">2</span>) <span class="comment">; changes root value</span></span><br><span class="line">  (<span class="name">println</span> <span class="string">"3) v ="</span> v) <span class="comment">; -&gt; 2</span></span><br><span class="line"></span><br><span class="line">  (<span class="name">binding</span> [v <span class="number">3</span>] <span class="comment">; binds a thread-local value</span></span><br><span class="line">    (<span class="name">println</span> <span class="string">"4) v ="</span> v) <span class="comment">; -&gt; 3</span></span><br><span class="line"></span><br><span class="line">    (<span class="name"><span class="builtin-name">set!</span></span> v <span class="number">4</span>) <span class="comment">; changes thread-local value</span></span><br><span class="line">    (<span class="name">println</span> <span class="string">"5) v ="</span> v)) <span class="comment">; -&gt; 4</span></span><br><span class="line"></span><br><span class="line">  (<span class="name">println</span> <span class="string">"6) v ="</span> v)) <span class="comment">; thread-local value is gone now -&gt; 2</span></span><br><span class="line"></span><br><span class="line">(<span class="name">println</span> <span class="string">"1) v ="</span> v) <span class="comment">; -&gt; 1</span></span><br><span class="line"></span><br><span class="line">(<span class="name"><span class="builtin-name">let</span></span> [thread (<span class="name">Thread.</span> #(<span class="name">change-it</span>))] <span class="comment">; 启动一个本地线程</span></span><br><span class="line">  (<span class="name">.start</span> thread)</span><br><span class="line">  (<span class="name">.join</span> thread)) <span class="comment">; 等待线程结束</span></span><br><span class="line"></span><br><span class="line">(<span class="name">println</span> <span class="string">"7) v ="</span> v) <span class="comment">; -&gt; 2</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>好吧，说了这么多，其实Clojure不鼓励我们使用Vars，因为Vars在线程间不能很好地协作。</p>
+<h2 id="Refs"><a href="#Refs" class="headerlink" title="Refs"></a>Refs</h2><p>Refs是用来协调对于一个或者多个binding的并发修改的。</p>
+<ul>
+<li><p><strong>ref</strong></p>
+<figure class="highlight clojure"><table><tr><td class="code"><pre><span class="line"><span class="comment">; 用ref函数创建一个可变的引用(reference)，一个空的歌曲集合</span></span><br><span class="line">(<span class="name"><span class="builtin-name">def</span></span> song (<span class="name"><span class="builtin-name">ref</span></span> #&#123;&#125;))</span><br><span class="line">(<span class="name">println</span> @song) <span class="comment">; -&gt; #&#123;&#125;  用@来读取ref值</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>validator</strong><br>类似数据库，可以为ref添加“约束”，在数据更新的时候需要通过validator函数的验证，如果验证不通过，整个事务将回滚。</p>
+<figure class="highlight clojure"><table><tr><td class="code"><pre><span class="line">(<span class="name"><span class="builtin-name">def</span></span> validate-song</span><br><span class="line">     (<span class="name"><span class="builtin-name">partial</span></span> every? #(<span class="name"><span class="builtin-name">not</span></span> (<span class="name"><span class="builtin-name">nil?</span></span> %)))) <span class="comment">; 定义了歌名不能为空的validator</span></span><br><span class="line">(<span class="name"><span class="builtin-name">def</span></span> song (<span class="name"><span class="builtin-name">ref</span></span> #&#123;&#125; <span class="symbol">:validator</span> validate-song))</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>dosync &amp; ref-set</strong></p>
+<figure class="highlight clojure"><table><tr><td class="code"><pre><span class="line"><span class="comment">; 改变引用指向的内容，使用ref-set函数</span></span><br><span class="line">(<span class="name"><span class="builtin-name">ref-set</span></span> song #&#123;<span class="string">"Dangerous"</span>&#125;) </span><br><span class="line"><span class="comment">; -&gt; IllegalStateException: No transaction running</span></span><br><span class="line"><span class="comment">; 会报错，因为引用是可变的，对状态的更新需要用事务进行保护，使用dosync</span></span><br><span class="line">(<span class="name"><span class="builtin-name">dosync</span></span> (<span class="name"><span class="builtin-name">ref-set</span></span> song #&#123;<span class="string">"Dangerous"</span>&#125;))</span><br><span class="line"></span><br><span class="line"><span class="comment">; 因为我们加了不能为空的validator，加入空会报错</span></span><br><span class="line">(<span class="name"><span class="builtin-name">dosync</span></span> (<span class="name"><span class="builtin-name">ref-set</span></span> song #&#123;&#125;)) <span class="comment">; -&gt; IllegalStateException Invalid reference state</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; 可以对多个ref的更新放在一个事务里</span></span><br><span class="line">(<span class="name"><span class="builtin-name">dosync</span></span> (<span class="name"><span class="builtin-name">ref-set</span></span> song #&#123;<span class="string">"Dangerous"</span>&#125;)</span><br><span class="line">             (<span class="name"><span class="builtin-name">ref-set</span></span> singer #&#123;<span class="string">"MJ"</span>&#125;) )</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<ul>
+<li><p><strong>alter &amp; commute</strong><br>更改引用有点暴力也比较少见，更常见的更新是根据当前状态更新，比如加一首歌进去。</p>
+<figure class="highlight clojure"><table><tr><td class="code"><pre><span class="line"><span class="comment">; 先查询集合内容，然后往集合里添加歌曲，然后更新整个集合</span></span><br><span class="line">(<span class="name"><span class="builtin-name">dosync</span></span> (<span class="name"><span class="builtin-name">ref-set</span></span> song (<span class="name"><span class="builtin-name">conj</span></span> @song <span class="string">"heal the world"</span>)))</span><br><span class="line"></span><br><span class="line"><span class="comment">; 查询并更新的操作可以合成一步，这是通过alter函数实现</span></span><br><span class="line">(<span class="name"><span class="builtin-name">dosync</span></span> (<span class="name"><span class="builtin-name">alter</span></span> song conj <span class="string">"heal the world"</span>))</span><br><span class="line"></span><br><span class="line">(<span class="name">println</span> @song) <span class="comment">; -&gt; #&#123;heal the world&#125;</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>  注意alter后跟的函数会把ref值当做第一个参数，所以这里使用cons就不行了，因为cons要求第一个参数是加入的元素。</p>
+<p>  commute函数是是对alter的优化，commute可以同时进行修改（并不影响ref最终的值）。通常情况下，一般优先使用alter，除非在遇到明显的性能瓶颈并且对顺序不是那么关心的时候，可以考虑用commute替换。</p>
+<h2 id="Atoms"><a href="#Atoms" class="headerlink" title="Atoms"></a>Atoms</h2><p>Atoms 提供了比使用Refs&amp;STM更简单的更新当个值的方法。它不受事务的影响。有点像Java的原子类(Atomic)。</p>
+<p>有三个函数可以修改一个Atom的值：<code>reset!</code>,<code>compare-and-set!</code> 和<code>swap!</code>。</p>
+<figure class="highlight clojure"><table><tr><td class="code"><pre><span class="line">(<span class="name"><span class="builtin-name">def</span></span> counter (<span class="name"><span class="builtin-name">atom</span></span> <span class="number">1</span>))  <span class="comment">; 指定 counter 为Atom类型</span></span><br><span class="line">(<span class="name"><span class="builtin-name">reset!</span></span> counter <span class="number">2</span>)   <span class="comment">; 更新原子的值</span></span><br><span class="line">(<span class="name">println</span> @counter) <span class="comment">; -&gt; 2 deref，用`@`读取atom的值</span></span><br><span class="line">(<span class="name"><span class="builtin-name">compare-and-set!</span></span> counter <span class="number">2</span> <span class="number">3</span>) <span class="comment">; -&gt; true 执行成功</span></span><br><span class="line">(<span class="name"><span class="builtin-name">swap!</span></span> counter inc) <span class="comment">; 第二个参数是计算Atom新值的函数，可带参数。会一直执行直到成功为止。</span></span><br></pre></td></tr></table></figure>
+<h2 id="Agents"><a href="#Agents" class="headerlink" title="Agents"></a>Agents</h2><p>Agents 是用来把一些事情放到另外一个线程来做（一般不需要事务控制的），用来控制状态的异步更新。</p>
+<figure class="highlight clojure"><table><tr><td class="code"><pre><span class="line">(<span class="name"><span class="builtin-name">def</span></span> counter (<span class="name"><span class="builtin-name">agent</span></span> <span class="number">0</span>)) <span class="comment">; 使用agent函数定义一个初始值为0的agent</span></span><br><span class="line">(<span class="name">println</span> @counter) <span class="comment">; -&gt; 0 同样的使用@读取值</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; 更新agent，通过send函数给agent发送任务去更新agent</span></span><br><span class="line">(<span class="name"><span class="builtin-name">send</span></span> counter inc) <span class="comment">; -&gt; #&lt;Agent@9444d1: 0&gt; 此处一般是0，因为更新是异步的</span></span><br><span class="line">(<span class="name">println</span> @counter) <span class="comment">; -&gt; 1  这里获取的肯定是1了，已经更新了</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; 还有个方法，send-off，它的作用于send类似：</span></span><br><span class="line">(<span class="name"><span class="builtin-name">send-off</span></span> counter inc)</span><br><span class="line">(<span class="name">println</span> @counter) <span class="comment">; -&gt; 2</span></span><br></pre></td></tr></table></figure>
+<p>send和send-off的区别在于，send是将任务交给一个固定大小的线程池执行(默认大小是CPU核数+2)。<strong>因此send执行的任务最好不要有阻塞的操作</strong>。而send-off则使用没有大小限制（取决于内存）的线程池。因此，<strong>send-off比较适合任务有阻塞的操作</strong>，如IO读写之类。注意，所有的agent是共用这些线程池。</p>
+<h2 id="扩展阅读"><a href="#扩展阅读" class="headerlink" title="扩展阅读"></a>扩展阅读</h2><p>这篇笔记原先是想放在一篇文章里的，谁知太长了，只好分成了三篇。以下是我觉得学习Clojure不错的网上资源，需者自取。</p>
+<ul>
+<li><a href="http://learnxinyminutes.com/docs/zh-cn/clojure-cn/" target="_blank" rel="noopener">Learn Clojure in Y Minutes</a>, 快速入门</li>
+<li><a href="http://java.ociweb.com/mark/clojure/article.htm" target="_blank" rel="noopener">Clojure - Function Programming for JVM</a>, 更系统地学习。</li>
+<li><a href="http://clojure.github.io/clojure/clojure.core-api.html" target="_blank" rel="noopener">Clojure API</a>，遇到不懂的就查一下，不过还是推荐用Mac上的<a href="https://kapeli.com/" target="_blank" rel="noopener">Dash</a>工具，真的是很好用很方便！</li>
+<li><a href="http://clojure-api-cn.readthedocs.org/en/latest/" target="_blank" rel="noopener">Clojure 中文 API</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+        
+<hr>
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+  <img id="wechat_subscriber_qcode" src="https://img.alicdn.com/tfs/TB1.ajIlIbpK1RjSZFyXXX_qFXa-1004-541.png" alt="hoxis wechat" style="width: auto; height:200px; max-width: 100%;">
+</div>
+<div class="copyright-txt">
+  <a href="/copyright"><i class="fa fa-copyright"></i>著作权归作者所有</a>
+</div>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Clojure/" rel="tag">#Clojure</a>
+          
+            <a href="/tags/笔记/" rel="tag">#笔记</a>
+          
+        </div>
+      
+
+      
+      <div class="post-spread">
+        
+          <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-56d648eefec3350b" async="async"></script>
+<!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_sharing_toolbox"></div>
+        
+      </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2015/11/06/learn-clojure-2-syntax/" rel="next" title="Clojure学习笔记（二）：语法">
+                <i class="fa fa-chevron-left"></i> Clojure学习笔记（二）：语法
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2015/11/21/macbook-productive-tools/" rel="prev" title="高效Macbook开发之道(工具篇)">
+                高效Macbook开发之道(工具篇) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/default_avatar.jpg" alt="WuChong">
+          <p class="site-author-name" itemprop="name">WuChong</p>
+          <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，<br>你就应该静下心来学习。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">86</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+<!--
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">分类</span>
+            </a>
+          </div>
+          -->
+
+          
+          
+          
+            <div class="site-state-item site-state-categories">
+              
+              <a href="/categories">
+              
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">72</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-sa/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="http://flink-china.org" target="_blank">Apache Flink China</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://zh.ververica.com" target="_blank">Ververica</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Vars"><span class="nav-number">1.</span> <span class="nav-text">Vars</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Refs"><span class="nav-number">2.</span> <span class="nav-text">Refs</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Atoms"><span class="nav-number">3.</span> <span class="nav-text">Atoms</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Agents"><span class="nav-number">4.</span> <span class="nav-text">Agents</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#扩展阅读"><span class="nav-number">5.</span> <span class="nav-text">扩展阅读</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WuChong</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.scheme !== 'Pisces' && (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always')) {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'wuchong';
+      var disqus_identifier = 'blog/2015/11/06/learn-clojure-3-concurrent/';
+      var disqus_title = 'Clojure学习笔记（三）：并发与引用';
+      var disqus_url = 'http://wuchong.me/blog/2015/11/06/learn-clojure-3-concurrent/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
+  
+
+
+  
+  
+
+
+</body>
+</html>

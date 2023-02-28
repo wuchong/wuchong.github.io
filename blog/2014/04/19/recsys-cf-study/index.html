@@ -1,0 +1,934 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css">
+
+
+    <meta name="author" content="WuChong">
+
+
+
+  <meta name="keywords" content="协同过滤,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jark's Blog" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0">
+
+
+
+
+
+
+<meta name="description" content="这篇文章主要总结下自己看了项亮的《推荐系统实践》后的学习笔记。作为入门，这么书确实写的不错。本文从评测指标、UserCF、ItemCF 的原理和实现以及比较来进行阐述。">
+<meta name="keywords" content="协同过滤">
+<meta property="og:type" content="article">
+<meta property="og:title" content="推荐系统学习：协同过滤实现">
+<meta property="og:url" content="http://wuchong.me/blog/2014/04/19/recsys-cf-study/index.html">
+<meta property="og:site_name" content="Jark&#39;s Blog">
+<meta property="og:description" content="这篇文章主要总结下自己看了项亮的《推荐系统实践》后的学习笔记。作为入门，这么书确实写的不错。本文从评测指标、UserCF、ItemCF 的原理和实现以及比较来进行阐述。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://ww2.sinaimg.cn/large/81b78497jw1efj1yg6uywj20kg0cm778.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/81b78497jw1efk99rahjcg205y0170sh.gif">
+<meta property="og:image" content="http://ww3.sinaimg.cn/large/81b78497jw1efj1ygi0mej20im044757.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/81b78497jw1efk9i8h9cxg205v0170sh.gif">
+<meta property="og:image" content="http://ww3.sinaimg.cn/large/81b78497jw1efj1yftjtvj20in044q3r.jpg">
+<meta property="og:updated_time" content="2022-08-03T06:46:44.511Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="推荐系统学习：协同过滤实现">
+<meta name="twitter:description" content="这篇文章主要总结下自己看了项亮的《推荐系统实践》后的学习笔记。作为入门，这么书确实写的不错。本文从评测指标、UserCF、ItemCF 的原理和实现以及比较来进行阐述。">
+<meta name="twitter:image" content="http://ww2.sinaimg.cn/large/81b78497jw1efj1yg6uywj20kg0cm778.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 4141040,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> 推荐系统学习：协同过滤实现 | Jark's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Jark's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-talks">
+          <a href="/talks" rel="section">
+            
+              <i class="menu-item-icon fa fa-microphone-stand fa-fw"></i> <br>
+            
+            演讲
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input">
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', '8Exkz7xsCTJyyCHiK9TY','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                推荐系统学习：协同过滤实现
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2014-04-19T01:07:15+08:00" content="2014-04-19">
+              2014-04-19
+            </time>
+          </span>
+
+          
+            <span class="post-category">
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/程序设计/" itemprop="url" rel="index">
+                    <span itemprop="name">程序设计</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2014/04/19/recsys-cf-study/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="blog/2014/04/19/recsys-cf-study/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+<!--
+    
+      <div class="post-body">
+    
+    -->
+
+
+    <div class="post-body" itemprop="articleBody">
+    
+
+      
+      
+
+      
+        <p>阿里大数据竞赛的第一季也即将告一段落，之前一直想发篇竞赛心得/攻略，但是看到有人发的博客居然被阿里查封了就不敢了…扯远了，这篇文章主要总结下自己看了项亮的《推荐系统实践》后的学习笔记。作为入门，这么书确实写的不错。</p>
+<h2 id="推荐系统的评测指标"><a href="#推荐系统的评测指标" class="headerlink" title="推荐系统的评测指标"></a>推荐系统的评测指标</h2><p>为了评估推荐算法的好坏需要各方面的评估指标。</p>
+<ul>
+<li><p>准确率<br>准确率就是最终的推荐列表中有多少是推荐对了的。</p>
+</li>
+<li><p>召回率<br>召回率就是推荐对了的占全集的多少。<br>下图直观地描述了准确率和召回率的含义<br><img src="http://ww2.sinaimg.cn/large/81b78497jw1efj1yg6uywj20kg0cm778.jpg" alt></p>
+<a id="more"></a></li>
+<li><p>覆盖率<br>覆盖率表示推荐的物品占了物品全集空间的多大比例。</p>
+</li>
+<li><p>新颖度<br>新颖度是为了推荐长尾区间的物品。用推荐列表中物品的平均流行度度量推荐结果的新颖度。如果推荐出的物品都很热门，说明推荐的新颖度较低，否则说明推荐结果比较新颖。</p>
+</li>
+</ul>
+<p>各个评测指标的代码实现如下：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#train为训练集合，test为验证集合，给每个用户推荐N个物品</span></span><br><span class="line"><span class="comment">#召回率和准确率</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">RecallAndPrecision</span><span class="params">(self,train=None,test=None,K=<span class="number">3</span>,N=<span class="number">10</span>)</span>:</span></span><br><span class="line">    train = train <span class="keyword">or</span> self.train</span><br><span class="line">    test = test <span class="keyword">or</span> self.test</span><br><span class="line">    hit = <span class="number">0</span></span><br><span class="line">    recall = <span class="number">0</span></span><br><span class="line">    precision = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> user <span class="keyword">in</span> train.keys():</span><br><span class="line">        tu = test.get(user,&#123;&#125;)</span><br><span class="line">        rank = self.Recommend(user,K=K,N=N)</span><br><span class="line">        <span class="keyword">for</span> i,_ <span class="keyword">in</span> rank.items():</span><br><span class="line">            <span class="keyword">if</span> i <span class="keyword">in</span> tu:</span><br><span class="line">                hit += <span class="number">1</span></span><br><span class="line">        recall += len(tu)</span><br><span class="line">        precision += N</span><br><span class="line">    recall = hit / (recall * <span class="number">1.0</span>)</span><br><span class="line">    precision = hit / (precision * <span class="number">1.0</span>)</span><br><span class="line">    <span class="keyword">return</span> (recall,precision)</span><br><span class="line"></span><br><span class="line"><span class="comment">#覆盖率</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">Coverage</span><span class="params">(self,train=None,test=None,K=<span class="number">3</span>,N=<span class="number">10</span>)</span>:</span></span><br><span class="line">    train = train <span class="keyword">or</span> self.train</span><br><span class="line">    recommend_items = set()</span><br><span class="line">    all_items = set()</span><br><span class="line">    <span class="keyword">for</span> user,items <span class="keyword">in</span> train.items():</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> items.keys():</span><br><span class="line">            all_items.add(i)</span><br><span class="line">        rank = self.Recommend(user,K)</span><br><span class="line">        <span class="keyword">for</span> i,_ <span class="keyword">in</span> rank.items():</span><br><span class="line">            recommend_items.add(i)</span><br><span class="line">    <span class="keyword">return</span> len(recommend_items) / (len(all_items) * <span class="number">1.0</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#新颖度</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">Popularity</span><span class="params">(self,train=None,test=None,K=<span class="number">3</span>,N=<span class="number">10</span>)</span>:</span></span><br><span class="line">    train = train <span class="keyword">or</span> self.train</span><br><span class="line">    item_popularity = dict()</span><br><span class="line">    <span class="comment">#计算物品流行度</span></span><br><span class="line">    <span class="keyword">for</span> user,items <span class="keyword">in</span> train.items():</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> items.keys():</span><br><span class="line">            item_popularity.setdefault(i,<span class="number">0</span>)</span><br><span class="line">            item_popularity[i] += <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    ret = <span class="number">0</span>     <span class="comment">#新颖度结果</span></span><br><span class="line">    n = <span class="number">0</span>       <span class="comment">#推荐的总个数</span></span><br><span class="line">    <span class="keyword">for</span> user <span class="keyword">in</span> train.keys():</span><br><span class="line">        rank = self.Recommend(user,K=K,N=N)    <span class="comment">#获得推荐结果</span></span><br><span class="line">        <span class="keyword">for</span> item,_ <span class="keyword">in</span> rank.items():</span><br><span class="line">            ret += math.log(<span class="number">1</span> + item_popularity[item])</span><br><span class="line">            n += <span class="number">1</span></span><br><span class="line">    ret /= n * <span class="number">1.0</span></span><br><span class="line">    <span class="keyword">return</span> ret</span><br></pre></td></tr></table></figure>
+<h2 id="基于用户的协同过滤"><a href="#基于用户的协同过滤" class="headerlink" title="基于用户的协同过滤"></a>基于用户的协同过滤</h2><p>UserBasedCF的核心思想主要是找到和目标用户兴趣相似的用户集合，然后给目标用户推荐这个集合的用户喜欢的物品。关键在于计算用户与用户之间的兴趣相似度。这里主要使用余弦相似度来计算：</p>
+<p>$$w_{uv} = \frac{|N(u) \cap N(v)|}{\sqrt{|N(u)|| N(v)|}}$$</p>
+<p>$w_{uv}$ 代表用户 u 与 v 之间的兴趣相似度，$N(u)$表示用户 u 曾经喜欢过的物品集合, $N(v)$ 表示用户 v 曾经喜欢过的物品集合。</p>
+<p>根据上述核心思想，可以有如下算法步骤：</p>
+<ol>
+<li>建立物品-用户的倒排表</li>
+<li>用户与用户之间的共现矩阵 C[u][v]，表示用户u与v喜欢相同物品的个数</li>
+<li>用户与用户之间的相似度矩阵 W[u][v]，根据上述相似度计算公式计算。</li>
+<li>用上面的相似度矩阵来给用户推荐和他兴趣相似的用户喜欢的物品。用户 u 对物品 i 的兴趣程度可以估计为</li>
+</ol>
+<p><img src="http://ww1.sinaimg.cn/large/81b78497jw1efk99rahjcg205y0170sh.gif" alt></p>
+<p>$S(u,K)$ 为和用户 u 兴趣最接近的 K 个用户， $N(i)$ 为对物品 i 有正反馈的用户集合， W[u][v] 为用户 u 和用户 v 的兴趣相似度，$r_{vi}$ 为用户 v 对物品 i 的兴趣。</p>
+<p>下面是UserBasedCF的代码实现：<br><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">UserBasedCF</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self,train_file,test_file)</span>:</span></span><br><span class="line">        self.train_file = train_file</span><br><span class="line">        self.test_file = test_file</span><br><span class="line">        self.readData()</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">readData</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="comment">#读取文件，并生成用户-物品的评分表和测试集</span></span><br><span class="line">        self.train = dict()     <span class="comment">#用户-物品的评分表</span></span><br><span class="line">        <span class="keyword">for</span> line <span class="keyword">in</span> open(self.train_file):</span><br><span class="line">            <span class="comment"># user,item,score = line.strip().split(",")</span></span><br><span class="line">            user,item,score,_ = line.strip().split(<span class="string">"\t"</span>)</span><br><span class="line">            self.train.setdefault(user,&#123;&#125;)</span><br><span class="line">            self.train[user][item] = int(score)</span><br><span class="line">        self.test = dict()      <span class="comment">#测试集</span></span><br><span class="line">        <span class="keyword">for</span> line <span class="keyword">in</span> open(self.test_file):</span><br><span class="line">            <span class="comment"># user,item,score = line.strip().split(",")</span></span><br><span class="line">            user,item,score,_ = line.strip().split(<span class="string">"\t"</span>)</span><br><span class="line">            self.test.setdefault(user,&#123;&#125;)</span><br><span class="line">            self.test[user][item] = int(score)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">UserSimilarity</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="comment">#建立物品-用户的倒排表</span></span><br><span class="line">        self.item_users = dict()</span><br><span class="line">        <span class="keyword">for</span> user,items <span class="keyword">in</span> self.train.items():</span><br><span class="line">            <span class="keyword">for</span> i <span class="keyword">in</span> items.keys():</span><br><span class="line">                <span class="keyword">if</span> i <span class="keyword">not</span> <span class="keyword">in</span> self.item_users:</span><br><span class="line">                    self.item_users[i] = set()</span><br><span class="line">                self.item_users[i].add(user)</span><br><span class="line"></span><br><span class="line">        <span class="comment">#计算用户-用户相关性矩阵</span></span><br><span class="line">        C = dict()  <span class="comment">#用户-用户共现矩阵</span></span><br><span class="line">        N = dict()  <span class="comment">#用户产生行为的物品个数</span></span><br><span class="line">        <span class="keyword">for</span> i,users <span class="keyword">in</span> self.item_users.items():</span><br><span class="line">            <span class="keyword">for</span> u <span class="keyword">in</span> users:</span><br><span class="line">                N.setdefault(u,<span class="number">0</span>)</span><br><span class="line">                N[u] += <span class="number">1</span></span><br><span class="line">                C.setdefault(u,&#123;&#125;)</span><br><span class="line">                <span class="keyword">for</span> v <span class="keyword">in</span> users:</span><br><span class="line">                    <span class="keyword">if</span> u == v:</span><br><span class="line">                        <span class="keyword">continue</span></span><br><span class="line">                    C[u].setdefault(v,<span class="number">0</span>)</span><br><span class="line">                    C[u][v] += <span class="number">1</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">#计算用户-用户相似度，余弦相似度</span></span><br><span class="line">        self.W = dict()      <span class="comment">#相似度矩阵</span></span><br><span class="line">        <span class="keyword">for</span> u,related_users <span class="keyword">in</span> C.items():</span><br><span class="line">            self.W.setdefault(u,&#123;&#125;)</span><br><span class="line">            <span class="keyword">for</span> v,cuv <span class="keyword">in</span> related_users.items():</span><br><span class="line">                self.W[u][v] = cuv / math.sqrt(N[u] * N[v])</span><br><span class="line">        <span class="keyword">return</span> self.W</span><br><span class="line"></span><br><span class="line">    <span class="comment">#给用户user推荐，前K个相关用户</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">Recommend</span><span class="params">(self,user,K=<span class="number">3</span>,N=<span class="number">10</span>)</span>:</span></span><br><span class="line">        rank = dict()</span><br><span class="line">        action_item = self.train[user].keys()     <span class="comment">#用户user产生过行为的item</span></span><br><span class="line">        <span class="keyword">for</span> v,wuv <span class="keyword">in</span> sorted(self.W[user].items(),key=<span class="keyword">lambda</span> x:x[<span class="number">1</span>],reverse=<span class="literal">True</span>)[<span class="number">0</span>:K]:</span><br><span class="line">            <span class="comment">#遍历前K个与user最相关的用户</span></span><br><span class="line">            <span class="keyword">for</span> i,rvi <span class="keyword">in</span> self.train[v].items():</span><br><span class="line">                <span class="keyword">if</span> i <span class="keyword">in</span> action_item:</span><br><span class="line">                    <span class="keyword">continue</span></span><br><span class="line">                rank.setdefault(i,<span class="number">0</span>)</span><br><span class="line">                rank[i] += wuv * rvi</span><br><span class="line">        <span class="keyword">return</span> dict(sorted(rank.items(),key=<span class="keyword">lambda</span> x:x[<span class="number">1</span>],reverse=<span class="literal">True</span>)[<span class="number">0</span>:N])   <span class="comment">#推荐结果的取前N个</span></span><br></pre></td></tr></table></figure></p>
+<p>采用 MovieLens 数据集对 UserCF 算法测试之后各评测指标的结果如下<br><img src="http://ww3.sinaimg.cn/large/81b78497jw1efj1ygi0mej20im044757.jpg" alt></p>
+<h2 id="基于物品的协同过滤"><a href="#基于物品的协同过滤" class="headerlink" title="基于物品的协同过滤"></a>基于物品的协同过滤</h2><p>ItemBasedCF 应该是业界的应用最广泛的推荐算法了。该算法的核心思想主要是：给目标用户推荐与他喜欢的物品相似度较高高的物品。我们经常在京东、天猫上看到「购买了该商品的用户也经常购买的其他商品」，就是主要基于 ItemBasedCF。一般我们先计算物品之间的相似度，然后根据物品的相似度和用户的历史行为给用户生成推荐列表。</p>
+<p>物品 i 和 j 之间的相似度可以使用如下公式计算：</p>
+<p>$$w_{ij} = \frac{|N(i) \cap N(j)|}{\sqrt{|N(i)|| N(j)|}}$$</p>
+<p>从上面的定义可以看到，在协同过滤中两个物品产生相似度是因为它们共同被很多用户喜欢，也就是说每个用户都可以通过他们的历史兴趣列表给物品“贡献”相似度。</p>
+<p>根据上述核心思想，可以有如下算法步骤：</p>
+<ol>
+<li>建立用户-物品的倒排表</li>
+<li>物品与物品之间的共现矩阵 C[i][j]，表示物品 i 与 j 共同被多少用户所喜欢。</li>
+<li>用户与用户之间的相似度矩阵 W[i][j] ， 根据上述相似度计算公式计算。</li>
+<li>用上面的相似度矩阵来给用户推荐与他所喜欢的物品相似的其他物品。用户 u 对物品 j 的兴趣程度可以估计为</li>
+</ol>
+<p><img src="http://ww1.sinaimg.cn/large/81b78497jw1efk9i8h9cxg205v0170sh.gif" alt></p>
+<p>$S(j,K)$ 为和物品 j 最相似的前 K 个物品， $N(u)$ 为对用户 u 所喜欢的物品集合， W[j][i] 为物品 j 和物品 i 之间的相似度， $r_{ui}$ 为用户 u 对物品 i 的兴趣。</p>
+<p>下面是ItemBasedCF 的代码实现：<br><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ItemBasedCF</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self,train_file,test_file)</span>:</span></span><br><span class="line">        self.train_file = train_file</span><br><span class="line">        self.test_file = test_file</span><br><span class="line">        self.readData()</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">readData</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="comment">#读取文件，并生成用户-物品的评分表和测试集</span></span><br><span class="line">        self.train = dict()     <span class="comment">#用户-物品的评分表</span></span><br><span class="line">        <span class="keyword">for</span> line <span class="keyword">in</span> open(self.train_file):</span><br><span class="line">            <span class="comment"># user,item,score = line.strip().split(",")</span></span><br><span class="line">            user,item,score,_ = line.strip().split(<span class="string">"\t"</span>)</span><br><span class="line">            self.train.setdefault(user,&#123;&#125;)</span><br><span class="line">            self.train[user][item] = int(score)</span><br><span class="line">        self.test = dict()      <span class="comment">#测试集</span></span><br><span class="line">        <span class="keyword">for</span> line <span class="keyword">in</span> open(self.test_file):</span><br><span class="line">            <span class="comment"># user,item,score = line.strip().split(",")</span></span><br><span class="line">            user,item,score,_ = line.strip().split(<span class="string">"\t"</span>)</span><br><span class="line">            self.test.setdefault(user,&#123;&#125;)</span><br><span class="line">            self.test[user][item] = int(score)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">ItemSimilarity</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="comment">#建立物品-物品的共现矩阵</span></span><br><span class="line">        C = dict()  <span class="comment">#物品-物品的共现矩阵</span></span><br><span class="line">        N = dict()  <span class="comment">#物品被多少个不同用户购买</span></span><br><span class="line">        <span class="keyword">for</span> user,items <span class="keyword">in</span> self.train.items():</span><br><span class="line">            <span class="keyword">for</span> i <span class="keyword">in</span> items.keys():</span><br><span class="line">                N.setdefault(i,<span class="number">0</span>)</span><br><span class="line">                N[i] += <span class="number">1</span></span><br><span class="line">                C.setdefault(i,&#123;&#125;)</span><br><span class="line">                <span class="keyword">for</span> j <span class="keyword">in</span> items.keys():</span><br><span class="line">                    <span class="keyword">if</span> i == j : <span class="keyword">continue</span></span><br><span class="line">                    C[i].setdefault(j,<span class="number">0</span>)</span><br><span class="line">                    C[i][j] += <span class="number">1</span></span><br><span class="line">        <span class="comment">#计算相似度矩阵</span></span><br><span class="line">        self.W = dict()</span><br><span class="line">        <span class="keyword">for</span> i,related_items <span class="keyword">in</span> C.items():</span><br><span class="line">            self.W.setdefault(i,&#123;&#125;)</span><br><span class="line">            <span class="keyword">for</span> j,cij <span class="keyword">in</span> related_items.items():</span><br><span class="line">                self.W[i][j] = cij / (math.sqrt(N[i] * N[j]))</span><br><span class="line">        <span class="keyword">return</span> self.W</span><br><span class="line"></span><br><span class="line">    <span class="comment">#给用户user推荐，前K个相关用户</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">Recommend</span><span class="params">(self,user,K=<span class="number">3</span>,N=<span class="number">10</span>)</span>:</span></span><br><span class="line">        rank = dict()</span><br><span class="line">        action_item = self.train[user]     <span class="comment">#用户user产生过行为的item和评分</span></span><br><span class="line">        <span class="keyword">for</span> item,score <span class="keyword">in</span> action_item.items():</span><br><span class="line">            <span class="keyword">for</span> j,wj <span class="keyword">in</span> sorted(self.W[item].items(),key=<span class="keyword">lambda</span> x:x[<span class="number">1</span>],reverse=<span class="literal">True</span>)[<span class="number">0</span>:K]:</span><br><span class="line">                <span class="keyword">if</span> j <span class="keyword">in</span> action_item.keys():</span><br><span class="line">                    <span class="keyword">continue</span></span><br><span class="line">                rank.setdefault(j,<span class="number">0</span>)</span><br><span class="line">                rank[j] += score * wj</span><br><span class="line">        <span class="keyword">return</span> dict(sorted(rank.items(),key=<span class="keyword">lambda</span> x:x[<span class="number">1</span>],reverse=<span class="literal">True</span>)[<span class="number">0</span>:N])</span><br></pre></td></tr></table></figure></p>
+<p>采用 MovieLens 数据集对 ItemCF 算法测试之后各评测指标的结果如下<br><img src="http://ww3.sinaimg.cn/large/81b78497jw1efj1yftjtvj20in044q3r.jpg" alt></p>
+<h2 id="UserCF-和-ItemCF-的区别和应用"><a href="#UserCF-和-ItemCF-的区别和应用" class="headerlink" title="UserCF 和 ItemCF 的区别和应用"></a>UserCF 和 ItemCF 的区别和应用</h2><p>UserCF 算法的特点是：</p>
+<ul>
+<li>用户较少的场合，否则用户相似度矩阵计算代价很大</li>
+<li>适合时效性较强，用户个性化兴趣不太明显的领域</li>
+<li>对新用户不友好，对新物品友好，因为用户相似度矩阵不能实时计算</li>
+<li>很难提供令用户信服的推荐解释</li>
+</ul>
+<p>对应地，ItemCF 算法的特点：</p>
+<ul>
+<li>适用于物品数明显小于用户数的场合，否则物品相似度矩阵计算代价很大</li>
+<li>适合长尾物品丰富，用户个性化需求强的领域</li>
+<li>对新用户友好，对新物品不友好，因为物品相似度矩阵不需要很强的实时性</li>
+<li>利用用户历史行为做推荐解释，比较令用户信服</li>
+</ul>
+<p>因此，可以看出 UserCF 适用于物品增长很快，实时性较高的场合，比如新闻推荐。而在图书、电子商务和电影领域，比如京东、天猫、优酷中，ItemCF 则能极大地发挥优势。在这些网站中，用户的兴趣是比较固定和持久的，而且这些网站的物品更新速度不会特别快，一天一更新是在忍受范围内的。</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ul>
+<li>项亮 <a href="http://book.douban.com/subject/10769749/" target="_blank" rel="noopener">《推荐系统实践》</a></li>
+<li><a href="http://www.oschina.net/code/snippet_244322_15369" target="_blank" rel="noopener">基于用户的协同过滤算法</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+        
+<hr>
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+  <img id="wechat_subscriber_qcode" src="https://img.alicdn.com/tfs/TB1.ajIlIbpK1RjSZFyXXX_qFXa-1004-541.png" alt="hoxis wechat" style="width: auto; height:200px; max-width: 100%;">
+</div>
+<div class="copyright-txt">
+  <a href="/copyright"><i class="fa fa-copyright"></i>著作权归作者所有</a>
+</div>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/协同过滤/" rel="tag">#协同过滤</a>
+          
+        </div>
+      
+
+      
+      <div class="post-spread">
+        
+          <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-56d648eefec3350b" async="async"></script>
+<!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_sharing_toolbox"></div>
+        
+      </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2014/03/25/interview-link-questions/" rel="next" title="面试精选：链表问题集锦">
+                <i class="fa fa-chevron-left"></i> 面试精选：链表问题集锦
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2014/04/24/easy-web-scraping-with-python/" rel="prev" title="使用 Python 轻松抓取网页">
+                使用 Python 轻松抓取网页 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/default_avatar.jpg" alt="WuChong">
+          <p class="site-author-name" itemprop="name">WuChong</p>
+          <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，<br>你就应该静下心来学习。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">86</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+<!--
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">分类</span>
+            </a>
+          </div>
+          -->
+
+          
+          
+          
+            <div class="site-state-item site-state-categories">
+              
+              <a href="/categories">
+              
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">72</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-sa/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="http://flink-china.org" target="_blank">Apache Flink China</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://zh.ververica.com" target="_blank">Ververica</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#推荐系统的评测指标"><span class="nav-number">1.</span> <span class="nav-text">推荐系统的评测指标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基于用户的协同过滤"><span class="nav-number">2.</span> <span class="nav-text">基于用户的协同过滤</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基于物品的协同过滤"><span class="nav-number">3.</span> <span class="nav-text">基于物品的协同过滤</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UserCF-和-ItemCF-的区别和应用"><span class="nav-number">4.</span> <span class="nav-text">UserCF 和 ItemCF 的区别和应用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文献"><span class="nav-number">5.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WuChong</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.scheme !== 'Pisces' && (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always')) {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'wuchong';
+      var disqus_identifier = 'blog/2014/04/19/recsys-cf-study/';
+      var disqus_title = '推荐系统学习：协同过滤实现';
+      var disqus_url = 'http://wuchong.me/blog/2014/04/19/recsys-cf-study/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
+  
+
+
+  
+  
+
+
+</body>
+</html>

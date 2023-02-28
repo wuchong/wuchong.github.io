@@ -1,0 +1,887 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css">
+
+
+    <meta name="author" content="WuChong">
+
+
+
+  <meta name="keywords" content="Linux基础,文件系统,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jark's Blog" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0">
+
+
+
+
+
+
+<meta name="description" content="在 Linux 下，所有的文件与目录都是由根目录（/）开始的。然后再一个一个分支下来，形成一棵繁杂的树。因此我们也称这种目录配置方式为“目录树”。那目录树与文件系统有什么关系，目录树是怎么实现的呢？">
+<meta name="keywords" content="Linux基础,文件系统">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux基础：文件管理">
+<meta property="og:url" content="http://wuchong.me/blog/2014/07/21/linux-file-manage/index.html">
+<meta property="og:site_name" content="Jark&#39;s Blog">
+<meta property="og:description" content="在 Linux 下，所有的文件与目录都是由根目录（/）开始的。然后再一个一个分支下来，形成一棵繁杂的树。因此我们也称这种目录配置方式为“目录树”。那目录树与文件系统有什么关系，目录树是怎么实现的呢？">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2022-08-03T06:46:44.509Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Linux基础：文件管理">
+<meta name="twitter:description" content="在 Linux 下，所有的文件与目录都是由根目录（/）开始的。然后再一个一个分支下来，形成一棵繁杂的树。因此我们也称这种目录配置方式为“目录树”。那目录树与文件系统有什么关系，目录树是怎么实现的呢？">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 4141040,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> Linux基础：文件管理 | Jark's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Jark's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-talks">
+          <a href="/talks" rel="section">
+            
+              <i class="menu-item-icon fa fa-microphone-stand fa-fw"></i> <br>
+            
+            演讲
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input">
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', '8Exkz7xsCTJyyCHiK9TY','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Linux基础：文件管理
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2014-07-21T17:44:19+08:00" content="2014-07-21">
+              2014-07-21
+            </time>
+          </span>
+
+          
+            <span class="post-category">
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Linux-Unix/" itemprop="url" rel="index">
+                    <span itemprop="name">Linux/Unix</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2014/07/21/linux-file-manage/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="blog/2014/07/21/linux-file-manage/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+<!--
+    
+      <div class="post-body">
+    
+    -->
+
+
+    <div class="post-body" itemprop="articleBody">
+    
+
+      
+      
+
+      
+        <p>在 Linux 下，所有的文件与目录都是由根目录（/）开始的。然后再一个一个分支下来，形成一棵繁杂的树。因此我们也称这种目录配置方式为“目录树”。那目录树与文件系统有什么关系，目录树是怎么实现的呢？</p>
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><p>在 Linux 系统中，目录也是一种文件。我们可以使用 <code>$ls -li</code>来查看一个目录的属性。</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="string">$ls</span> <span class="string">-li</span>  <span class="string">/home/wuchong</span></span><br><span class="line"><span class="number">141494</span>  <span class="string">drwxr-xr-x</span> <span class="number">18</span> <span class="string">wuchong</span> <span class="string">wuchong</span>    <span class="number">4096</span> <span class="number">12</span><span class="string">月</span>  <span class="number">2</span>  <span class="number">2013</span> <span class="string">hadoop-1.1.1</span></span><br><span class="line"><span class="number">1715845</span> <span class="string">drwxrwxr-x</span>  <span class="number">2</span> <span class="string">wuchong</span> <span class="string">wuchong</span>    <span class="number">4096</span>  <span class="number">7</span><span class="string">月</span> <span class="number">12</span> <span class="number">09</span><span class="string">:07</span> <span class="string">input</span></span><br><span class="line"><span class="number">1718481</span> <span class="string">-rw-rw-r--</span>  <span class="number">1</span> <span class="string">wuchong</span> <span class="string">wuchong</span>       <span class="number">0</span>  <span class="number">7</span><span class="string">月</span> <span class="number">12</span> <span class="number">16</span><span class="string">:11</span> <span class="string">test.txt</span></span><br><span class="line"><span class="number">1718478</span> <span class="string">-rw-r--r--</span>  <span class="number">1</span> <span class="string">root</span>    <span class="string">root</span>    <span class="number">1780292</span>  <span class="number">6</span><span class="string">月</span> <span class="number">16</span> <span class="number">19</span><span class="string">:04</span> <span class="string">etc.jar.bz2</span></span><br><span class="line"><span class="string">……</span></span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+<p>其中<code>-i</code>参数是显示文件的 inode 号。可以看到第一列就是目录/文件的 inode 号。因此 ext 文件系统对于目录也会像对待文件一样分配其 inode 块和 block 块。只不过，在目录中 inode 块记录的是该目录的相关权限与属性以及分配到的 block 块号码，而 block 则记录的是这个目录下的/<strong>文件名</strong>/与该文件名占用的 inode 号码数据。</p>
+<p>没错，在 Linux 中文件的 inode 中是不记录文件名的，文件名是记录在目录的 block 中。因此在新增/删除/重命名文件的时候，与目录的w权限有关。另一个直观的感受就是，你可以对正在使用的文件改名，换目录，甚至放到废纸篓，都不会影响当前文件的使用，这在 Windows 里是无法想象的。比如你打开个 Word 文件，然后对其进行重命名操作，Windows 会告诉你先给我关闭文件！</p>
+<p>当我们读取一个文件时，实际上是在目录中找到了这个文件的 inode 编号，然后根据 inode 中的 block 指针，把各个 block 数据块组合起来，放入内存供进一步的处理。当我们写入一个文件时，是分配一个空白inode给该文件，将其inode编号记入该文件所属的目录，然后选取空白的数据块，让inode的指针指像这些数据块，并放入内存中的数据。</p>
+<h2 id="硬链接与软链接"><a href="#硬链接与软链接" class="headerlink" title="硬链接与软链接"></a>硬链接与软链接</h2><p>当文件出现在一个目录文件中时，我们就把文件接入到文件系统中（在目录中写入该文件的文件名和 inode 号），我们称建立一个到文件的硬链接（hard link）。一个文件允许出现在多个目录中，这样，它就有多个硬链接。当硬链接的数目（link count）降为0时，文件会被 Linux 删除。所以很多时候，unlink 与 remove 在 Linux 操作系统中是一个意思。引入硬链接的目的是为了“安全”，如果你将任何一个“文件名”删除，其实 inode 与 block 都还是存在的。此时可以通过另一个“文件名”来读取到正确的文件数据。此外，不论你使用哪个“文件名”来编辑，最终的结果都会写入到相同的 inode 与 block 中，因此均能进行数据的修改。</p>
+<p>至于软链接（soft link），其实就是 Windows 上的快捷方式。基本上，软链接就是在创建一个新的独立的文件，而这个文件会让数据的读取指向它连接的那个文件的文件名。由于只是利用文件来作为指向的操作，所以，当源文件被删除后，软链接的文件会打不开。由于软链接（soft link）的广泛使用不会影响 link count，而且可以跨越文件系统，现在较少手动建立硬连接。</p>
+<p>创建硬链接与软链接使用 ln 命令即可。<br><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="string">$ln</span> <span class="string">[-s]</span> <span class="string">源文件</span> <span class="string">目标文件</span></span><br><span class="line"><span class="string">-s</span> <span class="string">:</span> <span class="string">如果不加任何参数就是硬链接，加上</span> <span class="string">-s</span> <span class="string">就是软链接</span></span><br><span class="line"></span><br><span class="line"><span class="string">~$ln</span> <span class="string">-s</span> <span class="string">/etc/crontab</span> <span class="string">.</span>    </span><br><span class="line"><span class="string">~$ln</span> <span class="string">/etc/crontab</span> <span class="string">crontab2</span></span><br><span class="line"><span class="string">~$</span> <span class="string">ll</span> <span class="string">-i</span> <span class="string">/etc/crontab</span> <span class="string">~/crontab</span> <span class="string">~/crontab2</span></span><br><span class="line"><span class="number">1310870</span> <span class="string">-rw-r--r--</span> <span class="number">2</span> <span class="string">root</span>    <span class="string">root</span>    <span class="number">722</span>  <span class="number">6</span><span class="string">月</span> <span class="number">15</span>  <span class="number">2012</span> <span class="string">/etc/crontab</span></span><br><span class="line"></span><br><span class="line"><span class="number">1310870</span> <span class="string">-rw-r--r--</span> <span class="number">2</span> <span class="string">root</span>    <span class="string">root</span>    <span class="number">722</span>  <span class="number">6</span><span class="string">月</span> <span class="number">15</span>  <span class="number">2012</span> <span class="string">/home/wuchong/crontab2</span></span><br><span class="line"><span class="number">1718696</span> <span class="string">lrwxrwxrwx</span> <span class="number">1</span> <span class="string">wuchong</span> <span class="string">wuchong</span>  <span class="number">12</span>  <span class="number">7</span><span class="string">月</span> <span class="number">12</span> <span class="number">16</span><span class="string">:42</span> <span class="string">/home/wuchong/crontab</span> <span class="string">-&gt;</span> <span class="string">/etc/crontab</span></span><br></pre></td></tr></table></figure></p>
+<p>可以看到硬链接文件的 inode 是同一个，并且连接数变成了 2。而软链接是一个新的文件，拥有自己的 inode 号。</p>
+<h2 id="文件系统管理命令"><a href="#文件系统管理命令" class="headerlink" title="文件系统管理命令"></a>文件系统管理命令</h2><figure class="highlight diff"><table><tr><td class="code"><pre><span class="line">$df  </span><br><span class="line">列出文件系统的整体磁盘使用量</span><br><span class="line"><span class="deletion">-h  以人们容易阅读的 GB MB KB 等格式自行显示</span></span><br><span class="line"><span class="deletion">-i  不使用硬盘容量，而以 inode 的数量显示</span></span><br><span class="line"></span><br><span class="line">$du file/dir</span><br><span class="line">评估目录所占容量</span><br><span class="line"><span class="deletion">-h  以人们容易阅读的 GB MB KB 等格式自行显示</span></span><br><span class="line"><span class="deletion">-s  仅显示总计，不列出每个子目录的占用容量</span></span><br><span class="line"><span class="deletion">-m  以 M 为单位</span></span><br></pre></td></tr></table></figure>
+<p>例如：<br><figure class="highlight lsl"><table><tr><td class="code"><pre><span class="line">$ df -h</span><br><span class="line">文件系统          容量  已用  可用  已用% 挂载点</span><br><span class="line">/dev/sda1        <span class="number">29</span>G  <span class="number">4.2</span>G   <span class="number">23</span>G   <span class="number">16</span>% /</span><br><span class="line">udev           <span class="number">1001</span>M  <span class="number">4.0</span>K <span class="number">1001</span>M    <span class="number">1</span>% /dev</span><br><span class="line">tmpfs           <span class="number">404</span>M  <span class="number">792</span>K  <span class="number">403</span>M    <span class="number">1</span>% /run</span><br><span class="line">none            <span class="number">5.0</span>M     <span class="number">0</span>  <span class="number">5.0</span>M    <span class="number">0</span>% /run/lock</span><br><span class="line">none           <span class="number">1009</span>M  <span class="number">152</span>K <span class="number">1009</span>M    <span class="number">1</span>% /run/shm</span><br><span class="line">none            <span class="number">100</span>M   <span class="number">28</span>K  <span class="number">100</span>M    <span class="number">1</span>% /run/user</span><br><span class="line">$ du -sh /home/wuchong/</span><br><span class="line"><span class="number">1.1</span>G     /home/wuchong/</span><br></pre></td></tr></table></figure></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>主要概括性总结了目录文件的构成，以及与普通文件之间的关系。讲解了硬链接和软链接，以及 <code>df du</code> 命令。</p>
+<p>Linux 是一个文件王国，一切都以文件的形式存在。了解 Linux 的文件系统，是深入了解操作系 Linux 原理的重要一步。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://book.douban.com/subject/4889838/" target="_blank" rel="noopener">鸟哥的Linux私房菜.基础学习篇</a></li>
+</ul>
+<p>-EOF-</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+        
+<hr>
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+  <img id="wechat_subscriber_qcode" src="https://img.alicdn.com/tfs/TB1.ajIlIbpK1RjSZFyXXX_qFXa-1004-541.png" alt="hoxis wechat" style="width: auto; height:200px; max-width: 100%;">
+</div>
+<div class="copyright-txt">
+  <a href="/copyright"><i class="fa fa-copyright"></i>著作权归作者所有</a>
+</div>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Linux基础/" rel="tag">#Linux基础</a>
+          
+            <a href="/tags/文件系统/" rel="tag">#文件系统</a>
+          
+        </div>
+      
+
+      
+      <div class="post-spread">
+        
+          <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-56d648eefec3350b" async="async"></script>
+<!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_sharing_toolbox"></div>
+        
+      </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2014/07/19/linux-file-system/" rel="next" title="Linux基础：文件系统">
+                <i class="fa fa-chevron-left"></i> Linux基础：文件系统
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2014/07/24/linux-process-manage/" rel="prev" title="Linux基础：进程管理">
+                Linux基础：进程管理 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/default_avatar.jpg" alt="WuChong">
+          <p class="site-author-name" itemprop="name">WuChong</p>
+          <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，<br>你就应该静下心来学习。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">86</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+<!--
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">分类</span>
+            </a>
+          </div>
+          -->
+
+          
+          
+          
+            <div class="site-state-item site-state-categories">
+              
+              <a href="/categories">
+              
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">72</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-sa/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="http://flink-china.org" target="_blank">Apache Flink China</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://zh.ververica.com" target="_blank">Ververica</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#目录"><span class="nav-number">1.</span> <span class="nav-text">目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#硬链接与软链接"><span class="nav-number">2.</span> <span class="nav-text">硬链接与软链接</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#文件系统管理命令"><span class="nav-number">3.</span> <span class="nav-text">文件系统管理命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WuChong</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.scheme !== 'Pisces' && (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always')) {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'wuchong';
+      var disqus_identifier = 'blog/2014/07/21/linux-file-manage/';
+      var disqus_title = 'Linux基础：文件管理';
+      var disqus_url = 'http://wuchong.me/blog/2014/07/21/linux-file-manage/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
+  
+
+
+  
+  
+
+
+</body>
+</html>
