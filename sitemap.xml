@@ -4,7 +4,7 @@
   <url>
     <loc>http://wuchong.me/talks/index.html</loc>
     
-    <lastmod>2023-07-03T15:22:03.933Z</lastmod>
+    <lastmod>2023-11-13T04:23:01.950Z</lastmod>
     
   </url>
   
@@ -44,14 +44,14 @@
   </url>
   
   <url>
-    <loc>http://wuchong.me/tags/index.html</loc>
+    <loc>http://wuchong.me/search/index.html</loc>
     
     <lastmod>2022-08-03T06:46:44.524Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://wuchong.me/search/index.html</loc>
+    <loc>http://wuchong.me/tags/index.html</loc>
     
     <lastmod>2022-08-03T06:46:44.524Z</lastmod>
     
@@ -86,13 +86,6 @@
   </url>
   
   <url>
-    <loc>http://wuchong.me/blog/2014/03/14/use-latex-in-blog/</loc>
-    
-    <lastmod>2022-08-03T06:46:44.513Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://wuchong.me/blog/2014/07/16/use-python-login-borrow-account/</loc>
     
     <lastmod>2022-08-03T06:46:44.513Z</lastmod>
@@ -114,9 +107,9 @@
   </url>
   
   <url>
-    <loc>http://wuchong.me/blog/2014/03/17/string-to-int/</loc>
+    <loc>http://wuchong.me/blog/2014/03/14/use-latex-in-blog/</loc>
     
-    <lastmod>2022-08-03T06:46:44.512Z</lastmod>
+    <lastmod>2022-08-03T06:46:44.513Z</lastmod>
     
   </url>
   
@@ -142,21 +135,7 @@
   </url>
   
   <url>
-    <loc>http://wuchong.me/blog/2015/10/07/thrift-induction/</loc>
-    
-    <lastmod>2022-08-03T06:46:44.512Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://wuchong.me/blog/2015/10/07/thrift-practice/</loc>
-    
-    <lastmod>2022-08-03T06:46:44.512Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://wuchong.me/blog/2017/07/16/two-years-in-alibaba/</loc>
+    <loc>http://wuchong.me/blog/2014/03/17/string-to-int/</loc>
     
     <lastmod>2022-08-03T06:46:44.512Z</lastmod>
     
@@ -170,14 +149,35 @@
   </url>
   
   <url>
-    <loc>http://wuchong.me/blog/2014/04/19/recsys-cf-study/</loc>
+    <loc>http://wuchong.me/blog/2015/10/07/thrift-practice/</loc>
+    
+    <lastmod>2022-08-03T06:46:44.512Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://wuchong.me/blog/2015/10/07/thrift-induction/</loc>
+    
+    <lastmod>2022-08-03T06:46:44.512Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://wuchong.me/blog/2017/07/16/two-years-in-alibaba/</loc>
+    
+    <lastmod>2022-08-03T06:46:44.512Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://wuchong.me/blog/2015/05/22/running-scrapy-dynamic-and-configurable/</loc>
     
     <lastmod>2022-08-03T06:46:44.511Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://wuchong.me/blog/2015/05/22/running-scrapy-dynamic-and-configurable/</loc>
+    <loc>http://wuchong.me/blog/2014/04/19/recsys-cf-study/</loc>
     
     <lastmod>2022-08-03T06:46:44.511Z</lastmod>
     
@@ -191,14 +191,14 @@
   </url>
   
   <url>
-    <loc>http://wuchong.me/blog/2015/04/06/spark-on-hbase-new-api/</loc>
+    <loc>http://wuchong.me/blog/2015/02/02/shadowsocks-install-and-optimize/</loc>
     
     <lastmod>2022-08-03T06:46:44.511Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://wuchong.me/blog/2015/02/02/shadowsocks-install-and-optimize/</loc>
+    <loc>http://wuchong.me/blog/2015/04/06/spark-on-hbase-new-api/</loc>
     
     <lastmod>2022-08-03T06:46:44.511Z</lastmod>
     
@@ -233,14 +233,14 @@
   </url>
   
   <url>
-    <loc>http://wuchong.me/blog/2014/07/28/permutation-and-combination-realize/</loc>
+    <loc>http://wuchong.me/blog/2014/04/26/odps-sql-introduction/</loc>
     
     <lastmod>2022-08-03T06:46:44.510Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://wuchong.me/blog/2014/04/26/odps-sql-introduction/</loc>
+    <loc>http://wuchong.me/blog/2014/07/28/permutation-and-combination-realize/</loc>
     
     <lastmod>2022-08-03T06:46:44.510Z</lastmod>
     
@@ -261,7 +261,14 @@
   </url>
   
   <url>
-    <loc>http://wuchong.me/blog/2014/07/02/learn-regular-expressions/</loc>
+    <loc>http://wuchong.me/blog/2015/11/06/learn-clojure-3-concurrent/</loc>
+    
+    <lastmod>2022-08-03T06:46:44.509Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://wuchong.me/blog/2014/07/14/linux-boot-process/</loc>
     
     <lastmod>2022-08-03T06:46:44.509Z</lastmod>
     
@@ -275,7 +282,7 @@
   </url>
   
   <url>
-    <loc>http://wuchong.me/blog/2015/11/06/learn-clojure-3-concurrent/</loc>
+    <loc>http://wuchong.me/blog/2014/07/02/learn-regular-expressions/</loc>
     
     <lastmod>2022-08-03T06:46:44.509Z</lastmod>
     
@@ -283,13 +290,6 @@
   
   <url>
     <loc>http://wuchong.me/blog/2014/07/19/linux-file-system/</loc>
-    
-    <lastmod>2022-08-03T06:46:44.509Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://wuchong.me/blog/2014/07/14/linux-boot-process/</loc>
     
     <lastmod>2022-08-03T06:46:44.509Z</lastmod>
     
@@ -352,14 +352,14 @@
   </url>
   
   <url>
-    <loc>http://wuchong.me/blog/2014/12/18/hexo-blog-to-coding/</loc>
+    <loc>http://wuchong.me/blog/2013/12/13/hello-%E7%8B%AC%E7%AB%8B%E5%8D%9A%E5%AE%A2/</loc>
     
     <lastmod>2022-08-03T06:46:44.507Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://wuchong.me/blog/2013/12/13/hello-%E7%8B%AC%E7%AB%8B%E5%8D%9A%E5%AE%A2/</loc>
+    <loc>http://wuchong.me/blog/2014/12/18/hexo-blog-to-coding/</loc>
     
     <lastmod>2022-08-03T06:46:44.507Z</lastmod>
     
@@ -387,13 +387,6 @@
   </url>
   
   <url>
-    <loc>http://wuchong.me/blog/2014/08/28/how-to-correctly-write-singleton-pattern/</loc>
-    
-    <lastmod>2022-08-03T06:46:44.507Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://wuchong.me/blog/2019/02/12/how-to-become-apache-committer/</loc>
     
     <lastmod>2022-08-03T06:46:44.507Z</lastmod>
@@ -401,14 +394,21 @@
   </url>
   
   <url>
-    <loc>http://wuchong.me/blog/2018/11/25/flink-tips-differences-between-savepoints-and-checkpoints/</loc>
+    <loc>http://wuchong.me/blog/2014/08/28/how-to-correctly-write-singleton-pattern/</loc>
+    
+    <lastmod>2022-08-03T06:46:44.507Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://wuchong.me/blog/2015/08/01/getting-started-with-metrics/</loc>
     
     <lastmod>2022-08-03T06:46:44.506Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://wuchong.me/blog/2018/11/21/flink-tips-how-to-choose-state-backends/</loc>
+    <loc>http://wuchong.me/blog/2018/11/18/flink-tips-watermarks-in-apache-flink-made-easy/</loc>
     
     <lastmod>2022-08-03T06:46:44.506Z</lastmod>
     
@@ -429,14 +429,14 @@
   </url>
   
   <url>
-    <loc>http://wuchong.me/blog/2018/11/18/flink-tips-watermarks-in-apache-flink-made-easy/</loc>
+    <loc>http://wuchong.me/blog/2018/11/25/flink-tips-differences-between-savepoints-and-checkpoints/</loc>
     
     <lastmod>2022-08-03T06:46:44.506Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://wuchong.me/blog/2015/08/01/getting-started-with-metrics/</loc>
+    <loc>http://wuchong.me/blog/2018/11/21/flink-tips-how-to-choose-state-backends/</loc>
     
     <lastmod>2022-08-03T06:46:44.506Z</lastmod>
     
@@ -451,6 +451,13 @@
   
   <url>
     <loc>http://wuchong.me/blog/2019/09/02/flink-sql-1-9-read-from-kafka-write-into-mysql/</loc>
+    
+    <lastmod>2022-08-03T06:46:44.505Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://wuchong.me/blog/2018/11/28/flink-tips-broadcast-state-pattern-flink-considerations/</loc>
     
     <lastmod>2022-08-03T06:46:44.505Z</lastmod>
     
@@ -478,13 +485,6 @@
   </url>
   
   <url>
-    <loc>http://wuchong.me/blog/2018/11/28/flink-tips-broadcast-state-pattern-flink-considerations/</loc>
-    
-    <lastmod>2022-08-03T06:46:44.505Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://wuchong.me/blog/2016/05/03/flink-internals-overview/</loc>
     
     <lastmod>2022-08-03T06:46:44.504Z</lastmod>
@@ -493,13 +493,6 @@
   
   <url>
     <loc>http://wuchong.me/blog/2016/06/06/flink-internals-session-window/</loc>
-    
-    <lastmod>2022-08-03T06:46:44.504Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://wuchong.me/blog/2016/05/20/flink-internals-streams-and-operations-on-streams/</loc>
     
     <lastmod>2022-08-03T06:46:44.504Z</lastmod>
     
@@ -520,6 +513,13 @@
   </url>
   
   <url>
+    <loc>http://wuchong.me/blog/2016/05/20/flink-internals-streams-and-operations-on-streams/</loc>
+    
+    <lastmod>2022-08-03T06:46:44.504Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://wuchong.me/blog/2016/05/04/flink-internal-how-to-build-streamgraph/</loc>
     
     <lastmod>2022-08-03T06:46:44.503Z</lastmod>
@@ -527,14 +527,14 @@
   </url>
   
   <url>
-    <loc>http://wuchong.me/blog/2017/05/17/flink-internals-async-io/</loc>
+    <loc>http://wuchong.me/blog/2016/05/10/flink-internals-how-to-build-jobgraph/</loc>
     
     <lastmod>2022-08-03T06:46:44.503Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://wuchong.me/blog/2016/05/10/flink-internals-how-to-build-jobgraph/</loc>
+    <loc>http://wuchong.me/blog/2017/05/17/flink-internals-async-io/</loc>
     
     <lastmod>2022-08-03T06:46:44.503Z</lastmod>
     
@@ -555,21 +555,7 @@
   </url>
   
   <url>
-    <loc>http://wuchong.me/blog/2014/04/24/easy-web-scraping-with-python/</loc>
-    
-    <lastmod>2022-08-03T06:46:44.502Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://wuchong.me/blog/2016/02/26/flink-docs-setup-cluster/</loc>
-    
-    <lastmod>2022-08-03T06:46:44.502Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://wuchong.me/blog/2018/08/25/flink-in-meituan-practice/</loc>
     
     <lastmod>2022-08-03T06:46:44.502Z</lastmod>
     
@@ -583,14 +569,21 @@
   </url>
   
   <url>
-    <loc>http://wuchong.me/blog/2019/01/31/blink-opensource-and-flink-community/</loc>
+    <loc>http://wuchong.me/blog/2018/08/25/flink-in-meituan-practice/</loc>
     
-    <lastmod>2022-08-03T06:46:44.501Z</lastmod>
+    <lastmod>2022-08-03T06:46:44.502Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://wuchong.me/blog/2020/02/25/demo-building-real-time-application-with-flink-sql/</loc>
+    <loc>http://wuchong.me/blog/2014/04/24/easy-web-scraping-with-python/</loc>
+    
+    <lastmod>2022-08-03T06:46:44.502Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://wuchong.me/blog/2019/01/31/blink-opensource-and-flink-community/</loc>
     
     <lastmod>2022-08-03T06:46:44.501Z</lastmod>
     
@@ -604,7 +597,7 @@
   </url>
   
   <url>
-    <loc>http://wuchong.me/blog/2014/08/07/distributed-storage-system-knowledge/</loc>
+    <loc>http://wuchong.me/blog/2020/02/25/demo-building-real-time-application-with-flink-sql/</loc>
     
     <lastmod>2022-08-03T06:46:44.501Z</lastmod>
     
@@ -612,6 +605,13 @@
   
   <url>
     <loc>http://wuchong.me/blog/2014/10/17/do-vps-ss/</loc>
+    
+    <lastmod>2022-08-03T06:46:44.501Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://wuchong.me/blog/2014/08/07/distributed-storage-system-knowledge/</loc>
     
     <lastmod>2022-08-03T06:46:44.501Z</lastmod>
     
@@ -632,6 +632,13 @@
   </url>
   
   <url>
+    <loc>http://wuchong.me/blog/2014/02/09/algorithm-sort-summary/</loc>
+    
+    <lastmod>2022-08-03T06:46:44.500Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://wuchong.me/blog/2018/10/30/6-things-to-consider-when-defining-your-apache-flink-cluster-size/</loc>
     
     <lastmod>2022-08-03T06:46:44.500Z</lastmod>
@@ -640,13 +647,6 @@
   
   <url>
     <loc>http://wuchong.me/blog/2014/07/30/ali-bigdata-competition-write-to-the-5-monthes/</loc>
-    
-    <lastmod>2022-08-03T06:46:44.500Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://wuchong.me/blog/2014/02/09/algorithm-sort-summary/</loc>
     
     <lastmod>2022-08-03T06:46:44.500Z</lastmod>
     
