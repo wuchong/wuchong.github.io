@@ -1,27 +1,922 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!doctype html>
 
 
-{% block title %} {{ page.title }} | {{ config.title }} {% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next mist use-motion">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css">
+
+
+    <meta name="author" content="WuChong">
+
+
+
+  <meta name="keywords" content="生活,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jark's Blog" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0">
+
+
+
+
+
+
+<meta name="description" content="今天，已经是2014年的第一天了。据说这次跨年有特别的意义，因为那个人是陪你走过13与14的。所以，昨晚与Miss.Y去了“北京之光”跨年。当身边响起54321的倒数声时，以为是闹着玩，当反应过来时我已经踏入了2014。   回想2013，2013对于我来说是变化最大的一年，对很多东西的看法有很多改变。一直想写一篇这一年的总结，却不知从何说起。过完2013年的最后一天，还是提笔将这一年流水账似的过">
+<meta name="keywords" content="生活">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2013年终总结">
+<meta property="og:url" content="http://wuchong.me/blog/2014/01/01/2013_summary/index.html">
+<meta property="og:site_name" content="Jark&#39;s Blog">
+<meta property="og:description" content="今天，已经是2014年的第一天了。据说这次跨年有特别的意义，因为那个人是陪你走过13与14的。所以，昨晚与Miss.Y去了“北京之光”跨年。当身边响起54321的倒数声时，以为是闹着玩，当反应过来时我已经踏入了2014。   回想2013，2013对于我来说是变化最大的一年，对很多东西的看法有很多改变。一直想写一篇这一年的总结，却不知从何说起。过完2013年的最后一天，还是提笔将这一年流水账似的过">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2022-08-03T06:46:44.499Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="2013年终总结">
+<meta name="twitter:description" content="今天，已经是2014年的第一天了。据说这次跨年有特别的意义，因为那个人是陪你走过13与14的。所以，昨晚与Miss.Y去了“北京之光”跨年。当身边响起54321的倒数声时，以为是闹着玩，当反应过来时我已经踏入了2014。   回想2013，2013对于我来说是变化最大的一年，对很多东西的看法有很多改变。一直想写一篇这一年的总结，却不知从何说起。过完2013年的最后一天，还是提笔将这一年流水账似的过">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 4141040,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> 2013年终总结 | Jark's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Jark's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-talks">
+          <a href="/talks" rel="section">
+            
+              <i class="menu-item-icon fa fa-microphone-stand fa-fw"></i> <br>
+            
+            演讲
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input">
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', '8Exkz7xsCTJyyCHiK9TY','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                2013年终总结
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2014-01-01T18:18:52+08:00" content="2014-01-01">
+              2014-01-01
+            </time>
+          </span>
+
+          
+            <span class="post-category">
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/随笔生活/" itemprop="url" rel="index">
+                    <span itemprop="name">随笔生活</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2014/01/01/2013_summary/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="blog/2014/01/01/2013_summary/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+<!--
+    
+      <div class="post-body">
+    
+    -->
+
+
+    <div class="post-body" itemprop="articleBody">
+    
+
+      
+      
+
+      
+        <p>今天，已经是2014年的第一天了。据说这次跨年有特别的意义，因为那个人是陪你走过13与14的。所以，昨晚与Miss.Y去了“北京之光”跨年。当身边响起54321的倒数声时，以为是闹着玩，当反应过来时我已经踏入了2014。  </p>
+<p>回想2013，2013对于我来说是变化最大的一年，对很多东西的看法有很多改变。一直想写一篇这一年的总结，却不知从何说起。过完2013年的最后一天，还是提笔将这一年流水账似的过一遍吧。想到什么写什么，各位看官讲究着看吧 ~<br><a id="more"></a></p>
+<h2 id="毕业季"><a href="#毕业季" class="headerlink" title="毕业季"></a><strong>毕业季</strong></h2><p>上半年结束了自己的本科四年生活，一个个小伙伴们都逐渐离开了我们的生活圈子，或留京拼搏，或回家赚钱娶媳妇，或去了不同的学校不同的国家求学。我是看不得小伙伴在我面前拖着行李走掉的，感觉再也见不到一样。</p>
+<p>大学最遗憾的是，毕业最后一天没有和你们一起在操场聊天到天亮。原因是那个让我终身不愿提起的“尴尬”。<br>毕业季是感伤的，所幸的是，研究生宿舍经过小伙伴们的努力，终于537与538合并了。智商爆表的超，温文尔雅的阿阳，叔也将成为我6年的室友。</p>
+<p>最后，在这里祝愿小谢这次能够“马上成功”！加油！ 要是成功了，请回来还愿！ ：)</p>
+<h2 id="研究生课程"><a href="#研究生课程" class="headerlink" title="研究生课程"></a><strong>研究生课程</strong></h2><p>我的研究生课程随着新年的到来也即将上完，回顾起来这半学期让我印象深刻或听了觉得有用的课程，貌似除了刘驰老师的高级软工竟想不到其他的了。</p>
+<p>对不起我的导师Mr.赵，您讲的数据库还不错，但还不如做工程时学的更快更扎实，我更希望听一些数据库实时备份，主备切换，分库分表，分布式数据库的内容。那些才业界经常遇到的问题。</p>
+<p>对不起某教授，可能是因为我的见识和能力有限，您教授的内容我看不到对我的帮助有多大。我更希望听您讲讲数据挖掘的东西，那不是您的专长吗？</p>
+<p>对不起，我选了课的老师与没选课的老师。您教的东西确实是基础，但是只是比本科时多了高级两字而已。内容都是照本宣科。</p>
+<p>有时候我就想，把本科的课程稍微改改，前面加上“高级”两字，那我们读的到底是研究生还是高级本科生呢 ？？？</p>
+<p>当我最近看了那位博士写的请校领导辞职的<a href="http://tieba.baidu.com/p/2777194857?pn=1" target="_blank" rel="noopener">文章</a>后，我就想，是不是其他学院也像我们学不到东西？是不是其他学校也像我们这样？但是，当我了解到其他学院的课程后，我知道还是有些区别的。其他学校就更不得而知了。就我们的兄弟学院CS来说，他们会开设一些分布式数据库、自然语言处理、信息检索、人工智能、模式识别…的课程，并且注重学生自己去实践实现的能力。</p>
+<p>因此，如果让我建议我更希望学院能开设如开源软件（不是本科那个，是学习如何参与一个开源项目，深入学习开源源代码的那种），分布式系统（学习分布式架构原理，hadoop等开源框架的学习和使用），数据挖掘（至少得讲讲十大经典算法吧？），机器学习（学学这个还是很有用的）等等。</p>
+<p>其实本科时就知道研究生课程是学不到什么，修行靠个人，自学成才的比比皆是！   但是，如果失去优秀的教学资源后，那与北大青鸟又有什么区别？</p>
+<p><em>这部分内容比较偏激或片面，有兴趣者可以留言讨论。</em></p>
+<h2 id="做了什么"><a href="#做了什么" class="headerlink" title="做了什么"></a><strong>做了什么</strong></h2><p>这一年下来，还真没有做一件让自己觉得非常自豪非常有成就感的事情。也许就如我博客的标题“当你的才华还撑不起你的野心时，就应该静下心来学习”。不过还是按时间线回顾总结一下做过的东西，给新的一年一个规划。</p>
+<ol>
+<li><p><strong>航天所的项目</strong></p>
+<p>觉得心里有些愧对金老师。因为金老师在项目、生活、工作上都尽他所能的帮助过我，而我在需要我付出的地方却做的不尽人意。做这个项目的过程是很开心的，学到了很多东西，像GEF、RCP等。对Java的热爱也是源于那时候。<br>最后项目成功验收，因为个人原因没去成庆功宴觉得挺可惜。还是想对金老师说声“谢谢”。</p>
+</li>
+<li><p><strong>毕设</strong></p>
+<p>水过。自己写了一个爬虫抓取新浪微博的用户信息，用服务器跑了10天，才爬了50万的用户。写了个双向广度优先搜索的MapReduce。然后拿着这50万的“大数据”（呵呵），屁颠屁颠地放到Hadoop上去跑，然后说“看，他们之间是有六度关系的”。搞了点伪高大上的统计分析图，就没了。</p>
+<p>我把这个毕设叫做工具学习使用的实验报告。希望研究生的毕设能有些创新和理论研究在里面。</p>
+</li>
+<li><p><strong>微博数据挖掘</strong></p>
+<p> 从暑期7月初到8月初，在实验室封闭式开发，中南、张桢、金学长，一起啃西瓜一起打地铺一起敲代码的日子还是很值得怀念的。这一个多月还是学到了非常多的东西，看了很多的论文。像特征向量的提取、CURE聚类、LSA降维、SinglePass、LDA主题挖掘等等。技术方面学了Struts2框架，HighCharts等。我们把论文上的技术东拼西凑，完成了系统的核心功能 热点话题实时监控 与 情感分析。后来马爷与梓祯大神的加入，完成了社区挖掘的功能。</p>
+<p> 最终在小伙伴们的努力下，微博挖掘系统 在学院事务平台上悄悄上线了。为什么是悄悄？ 因为我们都知道做的不好，最终的效果离目标相去甚远。许多环节还有很多工作可以做，比如特征向量算法的选择、相似度计算的效率、聚类的优化等等。哎，这些工作还是交给学弟学妹们去弄吧。</p>
+</li>
+<li><p><strong>基于R语言的大数据挖掘平台</strong></p>
+<p> 上面的项目做的差不多，马上投入了这个项目。没日没夜地拼命了十多天后，捧着我们的程序跑到南航比赛去了。在那里搭了个全分布式，然后拿着“1亿”的数据在Hadoop上跑。忽悠了好些不明真相的评委，心里有些暗爽。不过在面对真正的专家时还是败给了改Hadoop源码的队。</p>
+<p> 虽然最后只拿了个二等奖回来，不过已经对得起那些日子的努力了。也是这次让我知道，要想吸引别人的注意，请拿出你与众不同的地方。</p>
+</li>
+<li><p><strong>汽车研究中心的项目</strong></p>
+<p> 这个项目太折腾人了，当时一不小心就被忽悠进了这个坑。不过后来本着尽量学点东西的态度，硬着头皮做了下来。就当温习数据库、学习Bootstrap、学习.NET了。</p>
+</li>
+<li><p><strong>课程的项目</strong></p>
+<p> 高软的项目做了一个分布式视频服务。代码没敲几行，纯配环境的体力活。不过当分布式存储+负载均衡的Web集群搭建成功的那一刻，还是激动了好一会儿~</p>
+<p> 移动开发的项目去玩了下微信公众平台，自己写了一个简单的应用，整个过程还是挺轻松愉快的，非常有意思。感兴趣的朋友可以加微信订阅号：welifehelper。</p>
+</li>
+<li><p><strong>开源项目</strong></p>
+<p> 我一直认为开源项目对个人与他人都是意义重大的。昨天，也是我第一次patch被merge，那个项目叫<a href="https://github.com/julycoding/The-Art-Of-Programming-by-July" target="_blank" rel="noopener">《编程艺术Github》</a>，感兴趣的同学请猛戳。</p>
+<p> 不要认为参与开源项目是非常遥远的事情，其实提交bug，参与issue讨论，帮助翻译整理文档都是参与开源项目。<br>当然，我也把这个当做第一步，在2014年，希望自己能向开源社区贡献漂亮的代码，广交朋友。</p>
+</li>
+</ol>
+<h2 id="2014年计划"><a href="#2014年计划" class="headerlink" title="2014年计划"></a><strong>2014年计划</strong></h2><p>2014年会是非常繁忙又至关重要的一年。希望自己能学会管理分配时间，学好专业知识的前提下多拓展自己的活动面知识面。因此，列一个checklist以供明年这个时候验收。</p>
+<ol>
+<li><p><strong>深入参与开源项目</strong>，为开源社区贡献自己的代码。</p>
+</li>
+<li><p><strong>学习开源项目的源代码</strong>。就拿JUnit开刀吧！学习开源的好处是很多的，首先闭门造车的坏处不用我说。其次可以学到大牛的架构与模式，开源社区常见的一些惯用法 ，还有相关领域的知识和算法。</p>
+</li>
+<li><p><strong>学习面试常用算法</strong>。如果不想一直当码农，算法是必须的，高大上的公司也都会拿这个当门槛。首当其冲的是阅读《编程之美》与<a href="http://blog.csdn.net/v_JULY_v" target="_blank" rel="noopener">J大的博客</a>。希望上半年能看完并理解。</p>
+</li>
+<li><p><strong>理论研究</strong>。研究生的理论研究方向应该就是推荐系统（安全）了吧。这方面可能要读大量的书和论文以及外文文献了。趁此多锻炼下自己的英文文献的阅读能力。</p>
+</li>
+<li><p><strong>阅读非技术书</strong>。 2013年真没有完整看过一本非技术书。2014年希望自己多看几本文学方面的书籍。有这方面经验的朋友可以不吝向我推荐几本~   :)</p>
+</li>
+<li><p><strong>仙五前传的COS剧</strong>。目前服装已经准备OK，寒假回来也将开始排练。小伙伴们加油！明年CJ上争取拿个名次！</p>
+</li>
+</ol>
+<p>当然，最最重要的是要提高身体素质，坚持每周去游泳和锻炼。</p>
+<p>最后，祝大家新年快乐，“马上有钱”！</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+        
+<hr>
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+  <img id="wechat_subscriber_qcode" src="https://user-images.githubusercontent.com/5378924/221934214-4ca3bc5d-6d38-4a4a-a6bc-a1dd53563879.png" alt="hoxis wechat" style="width: auto; height:200px; max-width: 100%;">
+</div>
+<div class="copyright-txt">
+  <a href="/copyright"><i class="fa fa-copyright"></i>著作权归作者所有</a>
+</div>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/生活/" rel="tag">#生活</a>
+          
+        </div>
+      
+
+      
+      <div class="post-spread">
+        
+          <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-56d648eefec3350b" async="async"></script>
+<!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_sharing_toolbox"></div>
+        
+      </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2013/12/13/hello-独立博客/" rel="next" title="Hello 独立博客">
+                <i class="fa fa-chevron-left"></i> Hello 独立博客
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2014/01/08/hexo-scrollup/" rel="prev" title="Hexo博客优化：添加返回顶部功能">
+                Hexo博客优化：添加返回顶部功能 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
 
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/default_avatar.jpg" alt="WuChong">
+          <p class="site-author-name" itemprop="name">WuChong</p>
+          <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，<br>你就应该静下心来学习。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">90</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+<!--
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">分类</span>
+            </a>
+          </div>
+          -->
+
+          
+          
+          
+            <div class="site-state-item site-state-categories">
+              
+              <a href="/categories">
+              
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">77</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-sa/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="https://flink.apache.org/" target="_blank">Apache Flink</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#毕业季"><span class="nav-number">1.</span> <span class="nav-text">毕业季</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#研究生课程"><span class="nav-number">2.</span> <span class="nav-text">研究生课程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#做了什么"><span class="nav-number">3.</span> <span class="nav-text">做了什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2014年计划"><span class="nav-number">4.</span> <span class="nav-text">2014年计划</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WuChong</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.scheme !== 'Pisces' && (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always')) {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'wuchong';
+      var disqus_identifier = 'blog/2014/01/01/2013_summary/';
+      var disqus_title = '2013年终总结';
+      var disqus_url = 'http://wuchong.me/blog/2014/01/01/2013_summary/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
+  
+
+
+  
+  
+
+
+</body>
+</html>

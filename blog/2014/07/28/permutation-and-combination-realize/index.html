@@ -1,27 +1,886 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!doctype html>
 
 
-{% block title %} {{ page.title }} | {{ config.title }} {% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next mist use-motion">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css">
+
+
+    <meta name="author" content="WuChong">
+
+
+
+  <meta name="keywords" content="面试,全排列,全组合,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jark's Blog" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0">
+
+
+
+
+
+
+<meta name="description" content="记得 @老赵 之前在微博上吐槽说，“有的人真是毫无长进，六年前某同事不会写程序输出全排列，昨天发邮件还是问我该怎么写，这时间浪费到我都看不下去了。” 那时候就很好奇全排列到底是什么东西，到底有多难？今天复习的时候终于碰到这题了，结果果然自己太渣，看了好久都没明白，代码实现又是磕磕碰碰的。所以，就把它整理成笔记加深记忆，也希望能帮到和我一样的人。">
+<meta name="keywords" content="面试,全排列,全组合">
+<meta property="og:type" content="article">
+<meta property="og:title" content="全排列和全组合实现">
+<meta property="og:url" content="http://wuchong.me/blog/2014/07/28/permutation-and-combination-realize/index.html">
+<meta property="og:site_name" content="Jark&#39;s Blog">
+<meta property="og:description" content="记得 @老赵 之前在微博上吐槽说，“有的人真是毫无长进，六年前某同事不会写程序输出全排列，昨天发邮件还是问我该怎么写，这时间浪费到我都看不下去了。” 那时候就很好奇全排列到底是什么东西，到底有多难？今天复习的时候终于碰到这题了，结果果然自己太渣，看了好久都没明白，代码实现又是磕磕碰碰的。所以，就把它整理成笔记加深记忆，也希望能帮到和我一样的人。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2022-08-03T06:46:44.510Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="全排列和全组合实现">
+<meta name="twitter:description" content="记得 @老赵 之前在微博上吐槽说，“有的人真是毫无长进，六年前某同事不会写程序输出全排列，昨天发邮件还是问我该怎么写，这时间浪费到我都看不下去了。” 那时候就很好奇全排列到底是什么东西，到底有多难？今天复习的时候终于碰到这题了，结果果然自己太渣，看了好久都没明白，代码实现又是磕磕碰碰的。所以，就把它整理成笔记加深记忆，也希望能帮到和我一样的人。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 4141040,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> 全排列和全组合实现 | Jark's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Jark's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-talks">
+          <a href="/talks" rel="section">
+            
+              <i class="menu-item-icon fa fa-microphone-stand fa-fw"></i> <br>
+            
+            演讲
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input">
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', '8Exkz7xsCTJyyCHiK9TY','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                全排列和全组合实现
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2014-07-28T09:41:18+08:00" content="2014-07-28">
+              2014-07-28
+            </time>
+          </span>
+
+          
+            <span class="post-category">
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/程序设计/" itemprop="url" rel="index">
+                    <span itemprop="name">程序设计</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2014/07/28/permutation-and-combination-realize/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="blog/2014/07/28/permutation-and-combination-realize/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+<!--
+    
+      <div class="post-body">
+    
+    -->
+
+
+    <div class="post-body" itemprop="articleBody">
+    
+
+      
+      
+
+      
+        <p>记得<a href="http://weibo.com/jeffz" target="_blank" rel="noopener">@老赵</a>之前在微博上吐槽说，“有的人真是毫无长进，六年前某同事不会写程序输出全排列，昨天发邮件还是问我该怎么写，这时间浪费到我都看不下去了。” 那时候就很好奇全排列到底是什么东西，到底有多难？</p>
+<p>今天复习的时候终于碰到这题了，结果果然自己太渣，看了好久都没明白，代码实现又是磕磕碰碰的。所以，就把它整理成笔记加深记忆，也希望能帮到和我一样的人。</p>
+<h2 id="全排列"><a href="#全排列" class="headerlink" title="全排列"></a>全排列</h2><p>所谓全排列，就是打印出字符串中所有字符的所有排列。例如输入字符串<code>abc</code>，则打印出 a、b、c 所能排列出来的所有字符串 <code>abc</code>、<code>acb</code>、<code>bac</code>、<code>bca</code>、<code>cab</code> 和 <code>cba</code> 。</p>
+<p>一般最先想到的方法是暴力循环法，即对于每一位，遍历集合中可能的元素，如果在这一位之前出现过了该元素，跳过该元素。例如对于<code>abc</code>，第一位可以是 a 或 b 或 c 。当第一位为 a 时，第二位再遍历集合，发现 a 不行，因为前面已经出现 a 了，而 b 和 c 可以。当第二位为 b 时 ， 再遍历集合，发现 a 和 b 都不行，c 可以。可以用递归或循环来实现，但是复杂度为 $O(n^n)$ 。有没有更优雅的解法呢。</p>
+<p>首先考虑<code>bac</code>和<code>cba</code>这二个字符串是如何得出的。显然这二个都是<code>abc</code>中的 a 与后面两字符交换得到的。然后可以将<code>abc</code>的第二个字符和第三个字符交换得到<code>acb</code>。同理可以根据<code>bac</code>和<code>cba</code>来得<code>bca</code>和<code>cab</code>。</p>
+<p>因此可以知道 <strong>全排列就是从第一个数字起每个数分别与它后面的数字交换</strong>，也可以得出这种解法每次得到的结果都是正确结果，所以复杂度为 O(n!)。找到这个规律后，递归的代码就很容易写出来了：<br><a id="more"></a><br><figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//交换两个字符</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Swap</span><span class="params">(<span class="keyword">char</span> *a ,<span class="keyword">char</span> *b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">char</span> temp = *a;</span><br><span class="line">	*a = *b;</span><br><span class="line">	*b = temp;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//递归全排列，start 为全排列开始的下标， length 为str数组的长度</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">AllRange</span><span class="params">(<span class="keyword">char</span>* str,<span class="keyword">int</span> start,<span class="keyword">int</span> length)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(start == length<span class="number">-1</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"%s\n"</span>,str);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">for</span>(<span class="keyword">int</span> i=start;i&lt;=length<span class="number">-1</span>;i++)	</span><br><span class="line">		&#123;	<span class="comment">//从下标为start的数开始，分别与它后面的数字交换</span></span><br><span class="line">			Swap(&amp;str[start],&amp;str[i]); </span><br><span class="line">			AllRange(str,start+<span class="number">1</span>,length);</span><br><span class="line">			Swap(&amp;str[start],&amp;str[i]); </span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Permutation</span><span class="params">(<span class="keyword">char</span>* str)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(str == <span class="literal">NULL</span>)</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">	AllRange(str,<span class="number">0</span>,<span class="built_in">strlen</span>(str));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">char</span> str[] = <span class="string">"abc"</span>;</span><br><span class="line">	Permutation(str);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="去重的全排列"><a href="#去重的全排列" class="headerlink" title="去重的全排列"></a>去重的全排列</h2><p>为了得到不一样的排列，可能我们最先想到的方法是当遇到和自己相同的就不交换了。如果我们输入的是<code>abb</code>，那么第一个字符与后面的交换后得到 <code>bab</code>、<code>bba</code>。然后<code>abb</code>中，第二个字符和第三个就不用交换了。但是对于<code>bab</code>，它的第二个字符和第三个是不同的，交换后得到<code>bba</code>，和之前的重复了。因此，这种方法不行。</p>
+<p>因为<code>abb</code>能得到<code>bab</code>和<code>bba</code>，而<code>bab</code>又能得到<code>bba</code>，那我们能不能第一个<code>bba</code>不求呢？ 我们有了这种思路，第一个字符<code>a</code>与第二个字符<code>b</code>交换得到<code>bab</code>，然后考虑第一个字符<code>a</code>与第三个字符<code>b</code>交换，此时由于第三个字符等于第二个字符，所以它们不再交换。再考虑<code>bab</code>，它的第二个与第三个字符交换可以得到<code>bba</code>。此时全排列生成完毕，即<code>abb</code>、<code>bab</code>、<code>bba</code>三个。</p>
+<p>这样我们也得到了在全排列中去掉重复的规则：<strong>去重的全排列就是从第一个数字起每个数分别与它后面非重复出现的数字交换</strong>。用编程的话描述就是第i个数与第j个数交换时，要求[i,j)中没有与第j个数相等的数。下面给出完整代码：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//交换两个字符</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Swap</span><span class="params">(<span class="keyword">char</span> *a ,<span class="keyword">char</span> *b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">char</span> temp = *a;</span><br><span class="line">	*a = *b;</span><br><span class="line">	*b = temp;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//在 str 数组中，[start,end) 中是否有与 str[end] 元素相同的</span></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">IsSwap</span><span class="params">(<span class="keyword">char</span>* str,<span class="keyword">int</span> start,<span class="keyword">int</span> end)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">for</span>(;start&lt;end;start++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span>(str[start] == str[end])</span><br><span class="line">			<span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//递归去重全排列，start 为全排列开始的下标， length 为str数组的长度</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">AllRange2</span><span class="params">(<span class="keyword">char</span>* str,<span class="keyword">int</span> start,<span class="keyword">int</span> length)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(start == length<span class="number">-1</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"%s\n"</span>,str);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">for</span>(<span class="keyword">int</span> i=start;i&lt;=length<span class="number">-1</span>;i++)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">if</span>(IsSwap(str,start,i))</span><br><span class="line">			&#123;</span><br><span class="line">				Swap(&amp;str[start],&amp;str[i]); </span><br><span class="line">				AllRange2(str,start+<span class="number">1</span>,length);</span><br><span class="line">				Swap(&amp;str[start],&amp;str[i]); </span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Permutation</span><span class="params">(<span class="keyword">char</span>* str)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(str == <span class="literal">NULL</span>)</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">	AllRange2(str,<span class="number">0</span>,<span class="built_in">strlen</span>(str));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">char</span> str[] = <span class="string">"abb"</span>;</span><br><span class="line">	Permutation(str);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="全组合"><a href="#全组合" class="headerlink" title="全组合"></a>全组合</h2><p>如果不是求字符的所有排列，而是求字符的所有组合应该怎么办呢？还是输入三个字符 a、b、c，则它们的组合有<code>a</code> <code>b</code> <code>c</code> <code>ab</code> <code>ac</code> <code>bc</code> <code>abc</code>。当然我们还是可以借鉴全排列的思路，利用问题分解的思路，最终用递归解决。不过这里介绍一种比较巧妙的思路 —— 基于位图。</p>
+<p>假设原有元素 n 个，则最终组合结果是 $2^n-1$ 个。我们可以用位操作方法：假设元素原本有：a,b,c 三个，则 1 表示取该元素，0 表示不取。故取<code>a</code>则是<code>001</code>，取<code>ab</code>则是<code>011</code>。所以一共三位，每个位上有两个选择 0 和 1。而<code>000</code>没有意义，所以是$2^n-1$个结果。</p>
+<p>这些结果的位图值都是 1,2…2^n-1。所以从值 1 到值 $2^n-1$ 依次输出结果：</p>
+<p><code>001</code>,<code>010</code>,<code>011</code>,<code>100</code>,<code>101</code>,<code>110</code>,<code>111</code> 。对应输出组合结果为：<code>a</code>,<code>b</code>,<code>ab</code>,<code>c</code>,<code>ac</code>,<code>bc</code>,<code>abc</code>。<br>因此可以循环 1~2^n-1，然后输出对应代表的组合即可。有代码如下：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Combination</span><span class="params">(<span class="keyword">char</span> *str)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(str == <span class="literal">NULL</span>)</span><br><span class="line">		<span class="keyword">return</span> ;</span><br><span class="line">	<span class="keyword">int</span> len = <span class="built_in">strlen</span>(str);</span><br><span class="line">	<span class="keyword">int</span> n = <span class="number">1</span>&lt;&lt;len;</span><br><span class="line">	<span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;n;i++)    <span class="comment">//从 1 循环到 2^len -1</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">0</span>;j&lt;len;j++)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">int</span> temp = i;</span><br><span class="line">			<span class="keyword">if</span>(temp &amp; (<span class="number">1</span>&lt;&lt;j))   <span class="comment">//对应位上为1，则输出对应的字符</span></span><br><span class="line">			&#123;</span><br><span class="line">				<span class="built_in">printf</span>(<span class="string">"%c"</span>,*(str+j));</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"\n"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">char</span> str[] = <span class="string">"abc"</span>;</span><br><span class="line">	Combination(str);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://blog.csdn.net/morewindows/article/details/7370155" target="_blank" rel="noopener">MoreWindows-STL系列之十 全排列</a></li>
+<li><a href="http://www.cnblogs.com/lifegoesonitself/p/3225803.html" target="_blank" rel="noopener">java 全组合 与全排列</a></li>
+</ul>
+<p>-EOF-</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+        
+<hr>
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+  <img id="wechat_subscriber_qcode" src="https://user-images.githubusercontent.com/5378924/221934214-4ca3bc5d-6d38-4a4a-a6bc-a1dd53563879.png" alt="hoxis wechat" style="width: auto; height:200px; max-width: 100%;">
+</div>
+<div class="copyright-txt">
+  <a href="/copyright"><i class="fa fa-copyright"></i>著作权归作者所有</a>
+</div>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/面试/" rel="tag">#面试</a>
+          
+            <a href="/tags/全排列/" rel="tag">#全排列</a>
+          
+            <a href="/tags/全组合/" rel="tag">#全组合</a>
+          
+        </div>
+      
+
+      
+      <div class="post-spread">
+        
+          <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-56d648eefec3350b" async="async"></script>
+<!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_sharing_toolbox"></div>
+        
+      </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2014/07/24/linux-process-manage/" rel="next" title="Linux基础：进程管理">
+                <i class="fa fa-chevron-left"></i> Linux基础：进程管理
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2014/07/30/ali-bigdata-competition-write-to-the-5-monthes/" rel="prev" title="阿里推荐大赛：写给这五个月">
+                阿里推荐大赛：写给这五个月 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
 
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/default_avatar.jpg" alt="WuChong">
+          <p class="site-author-name" itemprop="name">WuChong</p>
+          <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，<br>你就应该静下心来学习。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">90</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+<!--
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">分类</span>
+            </a>
+          </div>
+          -->
+
+          
+          
+          
+            <div class="site-state-item site-state-categories">
+              
+              <a href="/categories">
+              
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">77</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-sa/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="https://flink.apache.org/" target="_blank">Apache Flink</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#全排列"><span class="nav-number">1.</span> <span class="nav-text">全排列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#去重的全排列"><span class="nav-number">2.</span> <span class="nav-text">去重的全排列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#全组合"><span class="nav-number">3.</span> <span class="nav-text">全组合</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WuChong</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.scheme !== 'Pisces' && (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always')) {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'wuchong';
+      var disqus_identifier = 'blog/2014/07/28/permutation-and-combination-realize/';
+      var disqus_title = '全排列和全组合实现';
+      var disqus_url = 'http://wuchong.me/blog/2014/07/28/permutation-and-combination-realize/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
+  
+
+
+  
+  
+
+
+</body>
+</html>

@@ -1,27 +1,912 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!doctype html>
 
 
-{% block title %} {{ page.title }} | {{ config.title }} {% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next mist use-motion">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css">
+
+
+    <meta name="author" content="WuChong">
+
+
+
+  <meta name="keywords" content="面试,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jark's Blog" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0">
+
+
+
+
+
+
+<meta name="description" content="“就你，才面了几家公司还给别人指路啊？”，尽管会有人有这样那样的质疑，但我还是非常想说说这个话题，希望后来者不要再踩我的坑，希望能有更明确的努力方向，找到期望的工作。 距离找工作小记后，已经过去两个多月了，2014 校招季也靠一段落。由于我找的都是互联网方向的公司，所以本篇也主要针对如何找互联网技术类岗位。">
+<meta name="keywords" content="面试">
+<meta property="og:type" content="article">
+<meta property="og:title" content="应届生如何找互联网工作">
+<meta property="og:url" content="http://wuchong.me/blog/2014/12/21/how-to-find-internet-job/index.html">
+<meta property="og:site_name" content="Jark&#39;s Blog">
+<meta property="og:description" content="“就你，才面了几家公司还给别人指路啊？”，尽管会有人有这样那样的质疑，但我还是非常想说说这个话题，希望后来者不要再踩我的坑，希望能有更明确的努力方向，找到期望的工作。 距离找工作小记后，已经过去两个多月了，2014 校招季也靠一段落。由于我找的都是互联网方向的公司，所以本篇也主要针对如何找互联网技术类岗位。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://ww4.sinaimg.cn/mw690/81b78497jw1enhbntged4j20l30hkgnb.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/mw690/81b78497jw1enhbo5h8d7j21kw16okg6.jpg">
+<meta property="og:image" content="http://ww2.sinaimg.cn/mw690/81b78497jw1enhbnrqon3j21kw122qdc.jpg">
+<meta property="og:updated_time" content="2022-08-03T06:46:44.508Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="应届生如何找互联网工作">
+<meta name="twitter:description" content="“就你，才面了几家公司还给别人指路啊？”，尽管会有人有这样那样的质疑，但我还是非常想说说这个话题，希望后来者不要再踩我的坑，希望能有更明确的努力方向，找到期望的工作。 距离找工作小记后，已经过去两个多月了，2014 校招季也靠一段落。由于我找的都是互联网方向的公司，所以本篇也主要针对如何找互联网技术类岗位。">
+<meta name="twitter:image" content="http://ww4.sinaimg.cn/mw690/81b78497jw1enhbntged4j20l30hkgnb.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 4141040,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> 应届生如何找互联网工作 | Jark's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Jark's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-talks">
+          <a href="/talks" rel="section">
+            
+              <i class="menu-item-icon fa fa-microphone-stand fa-fw"></i> <br>
+            
+            演讲
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input">
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', '8Exkz7xsCTJyyCHiK9TY','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                应届生如何找互联网工作
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2014-12-21T15:06:16+08:00" content="2014-12-21">
+              2014-12-21
+            </time>
+          </span>
+
+          
+            <span class="post-category">
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/职场生涯/" itemprop="url" rel="index">
+                    <span itemprop="name">职场生涯</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2014/12/21/how-to-find-internet-job/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="blog/2014/12/21/how-to-find-internet-job/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+<!--
+    
+      <div class="post-body">
+    
+    -->
+
+
+    <div class="post-body" itemprop="articleBody">
+    
+
+      
+      
+
+      
+        <p><img src="http://ww4.sinaimg.cn/mw690/81b78497jw1enhbntged4j20l30hkgnb.jpg" class="img-topic"></p>
+<p>“就你，才面了几家公司还给别人指路啊？”，尽管会有人有这样那样的质疑，但我还是非常想说说这个话题，希望后来者不要再踩我的坑，希望能有更明确的努力方向，找到期望的工作。</p>
+<p>距离<a href="http://wuchong.me/blog/2014/09/30/looking-for-a-job-summary/">找工作小记</a>后，已经过去两个多月了，2014 校招季也靠一段落。由于我找的都是互联网方向的公司，所以本篇也主要针对如何找互联网技术类岗位。</p>
+<a id="more"></a>
+<h2 id="清晰的目标"><a href="#清晰的目标" class="headerlink" title="清晰的目标"></a>清晰的目标</h2><p>大多数人觉得找工作应该是撒大网捕鱼，不应该在一棵树上吊死，老师们也这样好心地建议我们。但是我不这样认为，我认为人的精力是有限的，把有限的精力分散到多个方向，最后只会迷失自己。就像有些本科毕业生，又是找工作又是考研又是国考的，最后都没啥好结果。</p>
+<p>所以，从一开始我就明确自己只找互联网技术类岗位，没有考虑过银行国企公务员等方向（当然如果有人找到了心仪的工作，再去其他方向碰碰机会也无可厚非）。我认为这是很重要的，作为一名应届生，应该有了自己的职业规划知道了自己喜欢的方向，不应该是迷茫或随从的状态。</p>
+<p>其次，这个方向应该是越细致越好。大家都知道 IT 行业要细分，一双手都数不过来。如果你能清晰自己想从事的方向（安全？前端？数据挖掘？），并为此付出一定的准备，你会发现你其实没花多大力气就脱颖而出了。</p>
+<p>如我，在一年多前就明确自己想进阿里中间件团队。</p>
+<p>不知道自己喜欢什么方向？那就挑自己擅长或熟悉的。没有擅长或熟悉的？那就了解技术发展趋势，选一个趋势向上的。</p>
+<h2 id="厚积薄发"><a href="#厚积薄发" class="headerlink" title="厚积薄发"></a>厚积薄发</h2><p>有了明确的目标后，就可以去招聘网站看对应岗位的需求了，对着自己把一项项缺少的技能点记下来，并未自己制定一个详细的练级计划。在制定计划和练级期间，可能会对前进方向有些迷茫，这时可以请教行业领域的大牛。如我，加了老多阿里中间件牛人的微博，一个个问自己的疑惑，一般大牛都很乐于帮忙的。</p>
+<p>一般IT公司的校招在每年的8月到12月，某些公司会在3月后有一次实习生招聘。所以，如果你是年初才开始准备，如果还要参加实习，那么留给你的时间真的不多。</p>
+<h3 id="实习与项目经历"><a href="#实习与项目经历" class="headerlink" title="实习与项目经历"></a>实习与项目经历</h3><p>国内公司面试喜欢先按着简历上的聊，一般都会聊到实习经历（如果有）和项目经历，如果有论文也会聊论文。比如，我经常会被问到“谈谈你最有成就感的一个项目？”，所以最好有一个能拿得出手，背得滚瓜烂熟的项目。所谓能拿的出手，是指最好能演示，有些技术问题、技术难点的项目。关键是能把项目流程、关键点、难点、解决方案等等流利地说出来。</p>
+<p>项目不在多，一两个即可。我在准备面试的时候，才发现我的项目经历非常尴尬，做过的项目不少，却没有能拿的出手的。能勉强拿出手的居然是一个 .Net 项目，结果一路被各大面试官鄙视过来…</p>
+<p>如果你发现和我一样，没关系，你还有半年时间准备。你可以挑一个还可以的项目进行一些技术改造；也可以参加个实习，用实习项目来镇住面试官；也可以参与开源项目，或者自己写点有意思的项目（并开源）。个人比较推荐后者，因为这个过程中，你能学到更多诸如版本控制、多人协作的知识，最主要是高逼格。</p>
+<p>至于实习，在我看来是一把双刃剑。如果实习公司是自己的意向公司，那还是不错的。最好能去知名企业实习，表现好的都可以获得正式 Offer。就算没拿到，也可以为简历加分。但是，很可能因为实习的原因失去了复习巩固基础的时间，导致在面试中吃亏，失去更好的工作机会。所以，大家一定要考虑清楚。特别是已经有拿的出手的项目经历，实习不是那么必须了，还不如拿这些时间多阅读研究一些技术书籍。</p>
+<p><img src="http://ww1.sinaimg.cn/mw690/81b78497jw1enhbo5h8d7j21kw16okg6.jpg" alt></p>
+<h3 id="算法与数据结构"><a href="#算法与数据结构" class="headerlink" title="算法与数据结构"></a>算法与数据结构</h3><p>算法和白板编程基本是互联网公司面试的家常菜。不管是应聘什么方向岗位，这一块都应该加强训练。国外公司比较看重算法编程，面试基本以算法题为主。国内公司的算法题难度相对不大，基本刷完主流题目就够了。</p>
+<p>书籍方面按优先级推荐分别是<a href="http://book.douban.com/subject/6966465/" target="_blank" rel="noopener">《剑指Offer》</a>、<a href="http://book.douban.com/subject/25753386/" target="_blank" rel="noopener">《程序员面试金典》</a>、<a href="http://book.douban.com/subject/3004255/" target="_blank" rel="noopener">《编程之美》</a>。剑指中代码是C++写的，程序员面试金典是 Java 的。所以不同语言方向的可以选一本。推荐精读一本，泛读另两本就可以了。电子书的话非常推荐 July 写的<a href="https://github.com/julycoding/The-Art-Of-Programming-By-July/blob/master/ebook/zh/Readme.md" target="_blank" rel="noopener">程序员编程艺术</a>，可以迅速带你入门。July 的书籍应该马上上市了，可以关注下。</p>
+<p>单靠看书的效果是比较差的，推荐书籍看的差不多的时候，可以配合 <a href="https://oj.leetcode.com/problems/" target="_blank" rel="noopener">LeetCode</a> 一起修炼，功力将会大增。LeetCode 目前题目已经出到第 168 题了，刷完的话应付国内公司真是绰绰有余了。在做题过程中尽量不要看题解和别人的答案，而在做完之后推荐多了解别人的做法会拓宽你的思路。另外官方出了本 <a href="https://oj.leetcode.com/book/" target="_blank" rel="noopener">LeetCode Book</a>，但是好贵…</p>
+<h3 id="开放型题目"><a href="#开放型题目" class="headerlink" title="开放型题目"></a>开放型题目</h3><p>面试官一般会针对你的岗位方向问一些开放型的题目，没有固定的答案，更多的是考察技术面广度深度。比如大数据处理技术、机器学习算法、网络传输、内存管理、开放型设计题、数据库的索引等等。这些只能通过平时多看多了解了，遇到问题喜欢刨根问底。</p>
+<p>作为一名应届程序员，除了掌握一门静态语言外，还应该掌握一门动态语言，熟悉 Linux 的操作，深入的话可以了解 Unix 编程。Java 方向的应该深入学习 JVM 知识，C++ 方向的至少得看看<a href="http://book.douban.com/subject/5387403/" target="_blank" rel="noopener">《Effective C++》</a>吧。</p>
+<h2 id="简历"><a href="#简历" class="headerlink" title="简历"></a>简历</h2><p>简历是你迈向工作的第一步，但大多程序员不知道如何表达自己，而埋没了自己的才华。对于应届生来说，非常头疼的是简历该怎么写，写什么，用什么工具，写成什么格式。</p>
+<p>作为一封技术简历，只需要包含三方面：第一是个人信息和联系方式，第二是实习和项目经历，第三是技术能力证明。不要有太多与求职岗位无关的经验过分描述，比如性别、主修课程、自我评价等。看看这些文章，你会了解如何更优雅地写简历：</p>
+<ul>
+<li><a href="https://coderq.com/t/a-li-ba-ba-xiao-zhao-nei-tui-jian-li-shai-xuan-fang-an/143/1" target="_blank" rel="noopener">阿里巴巴校招内推简历筛选方案</a></li>
+<li><a href="http://zh.lucida.me/blog/lean-technical-resume/" target="_blank" rel="noopener">精益技术简历之道——改善技术简历的47条原则</a></li>
+<li><a href="http://www.zheyibu.com/article/1353.html?xa?nikki" target="_blank" rel="noopener">身为HR的我是这样挑实习生的</a></li>
+</ul>
+<p>至于工具和格式，作为程序员都应该用 MarkDown写，用PDF发。发求职邮件时的注意事项可以看看 @Fenng 大大写的 <a href="http://dbanotes.net/review/resume_email.html" target="_blank" rel="noopener">写一封「用户体验」良好的求职邮件</a> 。如果你有一个在线简历，那就更（BI）好（GE）了，你可以直接在邮件里附上你的在线简历地址，相对于下载附件 HR 会更欣喜于打开在线简历。可以参考本人的<a href="http://wuchong.me/resume.html">在线简历</a>，工具已开源在 <a href="https://github.com/wuchong/resume.git" target="_blank" rel="noopener">GitHub</a> 上。也推荐这些比较优秀的在线简历生成工具。比如：</p>
+<ul>
+<li><a href="http://get.jobdeer.com/745.get" target="_blank" rel="noopener">DeerResume：在线MarkDown简历工具</a></li>
+<li><a href="https://github.com/c0bra/markdown-resume-js" target="_blank" rel="noopener">基于Node.js的MarkDown简历生成工具</a></li>
+</ul>
+<h2 id="笔试"><a href="#笔试" class="headerlink" title="笔试"></a>笔试</h2><p>笔试就是个坑，能逃就逃。</p>
+<p><img src="http://ww2.sinaimg.cn/mw690/81b78497jw1enhbnrqon3j21kw122qdc.jpg" alt></p>
+<p>笔试的考察面会更全一些，除了基础知识还会涉及语言细节、概率论、智力题等。</p>
+<h2 id="内推"><a href="#内推" class="headerlink" title="内推"></a>内推</h2><p>内推一般都能跳过笔试阶段，还能提前拿到校招 Offer，就算失败也不会影响正式校招，多了一次面试经验，何乐而不为。可以直接找师兄，也可以多留意一下 BBS 上的内推信息。</p>
+<h2 id="面试"><a href="#面试" class="headerlink" title="面试"></a>面试</h2><p>面试过程只要充分展示自己准备的东西就可以了。面试是一个双方的过程，一定要掌握面试的主动性，要多说话，不要让气氛冷下来，慢慢推动面试朝着自己擅长的方向引导。要知道，一场面试是有时间限制的，这场面试在你熟悉的领地打的越久，胜利的机会也就越高。</p>
+<h2 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h2><p>国内大学里的课程很多都照本宣科，很少能在面试和以后的工作中帮到我们。这是坏事，也是好事。坏处不用说，好处是只要比别人稍稍努力些就可以脱颖而出。</p>
+<ul>
+<li>可以上 <a href="https://www.coursera.org/" target="_blank" rel="noopener">Coursera</a>  看一些国外知名大学的公开课，拿到证书的话也是一个不错的加分项呐。</li>
+<li>在学习理论知识的同时能够尽量尝试实践一下，比如学习了Unix网络通信，有没有自己动手写一个聊天工具。</li>
+<li>好记性不如烂笔头。学习过程中勤做笔记，复习时效率会更高。推荐 <a href="https://www.yinxiang.com/" target="_blank" rel="noopener">印象笔记</a>。</li>
+<li>建立个人博客。把笔记整理一下就能发表一篇不错的博文，不仅帮助自己梳理知识，还能帮助别人。建立个人博客不是为了面试，而是更重要的：树立个人品牌。后者是会伴随你一辈子的。<a href="http://mindhacks.cn/2009/02/15/why-you-should-start-blogging-now/" target="_blank" rel="noopener">为什么你应该（从现在开始就）写博客</a> 以及<a href="https://selfstore.io/products/190" target="_blank" rel="noopener">《程序员跳槽攻略》</a>中的个人品牌章节。</li>
+</ul>
+<p>最后，希望本文对即将找工作的朋友能有帮助。欢迎提问，欢迎大牛指正。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+        
+<hr>
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+  <img id="wechat_subscriber_qcode" src="https://user-images.githubusercontent.com/5378924/221934214-4ca3bc5d-6d38-4a4a-a6bc-a1dd53563879.png" alt="hoxis wechat" style="width: auto; height:200px; max-width: 100%;">
+</div>
+<div class="copyright-txt">
+  <a href="/copyright"><i class="fa fa-copyright"></i>著作权归作者所有</a>
+</div>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/面试/" rel="tag">#面试</a>
+          
+        </div>
+      
+
+      
+      <div class="post-spread">
+        
+          <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-56d648eefec3350b" async="async"></script>
+<!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_sharing_toolbox"></div>
+        
+      </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2014/12/18/hexo-blog-to-coding/" rel="next" title="托管 Hexo 博客到 Coding">
+                <i class="fa fa-chevron-left"></i> 托管 Hexo 博客到 Coding
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2014/12/21/why-do-coderq/" rel="prev" title="为什么要做「码农圈」？">
+                为什么要做「码农圈」？ <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
 
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/default_avatar.jpg" alt="WuChong">
+          <p class="site-author-name" itemprop="name">WuChong</p>
+          <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，<br>你就应该静下心来学习。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">90</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+<!--
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">分类</span>
+            </a>
+          </div>
+          -->
+
+          
+          
+          
+            <div class="site-state-item site-state-categories">
+              
+              <a href="/categories">
+              
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">77</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-sa/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="https://flink.apache.org/" target="_blank">Apache Flink</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#清晰的目标"><span class="nav-number">1.</span> <span class="nav-text">清晰的目标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#厚积薄发"><span class="nav-number">2.</span> <span class="nav-text">厚积薄发</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#实习与项目经历"><span class="nav-number">2.1.</span> <span class="nav-text">实习与项目经历</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#算法与数据结构"><span class="nav-number">2.2.</span> <span class="nav-text">算法与数据结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#开放型题目"><span class="nav-number">2.3.</span> <span class="nav-text">开放型题目</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#简历"><span class="nav-number">3.</span> <span class="nav-text">简历</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#笔试"><span class="nav-number">4.</span> <span class="nav-text">笔试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内推"><span class="nav-number">5.</span> <span class="nav-text">内推</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#面试"><span class="nav-number">6.</span> <span class="nav-text">面试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#写在最后"><span class="nav-number">7.</span> <span class="nav-text">写在最后</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WuChong</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.scheme !== 'Pisces' && (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always')) {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'wuchong';
+      var disqus_identifier = 'blog/2014/12/21/how-to-find-internet-job/';
+      var disqus_title = '应届生如何找互联网工作';
+      var disqus_url = 'http://wuchong.me/blog/2014/12/21/how-to-find-internet-job/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
+  
+
+
+  
+  
+
+
+</body>
+</html>

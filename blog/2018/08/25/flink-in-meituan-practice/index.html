@@ -1,27 +1,1016 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!doctype html>
 
 
-{% block title %} {{ page.title }} | {{ config.title }} {% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next mist use-motion">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css">
+
+
+    <meta name="author" content="WuChong">
+
+
+
+  <meta name="keywords" content="Flink,美团">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jark's Blog" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0">
+
+
+
+
+
+
+<meta name="description" content="本文整理自8月11日在北京举行的Flink Meetup。美团目前主要用到的实时计算引擎是 Flink 和 Storm。Storm 采用的是 standalone 模式部署，Flink 采用的是 ON YARN 的模式不是。由于 Flink 很多设计上的优越性，美团现在大量的业务正在基于 Flink 搭建。">
+<meta name="keywords" content="Flink,美团">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flink在美团的实践与应用">
+<meta property="og:url" content="http://wuchong.me/blog/2018/08/25/flink-in-meituan-practice/index.html">
+<meta property="og:site_name" content="Jark&#39;s Blog">
+<meta property="og:description" content="本文整理自8月11日在北京举行的Flink Meetup。美团目前主要用到的实时计算引擎是 Flink 和 Storm。Storm 采用的是 standalone 模式部署，Flink 采用的是 ON YARN 的模式不是。由于 Flink 很多设计上的优越性，美团现在大量的业务正在基于 Flink 搭建。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/81b78497gy1fultlwgxz7j21fu0rowj0.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/81b78497gy1fultsobawtj21dc09gjtd.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/81b78497gy1fultv3strfj20qu0bqq3y.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/81b78497gy1fultytaxupj20ng0mijte.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/81b78497gy1fultzv8jrhj21760ma446.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/81b78497gy1fulu0py17bj20tc0ysadu.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/81b78497gy1fulu1nzne4j20xi0xqgv2.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/81b78497gy1fulu2b199ej21ju0wgqhl.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/81b78497gy1fulu3p0o28j216i0o8wwi.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/81b78497gy1fulu5f77kbj20s40wgq6p.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/81b78497gy1fulu5waxu9j21be0twwng.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/81b78497gy1fulu6o90adj21bg0x8n5m.jpg">
+<meta property="og:updated_time" content="2022-08-03T06:46:44.502Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Flink在美团的实践与应用">
+<meta name="twitter:description" content="本文整理自8月11日在北京举行的Flink Meetup。美团目前主要用到的实时计算引擎是 Flink 和 Storm。Storm 采用的是 standalone 模式部署，Flink 采用的是 ON YARN 的模式不是。由于 Flink 很多设计上的优越性，美团现在大量的业务正在基于 Flink 搭建。">
+<meta name="twitter:image" content="http://ww1.sinaimg.cn/large/81b78497gy1fultlwgxz7j21fu0rowj0.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 4141040,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> Flink在美团的实践与应用 | Jark's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Jark's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-talks">
+          <a href="/talks" rel="section">
+            
+              <i class="menu-item-icon fa fa-microphone-stand fa-fw"></i> <br>
+            
+            演讲
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input">
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', '8Exkz7xsCTJyyCHiK9TY','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Flink在美团的实践与应用
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-08-25T11:38:58+08:00" content="2018-08-25">
+              2018-08-25
+            </time>
+          </span>
+
+          
+            <span class="post-category">
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Flink/" itemprop="url" rel="index">
+                    <span itemprop="name">Flink</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2018/08/25/flink-in-meituan-practice/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="blog/2018/08/25/flink-in-meituan-practice/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+<!--
+    
+      <div class="post-body">
+    
+    -->
+
+
+    <div class="post-body" itemprop="articleBody">
+    
+
+      
+      
+
+      
+        <blockquote>
+<p>作者：刘迪珊<br>整理：上海-星辰（Flink China社区志愿者）<br>本文整理自8月11日在北京举行的Flink<br>Meetup，分享嘉宾刘迪珊(2015年加入美团数据平台。致力于打造高效、易用的实时计算平台，探索不同场景下实时应用的企业级解决方案及统⼀化服务)。</p>
+</blockquote>
+<h2 id="美团实时计算平台现状和背景"><a href="#美团实时计算平台现状和背景" class="headerlink" title="美团实时计算平台现状和背景"></a>美团实时计算平台现状和背景</h2><h3 id="实时平台架构"><a href="#实时平台架构" class="headerlink" title="实时平台架构"></a>实时平台架构</h3><p><img src="http://ww1.sinaimg.cn/large/81b78497gy1fultlwgxz7j21fu0rowj0.jpg" alt></p>
+<p>上图呈现的是当前美团实时计算平台的简要架构。最底层是数据缓存层，可以看到美团测的所有日志类的数据，都是通过统一的日志收集系统收集到Kafka。Kafka作为最大的数据中转层，支撑了美团线上的大量业务，包括离线拉取，以及部分实时处理业务等。在数据缓存层之上，是一个引擎层，这一层的左侧是我们目前提供的实时计算引擎，包括Storm和Flink。Storm在此之前是 standalone 模式的部署方式，Flink由于其现在运行的环境，美团选择的是On YARN模式，除了计算引擎之外，我们还提供一些实时存储功能，用于存储计算的中间状态、计算的结果、以及维度数据等，目前这一类存储包含Hbase、Redis以及ES。在计算引擎之上，是趋于五花八门的一层，这一层主要面向数据开发的同学。实时数据开发面临诸多问题，例如在程序的调试调优方面就要比普通的程序开发困难很多。在数据平台这一层，美团面向用户提供的实时计算平台，不仅可以托管作业，还可以实现调优诊断以及监控报警，此外还有实时数据的检索以及权限管理等功能。除了提供面向数据开发同学的实时计算平台，美团现在正在做的事情还包括构建元数据中心。这也是未来我们想做SQL的一个前提，元数据中心是承载实时流系统的一个重要环节，我们可以把它理解为实时系统中的大脑，它可以存储数据的Schema，Meta。架构的最顶层就是我们现在实时计算平台支撑的业务，不仅包含线上业务日志的实时查询和检索，还涵盖当下十分热门的实时机器学习。机器学习经常会涉及到搜索和推荐场景，这两个场景最显著特点：一、会产生海量实时数据；二、流量的QPS相当高。此时就需要实时计算平台承载部分实时特征的提取工作，实现应用的搜索推荐服务。还有一类是比较常见的场景，包括实时的特征聚合，斑马Watcher（可以认为是一个监控类的服务），实时数仓等。</p>
+<p>以上就是美团目前实时计算平台的简要架构。</p>
+<h3 id="实时平台现状"><a href="#实时平台现状" class="headerlink" title="实时平台现状"></a>实时平台现状</h3><p>美团实时计算平台的现状是作业量现在已经达到了近万，集群的节点的规模是千级别的，天级消息量已经达到了万亿级，高峰期的消息量能够达到千万条每秒。</p>
+<p><img src="http://ww1.sinaimg.cn/large/81b78497gy1fultsobawtj21dc09gjtd.jpg" alt></p>
+<h3 id="痛点和问题"><a href="#痛点和问题" class="headerlink" title="痛点和问题"></a>痛点和问题</h3><p>美团在调研使用Flink之前遇到了一些痛点和问题:</p>
+<ul>
+<li><p>实时计算精确性问题：在调研使用Flink之前美团很大规模的作业是基于Storm去开发的，Storm主要的计算语义是At-Least-Once，这种语义在保证正确性上实际上是有一些问题的，在Trident之前Storm是无状态的处理。虽然Storm<br>Trident提供了一个维护状态的精确的开发，但是它是基于串行的Batch提交的，那么遇到问题在处理性能上可能会有一点瓶颈。并且Trident是基于微批的处理，在延迟上没有达到比较高的要求，所以不能满足一些对延迟比较高需求的业务。</p>
+</li>
+<li><p>流处理中的状态管理问题：基于之前的流处理过程中状态管理的问题是非常大的一类问题。状态管理除了会影响到比如说计算状态的一致性，还会影响到实时计算处理的性能以及故障恢复时候的能力。而Flink最突出的一个优势就是状态管理。</p>
+</li>
+<li><p>实时计算表义能力的局限性：在实时计算之前很多公司大部分的数据开发还是面向离线的场景，近几年实时的场景也慢慢火热起来了。那与离线的处理不同的是，实时的场景下，数据处理的表意能力可能有一定的限制，比如说他要进行精确计算以及时间窗口都是需要在此之上去开发很多功能性的东西。</p>
+</li>
+<li><p>开发调试成本高：近千结点的集群上已经跑了近万的作业，分布式的处理的引擎，手工写代码的方式，给数据开发的同学也带来了很高开发和调试的成本，再去维护的时候，运维成本也比较高。</p>
+</li>
+</ul>
+<h3 id="Flink探索关注点"><a href="#Flink探索关注点" class="headerlink" title="Flink探索关注点"></a>Flink探索关注点</h3><p>在上面这些痛点和问题的背景下，美团从去年开始进行Flink的探索，关注点主要有以下4个方面：</p>
+<ul>
+<li><p>ExactlyOnce计算能力</p>
+</li>
+<li><p>状态管理能力</p>
+</li>
+<li><p>窗口/Join/时间处理等等</p>
+</li>
+<li><p>SQL/TableAPI</p>
+</li>
+</ul>
+<h2 id="Flink在美团的实践"><a href="#Flink在美团的实践" class="headerlink" title="Flink在美团的实践"></a>Flink在美团的实践</h2><p>下面带大家来看一下，美团从去年投入生产过程中都遇到了哪些问题，以及一些解决方案，分为下面三个部分：</p>
+<h3 id="稳定性实践"><a href="#稳定性实践" class="headerlink" title="稳定性实践"></a>稳定性实践</h3><h4 id="稳定性实践-资源隔离"><a href="#稳定性实践-资源隔离" class="headerlink" title="稳定性实践-资源隔离"></a>稳定性实践-资源隔离</h4><ul>
+<li><p>资源隔离的考虑：分场景、按业务</p>
+<ol>
+<li>高峰期不同，运维时间不同；</li>
+<li>可靠性、延迟需求不同；</li>
+<li>应用场景，重要性不同</li>
+</ol>
+</li>
+<li><p>资源隔离的策略：</p>
+<ol>
+<li>YARN打标签，节点物理隔离；</li>
+<li>离线DataNode与实时计算节点的隔离</li>
+</ol>
+</li>
+</ul>
+<p><img src="http://ww1.sinaimg.cn/large/81b78497gy1fultv3strfj20qu0bqq3y.jpg" alt></p>
+<h4 id="稳定性实践-智能调度"><a href="#稳定性实践-智能调度" class="headerlink" title="稳定性实践-智能调度"></a>稳定性实践-智能调度</h4><p><img src="http://ww1.sinaimg.cn/large/81b78497gy1fultytaxupj20ng0mijte.jpg" alt></p>
+<p>智能调度目的也是为了解决资源不均的问题，现在普通的调度策略就是基于CPU，基于内存去调度的。除此之外，在生产过程中也发现了一些其他的问题，比如说Flink是会依赖本地磁盘，进行依赖本地磁盘做本地的状态的存储，所以磁盘IO，还有磁盘的容量，也是一类考虑的问题点，除此之外还包括网卡流量，因为每个业务的流量的状态是不一样的，分配进来会导致流量的高峰，把某一个网卡打满，从而影响其他业务，所以期望的话是说做一些智能调度化的事情。目前暂时能做到的是从cpu和内存两方面，未来会从其他方面做一些更优的调度策略。</p>
+<h4 id="稳定性实践-故障容错"><a href="#稳定性实践-故障容错" class="headerlink" title="稳定性实践-故障容错"></a>稳定性实践-故障容错</h4><ul>
+<li><p>节点/网络故障</p>
+<ul>
+<li><p>JobManagerHA</p>
+</li>
+<li><p>自动拉起</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>与Storm不同的是，知道Storm在遇到异常的时候是非常简单粗暴的，比如说有发生了异常，可能用户没有在代码中进行比较规范的异常处理，但是没有关系，因为worker会重启作业还会继续执行，并且他保证的是At-Least-Once这样的语义，比如说一个网络超时的异常对他而言影响可能并没有那么大，但是Flink不同的是他对异常的容忍度是非常的苛刻的，那时候就考虑的是比如说会发生节点或者是网络的故障，那JobManager单点问题可能就是一个瓶颈，JobManager那个如果挂掉的话，那么可能对整个作业的影响就是不可回复的，所以考虑了做HA，另外一个就是会去考虑一些由于运维的因素而导致的那作业，还有除此之外，可能有一些用户作业是没有开启CheckPoint，但如果是因为节点或者是网络故障导致挂掉，希望会在平台内层做一些自动拉起的策略，去保证作业运行的稳定性。</p>
+<ul>
+<li><p>上下游容错</p>
+<ul>
+<li>FlinkKafka08异常重试</li>
+</ul>
+</li>
+</ul>
+<p>我们的数据源主要是Kafka，读写Kafka是一类非常常见的实时流处理避不开的一个内容，而Kafka本身的集群规模是非常比较大的，因此节点的故障出现是一个常态问题，在此基础上我们对节点故障进行了一些容错，比如说节点挂掉或者是数据均衡的时候，Leader会切换，那本身Flink的读写对Leader的切换容忍度没有那么高，在此基础上我们对一些特定场景的，以及一些特有的异常做的一些优化，进行了一些重试。</p>
+<ul>
+<li><p>容灾</p>
+<ul>
+<li><p>多机房</p>
+</li>
+<li><p>流热备</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>容灾可能大家对考虑的并不多，比如说有没有可能一个机房的所有的节点都挂掉了，或者是无法访问了，虽然它是一个小概率的事件，但它也是会发生的。所以现在也会考虑做多机房的一些部署，包括还有Kafka的一些热备。</p>
+<h3 id="Flink平台化"><a href="#Flink平台化" class="headerlink" title="Flink平台化"></a>Flink平台化</h3><h4 id="Flink平台化-作业管理"><a href="#Flink平台化-作业管理" class="headerlink" title="Flink平台化-作业管理"></a>Flink平台化-作业管理</h4><p>在实践过程中，为了解决作业管理的一些问题，减少用户开发的一些成本，我们做了一些平台化的工作，下图是一个作业提交的界面展示，包括作业的配置，作业生命周期的管理，报警的一些配置，延迟的展示，都是集成在实时计算平台的。</p>
+<p><img src="http://ww1.sinaimg.cn/large/81b78497gy1fultzv8jrhj21760ma446.jpg" alt></p>
+<h4 id="Flink平台化-监控报警"><a href="#Flink平台化-监控报警" class="headerlink" title="Flink平台化-监控报警"></a>Flink平台化-监控报警</h4><p>在监控上我们也做了一些事情，对于实时作业来讲，对监控的要求会更高，比如说在作业延迟的时候对业务的影响也比较大，所以做了一些延迟的报警，包括作业状态的报警，比如说作业存活的状态，以及作业运行的状态，还有未来会做一些自定义Metrics的报警。自定义Metrics是未来会考虑基于作业处理本身的内容性，做一些可配置化的一些报警。</p>
+<h4 id="Flink平台化-调优诊断"><a href="#Flink平台化-调优诊断" class="headerlink" title="Flink平台化-调优诊断"></a>Flink平台化-调优诊断</h4><ul>
+<li><p>实时计算引擎提供统一日志和Metrics方案</p>
+</li>
+<li><p>为业务提供按条件过滤的日志检索</p>
+</li>
+<li><p>为业务提供自定义时间跨度的指标查询</p>
+</li>
+<li><p>基于日志和指标，为业务提供可配置的报警</p>
+</li>
+</ul>
+<p>另外就是刚刚提到说在开发实时作业的时候，调优和诊断是一个比较难的痛点，就是用户不是很难去查看分布式的日志，所以也提供了一套统一的解决方案。这套解决方案主要是针对日志和Metrics，会在针对引擎那一层做一些日志和Metrics的上报，那么它会通过统一的日志收集系统，将这些原始的日志，还有Metrics汇集到Kafka那一层。今后Kafka这一层大家可以发现它有两个下游，一方面是做日志到ES的数据同步，目的的话是说能够进入日志中心去做一些日志的检索，另外一方面是通过一些聚合处理流转到写入到OpenTSDB把数据做依赖，这份聚合后的数据会做一些查询，一方面是Metrics的查询展示，另外一方面就是包括实做的一些相关的报警。</p>
+<p><img src="http://ww1.sinaimg.cn/large/81b78497gy1fulu0py17bj20tc0ysadu.jpg" alt></p>
+<p>下图是当前某一个作业的一个可支持跨天维度的Metrics的一个查询的页面。可以看到说如果是能够通过纵向的对比，可以发现除了作业在某一个时间点是因为什么情况导致的？比如说延迟啊这样容易帮用户判断一些他的做作业的一些问题。除了作业的运行状态之外，也会先就是采集一些节点的基本信息作为横向的对比</p>
+<p><img src="http://ww1.sinaimg.cn/large/81b78497gy1fulu1nzne4j20xi0xqgv2.jpg" alt></p>
+<p>下图是当前的日志的一些查询，它记录了，因为作业在挂掉之后，每一个ApplicationID可能会变化，那么基于作业唯一的唯一的主键作业名去搜集了所有的作业，从创建之初到当前运行的日志，那么可以允许用户的跨Application的日志查询。</p>
+<p><img src="http://ww1.sinaimg.cn/large/81b78497gy1fulu2b199ej21ju0wgqhl.jpg" alt></p>
+<h4 id="生态建设"><a href="#生态建设" class="headerlink" title="生态建设"></a>生态建设</h4><p>为了适配这两类MQ做了不同的事情，对于线上的MQ，期望去做一次同步多次消费，目的是避免对线上的业务造成影响，对于的生产类的Kafka就是线下的Kafka，做了一些地址的地址的屏蔽，还有基础基础的一些配置，包括一些权限的管理，还有指标的采集。</p>
+<h3 id="Flink在美团的应用"><a href="#Flink在美团的应用" class="headerlink" title="Flink在美团的应用"></a>Flink在美团的应用</h3><p>下面会给大家讲两个Flink在美团的真实使用的案例。第一个是Petra，Petra其实是一个实时指标的一个聚合的系统，它其实是面向公司的一个统一化的解决方案。它主要面向的业务场景就是基于业务的时间去统计，还有计算一些实时的指标，要求的话是低时延，他还有一个就是说，因为它是面向的是通用的业务，由于业务可能是各自会有各自不同的维度，每一个业务可能包含了包括应用通道机房，还有其他的各自应用各个业务特有的一些维度，而且这些维度可能涉及到比较多，另外一个就是说它可能是就是业务需要去做一些复合的指标的计算，比如说最常见的交易成功率，他可能需要去计算支付的成功数，还有和下单数的比例。另外一个就是说统一化的指标聚合可能面向的还是一个系统，比如说是一些B端或者是R段的一些监控类的系统，那么系统对于指标系统的诉求，就是说我希望指标聚合能够最真最实时最精确的能够产生一些结果，数据保证说它的下游系统能够真实的监控到当前的信息。右边图是我当一个Metrics展示的一个事例。可以看到其他其实跟刚刚讲也是比较类似的，就是说包含了业务的不同维度的一些指标汇聚的结果。</p>
+<h4 id="Petra实时指标聚合"><a href="#Petra实时指标聚合" class="headerlink" title="Petra实时指标聚合"></a>Petra实时指标聚合</h4><ul>
+<li><p>业务场景：</p>
+<ul>
+<li><p>基于业务时间（事件时间）</p>
+</li>
+<li><p>多业务维度：如应用、通道、机房等</p>
+</li>
+<li><p>复合指标计算：如交易成功率=支付成功数/下单数</p>
+</li>
+<li><p>低延迟：秒级结果输出</p>
+</li>
+</ul>
+</li>
+</ul>
+<p><img src="http://ww1.sinaimg.cn/large/81b78497gy1fulu3p0o28j216i0o8wwi.jpg" alt></p>
+<ul>
+<li><p>Exactlyonce的精确性保障</p>
+<ul>
+<li>Flinkcheckpoint机制</li>
+</ul>
+</li>
+<li><p>维度计算中数据倾斜</p>
+<ul>
+<li>热点key散列</li>
+</ul>
+</li>
+<li><p>对晚到数据的容忍能力</p>
+<ul>
+<li>窗口的设置与资源的权衡</li>
+</ul>
+</li>
+</ul>
+<p><img src="http://ww1.sinaimg.cn/large/81b78497gy1fulu5f77kbj20s40wgq6p.jpg" alt></p>
+<p>在用Flink去做实时指标复核的系统的时候，着重从这几方面去考虑了。第一个方面是说精确的计算，包括使用了FLink和CheckPoint的机制去保证说我能做到不丢不重的计算，第一个首先是由统一化的Metrics流入到一个预聚合的模块，预聚合的模块主要去做一些初始化的一些聚合，其中的为什么会分预聚合和全量聚合主要的解决一类问题，包括就刚刚那位同学问的一个问题，就是数据倾斜的问题，比如说在热点K发生的时候，当前的解决方案也是通过预聚合的方式去做一些缓冲，让尽量把K去打散，再聚合全量聚合模块去做汇聚。那其实也是只能解决一部分问题，所以后面也考虑说在性能的优化上包括去探索状态存储的性能。下面的话还是包含晚到数据的容忍能力，因为指标汇聚可能刚刚也提到说要包含一些复合的指标，那么符合的指标所依赖的数据可能来自于不同的流，即便来自于同一个流，可能每一个数据上报的时候，可能也会有晚到的情况发生，那时候需要去对数据关联做晚到的容忍，容忍的一方面是说可以设置晚到的Lateness的延迟，另一方面是可以设置窗口的长度，但是其实在现实的应用场景上，其实还有一方面考虑就是说除了去尽量的去拉长时间，还要考虑真正的计算成本，所以在这方面也做了一些权衡，那么指标基本就是经过全量聚合之后，聚合结果会回写Kafka，经过数据同步的模块写到OpenTSDB去做，最后去grafana那做指标的展示，另一方面可能去应用到通过Facebook包同步的模块去同步到报警的系统里面去做一些指标，基于指标的报警。</p>
+<p>下图是现在提供的产品化的Petra的一个展示的机示意图，可以看到目前的话就是定义了某一些常用的算子，以及维度的配置，允许用户进行配置话的处理，直接去能够获取到他期望要的指标的一个展示和汇聚的结果。目前还在探索说为Petra基于Sql做一些事情，因为很多用户也比较就是在就是习惯上也可以倾向于说我要去写Sql去完成这样的统计，所以也会基于此说依赖Flink的本身的对SQl还有TableAPI的支持，也会在Sql的场景上进行一些探索。</p>
+<p><img src="http://ww1.sinaimg.cn/large/81b78497gy1fulu5waxu9j21be0twwng.jpg" alt></p>
+<h3 id="MLX机器学习平台"><a href="#MLX机器学习平台" class="headerlink" title="MLX机器学习平台"></a>MLX机器学习平台</h3><hr>
+<p>第二类应用就是机器学习的一个场景，机器学习的场景可能会依赖离线的特征数据以及实时的特征数据。一个是基于现有的离线场景下的特征提取，经过了批处理，流转到了离线的集群。另外一个就是近线模式，近线模式出的数据就是现有的从日志收集系统流转过来的统一的日志，经过Flink的处理，就是包括流的关联以及特征的提取，再做模型的训练，流转到最终的训练的集群，训练的集群会产出P的特征，还有都是Delta的特征，最终将这些特征影响到线上的线上的特征的一个训练的一个服务上。这是一个比较常见的，比如说比较就是通用的也是比较通用的一个场景，目前的话主要应用的方可能包含了搜索还有推荐，以及一些其他的业务。</p>
+<p><img src="http://ww1.sinaimg.cn/large/81b78497gy1fulu6o90adj21bg0x8n5m.jpg" alt></p>
+<h2 id="未来展望"><a href="#未来展望" class="headerlink" title="未来展望"></a>未来展望</h2><p>未来的话可能也是通过也是期望在这三方面进行做一些更多的事情，刚刚也提到了包括状态的管理，第一个是状态的统一的，比如说Sql化的统一的管理，希望有统一的配置，帮用户去选择一些期望的回滚点。另外一个就是大状态的性能优化，因为比如说像做一些流量数据的双流的关联的时候，现在也遇到了一些性能瓶颈的问题，对于说啊基于内存型的状态，基于内存型的数据的处理，以及基于RocksDB的状态的处理，做过性能的比较，发现其实性能的差异还是有一些大的，所以希望说在基于RocksDBBackend的上面能够去尽量去更多的做一些优化，从而提升作业处理的性能。第二方面就是Sql，Sql的话应该是每一个位就是当前可能各个公司都在做的一个方向，因为之前也有对Sql做一些探索，包括提供了基于Storm的一些Sql的表示，但是可能对于之前的话对于与语义的表达可能会有一些欠缺，所以希望说在基于Flink可去解决这些方面的事情，以及包括Sql的并发度的一些配置的优化，包括Sql的查询的一些优化，都希望说在Flink未来能够去优化更多的东西，去真正能使Sql应用到生产的环境。</p>
+<p>另外一方面的话就是会进行新的场景的也在做新的场景的一些探索，期望是比如说包括刚刚也提到说除了流式的处理，也期望说把离线的场景下的数据进行一些合并，通过统一的Sql的API去提供给业务做更多的服务，包括流处理，还有批处理的结合。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+        
+<hr>
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+  <img id="wechat_subscriber_qcode" src="https://user-images.githubusercontent.com/5378924/221934214-4ca3bc5d-6d38-4a4a-a6bc-a1dd53563879.png" alt="hoxis wechat" style="width: auto; height:200px; max-width: 100%;">
+</div>
+<div class="copyright-txt">
+  <a href="/copyright"><i class="fa fa-copyright"></i>著作权归作者所有</a>
+</div>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Flink/" rel="tag">#Flink</a>
+          
+        </div>
+      
+
+      
+      <div class="post-spread">
+        
+          <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-56d648eefec3350b" async="async"></script>
+<!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_sharing_toolbox"></div>
+        
+      </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2017/07/16/two-years-in-alibaba/" rel="next" title="我在阿里的这两年">
+                <i class="fa fa-chevron-left"></i> 我在阿里的这两年
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2018/10/30/6-things-to-consider-when-defining-your-apache-flink-cluster-size/" rel="prev" title="Flink小贴士 (1)：确定Flink作业所需资源大小时要考虑的6件事">
+                Flink小贴士 (1)：确定Flink作业所需资源大小时要考虑的6件事 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
 
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/default_avatar.jpg" alt="WuChong">
+          <p class="site-author-name" itemprop="name">WuChong</p>
+          <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，<br>你就应该静下心来学习。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">90</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+<!--
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">分类</span>
+            </a>
+          </div>
+          -->
+
+          
+          
+          
+            <div class="site-state-item site-state-categories">
+              
+              <a href="/categories">
+              
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">77</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-sa/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="https://flink.apache.org/" target="_blank">Apache Flink</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#美团实时计算平台现状和背景"><span class="nav-number">1.</span> <span class="nav-text">美团实时计算平台现状和背景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#实时平台架构"><span class="nav-number">1.1.</span> <span class="nav-text">实时平台架构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实时平台现状"><span class="nav-number">1.2.</span> <span class="nav-text">实时平台现状</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#痛点和问题"><span class="nav-number">1.3.</span> <span class="nav-text">痛点和问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Flink探索关注点"><span class="nav-number">1.4.</span> <span class="nav-text">Flink探索关注点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Flink在美团的实践"><span class="nav-number">2.</span> <span class="nav-text">Flink在美团的实践</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#稳定性实践"><span class="nav-number">2.1.</span> <span class="nav-text">稳定性实践</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#稳定性实践-资源隔离"><span class="nav-number">2.1.1.</span> <span class="nav-text">稳定性实践-资源隔离</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#稳定性实践-智能调度"><span class="nav-number">2.1.2.</span> <span class="nav-text">稳定性实践-智能调度</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#稳定性实践-故障容错"><span class="nav-number">2.1.3.</span> <span class="nav-text">稳定性实践-故障容错</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Flink平台化"><span class="nav-number">2.2.</span> <span class="nav-text">Flink平台化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Flink平台化-作业管理"><span class="nav-number">2.2.1.</span> <span class="nav-text">Flink平台化-作业管理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Flink平台化-监控报警"><span class="nav-number">2.2.2.</span> <span class="nav-text">Flink平台化-监控报警</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Flink平台化-调优诊断"><span class="nav-number">2.2.3.</span> <span class="nav-text">Flink平台化-调优诊断</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#生态建设"><span class="nav-number">2.2.4.</span> <span class="nav-text">生态建设</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Flink在美团的应用"><span class="nav-number">2.3.</span> <span class="nav-text">Flink在美团的应用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Petra实时指标聚合"><span class="nav-number">2.3.1.</span> <span class="nav-text">Petra实时指标聚合</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MLX机器学习平台"><span class="nav-number">2.4.</span> <span class="nav-text">MLX机器学习平台</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#未来展望"><span class="nav-number">3.</span> <span class="nav-text">未来展望</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WuChong</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.scheme !== 'Pisces' && (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always')) {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'wuchong';
+      var disqus_identifier = 'blog/2018/08/25/flink-in-meituan-practice/';
+      var disqus_title = 'Flink在美团的实践与应用';
+      var disqus_url = 'http://wuchong.me/blog/2018/08/25/flink-in-meituan-practice/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
+  
+
+
+  
+  
+
+
+</body>
+</html>

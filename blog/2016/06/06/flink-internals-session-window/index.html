@@ -1,27 +1,915 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!doctype html>
 
 
-{% block title %} {{ page.title }} | {{ config.title }} {% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next mist use-motion">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css">
+
+
+    <meta name="author" content="WuChong">
+
+
+
+  <meta name="keywords" content="Flink原理与实现,Flink,session,window">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jark's Blog" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0">
+
+
+
+
+
+
+<meta name="description" content="在上一篇文章：Window机制中，我们介绍了窗口的概念和底层实现，以及 Flink 一些内建的窗口，包括滑动窗口、翻滚窗口。本文将深入讲解一种较为特殊的窗口：会话窗口（session window）。建议您在阅读完上一篇文章的基础上再阅读本文。 当我们需要分析用户的一段交互的行为事件时，通常的想法是将用户的事件流按照“session”来分组。session 是指一段持续活跃的期间，由活跃间隙分隔开">
+<meta name="keywords" content="Flink原理与实现,Flink,session,window">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flink 原理与实现：Session Window">
+<meta property="og:url" content="http://wuchong.me/blog/2016/06/06/flink-internals-session-window/index.html">
+<meta property="og:site_name" content="Jark&#39;s Blog">
+<meta property="og:description" content="在上一篇文章：Window机制中，我们介绍了窗口的概念和底层实现，以及 Flink 一些内建的窗口，包括滑动窗口、翻滚窗口。本文将深入讲解一种较为特殊的窗口：会话窗口（session window）。建议您在阅读完上一篇文章的基础上再阅读本文。 当我们需要分析用户的一段交互的行为事件时，通常的想法是将用户的事件流按照“session”来分组。session 是指一段持续活跃的期间，由活跃间隙分隔开">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB1rvs8KXXXXXXiXVXXXXXXXXXX">
+<meta property="og:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB1jB3_KXXXXXcgXFXXXXXXXXXX">
+<meta property="og:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB1174pKpXXXXbVXXXXXXXXXXXX">
+<meta property="og:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB19.g5KXXXXXX.XVXXXXXXXXXX">
+<meta property="og:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB1iFw0KXXXXXcoXVXXXXXXXXXX">
+<meta property="og:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB15U4lKpXXXXc9XXXXXXXXXXXX">
+<meta property="og:updated_time" content="2022-08-03T06:46:44.504Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Flink 原理与实现：Session Window">
+<meta name="twitter:description" content="在上一篇文章：Window机制中，我们介绍了窗口的概念和底层实现，以及 Flink 一些内建的窗口，包括滑动窗口、翻滚窗口。本文将深入讲解一种较为特殊的窗口：会话窗口（session window）。建议您在阅读完上一篇文章的基础上再阅读本文。 当我们需要分析用户的一段交互的行为事件时，通常的想法是将用户的事件流按照“session”来分组。session 是指一段持续活跃的期间，由活跃间隙分隔开">
+<meta name="twitter:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB1rvs8KXXXXXXiXVXXXXXXXXXX">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 4141040,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> Flink 原理与实现：Session Window | Jark's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Jark's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-talks">
+          <a href="/talks" rel="section">
+            
+              <i class="menu-item-icon fa fa-microphone-stand fa-fw"></i> <br>
+            
+            演讲
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input">
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', '8Exkz7xsCTJyyCHiK9TY','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Flink 原理与实现：Session Window
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-06-06T11:48:45+08:00" content="2016-06-06">
+              2016-06-06
+            </time>
+          </span>
+
+          
+            <span class="post-category">
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Flink/" itemprop="url" rel="index">
+                    <span itemprop="name">Flink</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2016/06/06/flink-internals-session-window/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="blog/2016/06/06/flink-internals-session-window/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+<!--
+    
+      <div class="post-body">
+    
+    -->
+
+
+    <div class="post-body" itemprop="articleBody">
+    
+
+      
+      
+
+      
+        <p>在<a href="http://wuchong.me/blog/2016/05/25/flink-internals-window-mechanism/">上一篇文章：Window机制</a>中，我们介绍了窗口的概念和底层实现，以及 Flink 一些内建的窗口，包括滑动窗口、翻滚窗口。本文将深入讲解一种较为特殊的窗口：会话窗口（session window）。建议您在阅读完上一篇文章的基础上再阅读本文。</p>
+<p>当我们需要分析用户的一段交互的行为事件时，通常的想法是将用户的事件流按照“session”来分组。session 是指一段持续活跃的期间，由活跃间隙分隔开。通俗一点说，消息之间的间隔小于超时阈值（sessionGap）的，则被分配到同一个窗口，间隔大于阈值的，则被分配到不同的窗口。目前开源领域大部分的流计算引擎都有窗口的概念，但是没有对 session window 的支持，要实现 session window，需要用户自己去做完大部分事情。而当 Flink 1.1.0 版本正式发布时，Flink 将会是开源流计算领域第一个内建支持 session window 的引擎。</p>
+<a id="more"></a>
+<p>在 Flink 1.1.0 之前，Flink 也可以通过自定义的window assigner和trigger来实现一个基本能用的session window。<code>release-1.0</code> 版本中提供了一个实现 session window 的 example：<a href="https://github.com/apache/flink/blob/release-1.0/flink-examples/flink-examples-streaming/src/main/java/org/apache/flink/streaming/examples/windowing/SessionWindowing.java" target="_blank" rel="noopener">SessionWindowing</a>。这个session window范例的实现原理是，基于GlobleWindow这个window assigner，将所有元素都分配到同一个窗口中，然后指定一个自定义的trigger来触发执行窗口。这个trigger的触发机制是，对于每个到达的元素都会根据其时间戳（timestamp）注册一个会话超时的定时器（timestamp+sessionTimeout），并移除上一次注册的定时器。最新一个元素到达后，如果超过 sessionTimeout 的时间还没有新元素到达，那么trigger就会触发，当前窗口就会是一个session window。处理完窗口后，窗口中的数据会清空，用来缓存下一个session window的数据。</p>
+<p>但是这种session window的实现是非常弱的，无法应用到实际生产环境中的。因为它无法处理乱序 event time 的消息。  而在即将到来的 Flink 1.1.0 版本中，Flink 提供了对 session window 的直接支持，用户可以通过<code>SessionWindows.withGap()</code>来轻松地定义 session widnow，而且能够处理乱序消息。Flink 对 session window 的支持主要借鉴自 Google 的 DataFlow 。</p>
+<h2 id="Session-Window-in-Flink"><a href="#Session-Window-in-Flink" class="headerlink" title="Session Window in Flink"></a>Session Window in Flink</h2><p>假设有这么个场景，用户点开手机淘宝后会进行一系列的操作（点击、浏览、搜索、购买、切换tab等），这些操作以及对应发生的时间都会发送到服务器上进行用户行为分析。那么用户的操作行为流的样例可能会长下面这样：</p>
+<p><img src="http://img3.tbcdn.cn/5476e8b07b923/TB1rvs8KXXXXXXiXVXXXXXXXXXX" alt></p>
+<p>通过上图，我们可以很直观地观察到，用户的行为是一段一段的，每一段内的行为都是连续紧凑的，段内行为的关联度要远大于段之间行为的关联度。我们把每一段用户行为称之为“session”，段之间的空档我们称之为“session gap”。所以，理所当然地，我们应该按照 session window 对用户的行为流进行切分，并计算每个session的结果。如下图所示：</p>
+<p><img src="http://img3.tbcdn.cn/5476e8b07b923/TB1jB3_KXXXXXcgXFXXXXXXXXXX" alt></p>
+<p>为了定义上述的窗口切分规则，我们可以使用 Flink 提供的 <code>SessionWindows</code> 这个 widnow assigner API。如果你用过 <code>SlidingEventTimeWindows</code>、<code>TumlingProcessingTimeWindows</code>等，你会对这个很熟悉。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">DataStream input = …</span><br><span class="line">DataStream result = input</span><br><span class="line">  .keyBy(&lt;key selector&gt;)</span><br><span class="line">  .window(SessionWindows.withGap(Time.seconds(&lt;seconds&gt;))</span><br><span class="line">  .apply(&lt;window function&gt;) <span class="comment">// or reduce() or fold()</span></span><br></pre></td></tr></table></figure>
+<p>这样，Flink 就会基于元素的时间戳，自动地将元素放到不同的session window中。如果两个元素的时间戳间隔小于 session gap，则会在同一个session中。如果两个元素之间的间隔大于session gap，且没有元素能够填补上这个gap，那么它们会被放到不同的session中。</p>
+<h2 id="底层实现"><a href="#底层实现" class="headerlink" title="底层实现"></a>底层实现</h2><p>为了实现 session window，我们需要扩展 Flink 中的窗口机制，使得能够支持窗口合并。要理解其原因，我们需要先了解窗口的现状。在上一篇文章中，我们谈到了 Flink 中 WindowAssigner 负责将元素分配到哪个/哪些窗口中去，Trigger 决定了一个窗口何时能够被计算或清除。当元素被分配到窗口之后，这些窗口是固定的不会改变的，而且窗口之间不会相互作用。</p>
+<p>对于session window来说，我们需要窗口变得更灵活。基本的思想是这样的：<code>SessionWindows</code> assigner 会为每个进入的元素分配一个窗口，该窗口以元素的时间戳作为起始点，时间戳加会话超时时间为结束点，也就是该窗口为<code>[timestamp, timestamp+sessionGap)</code>。比如我们现在到了两个元素，它们被分配到两个独立的窗口中，两个窗口目前不相交，如图：</p>
+<p><img src="http://img3.tbcdn.cn/5476e8b07b923/TB1174pKpXXXXbVXXXXXXXXXXXX" alt></p>
+<p>当第三个元素进入时，分配到的窗口与现有的两个窗口发生了叠加，情况变成了这样：</p>
+<p><img src="http://img3.tbcdn.cn/5476e8b07b923/TB19.g5KXXXXXX.XVXXXXXXXXXX" alt></p>
+<p>由于我们支持了窗口的合并，<code>WindowAssigner</code>可以合并这些窗口。它会遍历现有的窗口，并告诉系统哪些窗口需要合并成新的窗口。Flink 会将这些窗口进行合并，合并的主要内容有两部分：</p>
+<ol>
+<li>需要合并的窗口的底层状态的合并（也就是窗口中缓存的数据，或者对于聚合窗口来说是一个聚合值）</li>
+<li>需要合并的窗口的Trigger的合并（比如对于EventTime来说，会删除旧窗口注册的定时器，并注册新窗口的定时器）</li>
+</ol>
+<p>总之，结果是三个元素现在在同一个窗口中了：</p>
+<p><img src="http://img3.tbcdn.cn/5476e8b07b923/TB1iFw0KXXXXXcoXVXXXXXXXXXX" alt></p>
+<p>需要注意的是，对于每一个新进入的元素，都会分配一个属于该元素的窗口，都会检查并合并现有的窗口。在触发窗口计算之前，每一次都会检查该窗口是否可以和其他窗口合并，直到trigger触发后，会将该窗口从窗口列表中移除。对于 event time 来说，窗口的触发是要等到大于窗口结束时间的 watermark 到达，当watermark没有到，窗口会一直缓存着。所以基于这种机制，可以做到对乱序消息的支持。</p>
+<p>这里有一个优化点可以做，因为每一个新进入的元素都会创建属于该元素的窗口，然后合并。如果新元素连续不断地进来，并且新元素的窗口一直都是可以和之前的窗口重叠合并的，那么其实这里多了很多不必要的创建窗口、合并窗口的操作，我们可以直接将新元素放到那个已存在的窗口，然后扩展该窗口的大小，看起来就像和新元素的窗口合并了一样。</p>
+<h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><p><a href="https://issues.apache.org/jira/browse/FLINK-3174" target="_blank" rel="noopener">FLINK-3174</a> 这个JIRA中有对 Flink 如何支持 session window 的详细说明，以及代码更新。建议可以结合该 <a href="https://github.com/apache/flink/pull/1460" target="_blank" rel="noopener">PR</a> 的代码来理解本文讨论的实现原理。</p>
+<p>为了扩展 Flink 中的窗口机制，使得能够支持窗口合并，首先 window assigner 要能合并现有的窗口，Flink 增加了一个新的抽象类 <code>MergingWindowAssigner</code> 继承自 <code>WindowAssigner</code>，这里面主要多了一个 <code>mergeWindows</code> 的方法，用来决定哪些窗口是可以合并的。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">MergingWindowAssigner</span>&lt;<span class="title">T</span>, <span class="title">W</span> <span class="keyword">extends</span> <span class="title">Window</span>&gt; <span class="keyword">extends</span> <span class="title">WindowAssigner</span>&lt;<span class="title">T</span>, <span class="title">W</span>&gt; </span>&#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> serialVersionUID = <span class="number">1L</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 决定哪些窗口需要被合并。对于每组需要合并的窗口, 都会调用 callback.merge(toBeMerged, mergeResult)</span></span><br><span class="line"><span class="comment">   *</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span> windows 现存的窗口集合 The window candidates.</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span> callback 需要被合并的窗口会回调 callback.merge 方法</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">mergeWindows</span><span class="params">(Collection&lt;W&gt; windows, MergeCallback&lt;W&gt; callback)</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">MergeCallback</span>&lt;<span class="title">W</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 用来声明合并窗口的具体动作（合并窗口底层状态、合并窗口trigger等）。</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> toBeMerged  需要被合并的窗口列表</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> mergeResult 合并后的窗口</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">merge</span><span class="params">(Collection&lt;W&gt; toBeMerged, W mergeResult)</span></span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>所有已经存在的 assigner 都继承自 <code>WindowAssigner</code>，只有新加入的 session window assigner 继承自 <code>MergingWindowAssigner</code>，如：<code>ProcessingTimeSessionWindows</code>和<code>EventTimeSessionWindows</code>。</p>
+<p>另外，Trigger 也需要能支持对合并窗口后的响应，所以 Trigger 添加了一个新的接口 <code>onMerge(W window, OnMergeContext ctx)</code>，用来响应发生窗口合并之后对trigger的相关动作，比如根据合并后的窗口注册新的 event time 定时器。</p>
+<p>OK，接下来我们看下最核心的代码，也就是对于每个进入的元素的处理，代码位于<code>WindowOperator.processElement</code>方法中，如下所示：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">processElement</span><span class="params">(StreamRecord&lt;IN&gt; element)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">  Collection&lt;W&gt; elementWindows = windowAssigner.assignWindows(element.getValue(), element.getTimestamp());</span><br><span class="line">  <span class="keyword">final</span> K key = (K) getStateBackend().getCurrentKey();</span><br><span class="line">  <span class="keyword">if</span> (windowAssigner <span class="keyword">instanceof</span> MergingWindowAssigner) &#123;</span><br><span class="line">    <span class="comment">// 对于session window 的特殊处理，我们只关注该条件块内的代码</span></span><br><span class="line">    MergingWindowSet&lt;W&gt; mergingWindows = getMergingWindowSet();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (W window: elementWindows) &#123;</span><br><span class="line">      <span class="keyword">final</span> Tuple1&lt;TriggerResult&gt; mergeTriggerResult = <span class="keyword">new</span> Tuple1&lt;&gt;(TriggerResult.CONTINUE);</span><br><span class="line">      </span><br><span class="line">      <span class="comment">// 加入新窗口, 如果没有合并发生,那么actualWindow就是新加入的窗口</span></span><br><span class="line">      <span class="comment">// 如果有合并发生, 那么返回的actualWindow即为合并后的窗口,</span></span><br><span class="line">      <span class="comment">// 并且会调用 MergeFunction.merge 方法, 这里方法中的内容主要是更新trigger, 合并旧窗口中的状态到新窗口中</span></span><br><span class="line">      W actualWindow = mergingWindows.addWindow(window, <span class="keyword">new</span> MergingWindowSet.MergeFunction&lt;W&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">merge</span><span class="params">(W mergeResult,</span></span></span><br><span class="line"><span class="function"><span class="params">            Collection&lt;W&gt; mergedWindows, W stateWindowResult,</span></span></span><br><span class="line"><span class="function"><span class="params">            Collection&lt;W&gt; mergedStateWindows)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">          context.key = key;</span><br><span class="line">          context.window = mergeResult;</span><br><span class="line"></span><br><span class="line">          <span class="comment">// 这里面会根据新窗口的结束时间注册新的定时器</span></span><br><span class="line">          mergeTriggerResult.f0 = context.onMerge(mergedWindows);</span><br><span class="line"></span><br><span class="line">          <span class="comment">// 删除旧窗口注册的定时器</span></span><br><span class="line">          <span class="keyword">for</span> (W m: mergedWindows) &#123;</span><br><span class="line">            context.window = m;</span><br><span class="line">            context.clear();</span><br><span class="line">          &#125;</span><br><span class="line"></span><br><span class="line">          <span class="comment">// 合并旧窗口(mergedStateWindows)中的状态到新窗口（stateWindowResult）中</span></span><br><span class="line">          getStateBackend().mergePartitionedStates(stateWindowResult,</span><br><span class="line">              mergedStateWindows,</span><br><span class="line">              windowSerializer,</span><br><span class="line">              (StateDescriptor&lt;? extends MergingState&lt;?,?&gt;, ?&gt;) windowStateDescriptor);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;);</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 取 actualWindow 对应的用来存状态的窗口</span></span><br><span class="line">      W stateWindow = mergingWindows.getStateWindow(actualWindow);</span><br><span class="line">      <span class="comment">// 从状态后端拿出对应的状态 </span></span><br><span class="line">      AppendingState&lt;IN, ACC&gt; windowState = getPartitionedState(stateWindow, windowSerializer, windowStateDescriptor);</span><br><span class="line">      <span class="comment">// 将新进入的元素数据加入到新窗口（或者说合并后的窗口）中对应的状态中</span></span><br><span class="line">      windowState.add(element.getValue());</span><br><span class="line"></span><br><span class="line">      context.key = key;</span><br><span class="line">      context.window = actualWindow;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 检查是否需要fire or purge </span></span><br><span class="line">      TriggerResult triggerResult = context.onElement(element);</span><br><span class="line"></span><br><span class="line">      TriggerResult combinedTriggerResult = TriggerResult.merge(triggerResult, mergeTriggerResult.f0);</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 根据trigger结果决定怎么处理窗口中的数据</span></span><br><span class="line">      processTriggerResult(combinedTriggerResult, actualWindow);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// 对于普通window assigner的处理， 这里我们不关注</span></span><br><span class="line">    <span class="keyword">for</span> (W window: elementWindows) &#123;</span><br><span class="line"></span><br><span class="line">      AppendingState&lt;IN, ACC&gt; windowState = getPartitionedState(window, windowSerializer,</span><br><span class="line">          windowStateDescriptor);</span><br><span class="line"></span><br><span class="line">      windowState.add(element.getValue());</span><br><span class="line"></span><br><span class="line">      context.key = key;</span><br><span class="line">      context.window = window;</span><br><span class="line">      TriggerResult triggerResult = context.onElement(element);</span><br><span class="line"></span><br><span class="line">      processTriggerResult(triggerResult, window);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其实这段代码写的并不是很clean，并且不是很好理解。在第六行中有用到<code>MergingWindowSet</code>，这个类很重要所以我们先介绍它。这是一个用来跟踪窗口合并的类。比如我们有A、B、C三个窗口需要合并，合并后的窗口为D窗口。这三个窗口在底层都有对应的状态集合，为了避免代价高昂的状态替换（创建新状态是很昂贵的），我们保持其中一个窗口作为原始的状态窗口，其他几个窗口的数据合并到该状态窗口中去，比如随机选择A作为状态窗口，那么B和C窗口中的数据需要合并到A窗口中去。这样就没有新状态产生了，但是我们需要额外维护窗口与状态窗口之间的映射关系（D-&gt;A），这就是<code>MergingWindowSet</code>负责的工作。这个映射关系需要在失败重启后能够恢复，所以<code>MergingWindowSet</code>内部也是对该映射关系做了容错。状态合并的工作示意图如下所示：</p>
+<p><img src="http://img3.tbcdn.cn/5476e8b07b923/TB15U4lKpXXXXc9XXXXXXXXXXXX" alt></p>
+<p>然后我们来解释下processElement的代码，首先根据window assigner为新进入的元素分配窗口集合。接着进入第一个条件块，取出当前的<code>MergingWindowSet</code>。对于每个分配到的窗口，我们就会将其加入到<code>MergingWindowSet</code>中（<code>addWindow</code>方法），由<code>MergingWindowSet</code>维护窗口与状态窗口之间的关系，并在需要窗口合并的时候，合并状态和trigger。然后根据映射关系，取出结果窗口对应的状态窗口，根据状态窗口取出对应的状态。将新进入的元素数据加入到该状态中。最后，根据trigger结果来对窗口数据进行处理，对于session window来说，这里都是不进行任何处理的。真正对窗口处理是由定时器超时后对完成的窗口调用<code>processTriggerResult</code>。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文在<a href="http://wuchong.me/blog/2016/05/25/flink-internals-window-mechanism/">上一篇文章：Window机制</a>的基础上，深入讲解了 Flink 是如何支持 session window 的，核心的原理是窗口的合并。Flink 对于 session window 的支持很大程度上受到了 Google DataFlow 的启发，所以也建议阅读下 DataFlow 的论文。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://blog.madhukaraphatak.com/introduction-to-flink-streaming-part-7" target="_blank" rel="noopener">Introduction to Flink Streaming - Part 7 : Implementing Session Windows using Custom Trigger</a></li>
+<li><a href="http://data-artisans.com/session-windowing-in-flink/" target="_blank" rel="noopener">How Apache Flink Enables New Streaming Applications<br>Part III: Session Windowing in Flink</a></li>
+<li><a href="http://www.vldb.org/pvldb/vol8/p1792-Akidau.pdf" target="_blank" rel="noopener">Google DataFlow paper</a></li>
+<li><a href="https://cloud.google.com/dataflow/model/windowing#session-windows" target="_blank" rel="noopener">Google DataFlow Document</a></li>
+<li><a href="https://issues.apache.org/jira/browse/FLINK-3174" target="_blank" rel="noopener">FLINK-3174: Add merging WindowAssigner</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+        
+<hr>
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+  <img id="wechat_subscriber_qcode" src="https://user-images.githubusercontent.com/5378924/221934214-4ca3bc5d-6d38-4a4a-a6bc-a1dd53563879.png" alt="hoxis wechat" style="width: auto; height:200px; max-width: 100%;">
+</div>
+<div class="copyright-txt">
+  <a href="/copyright"><i class="fa fa-copyright"></i>著作权归作者所有</a>
+</div>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Flink/" rel="tag">#Flink</a>
+          
+            <a href="/tags/Flink原理与实现/" rel="tag">#Flink原理与实现</a>
+          
+        </div>
+      
+
+      
+      <div class="post-spread">
+        
+          <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-56d648eefec3350b" async="async"></script>
+<!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_sharing_toolbox"></div>
+        
+      </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/05/25/flink-internals-window-mechanism/" rel="next" title="Flink 原理与实现：Window 机制">
+                <i class="fa fa-chevron-left"></i> Flink 原理与实现：Window 机制
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2017/03/30/flink-internals-table-and-sql-api/" rel="prev" title="Flink 原理与实现：Table & SQL API">
+                Flink 原理与实现：Table & SQL API <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
 
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/default_avatar.jpg" alt="WuChong">
+          <p class="site-author-name" itemprop="name">WuChong</p>
+          <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，<br>你就应该静下心来学习。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">90</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+<!--
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">分类</span>
+            </a>
+          </div>
+          -->
+
+          
+          
+          
+            <div class="site-state-item site-state-categories">
+              
+              <a href="/categories">
+              
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">77</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-sa/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="https://flink.apache.org/" target="_blank">Apache Flink</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Session-Window-in-Flink"><span class="nav-number">1.</span> <span class="nav-text">Session Window in Flink</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#底层实现"><span class="nav-number">2.</span> <span class="nav-text">底层实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#源码分析"><span class="nav-number">3.</span> <span class="nav-text">源码分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WuChong</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.scheme !== 'Pisces' && (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always')) {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'wuchong';
+      var disqus_identifier = 'blog/2016/06/06/flink-internals-session-window/';
+      var disqus_title = 'Flink 原理与实现：Session Window';
+      var disqus_url = 'http://wuchong.me/blog/2016/06/06/flink-internals-session-window/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
+  
+
+
+  
+  
+
+
+</body>
+</html>

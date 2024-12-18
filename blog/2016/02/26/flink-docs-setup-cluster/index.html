@@ -1,27 +1,918 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!doctype html>
 
 
-{% block title %} {{ page.title }} | {{ config.title }} {% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next mist use-motion">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css">
+
+
+    <meta name="author" content="WuChong">
+
+
+
+  <meta name="keywords" content="flink,集群,安装,部署">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jark's Blog" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0">
+
+
+
+
+
+
+<meta name="description" content="本文主要介绍如何将Flink以分布式模式运行在集群上（可能是异构的）。">
+<meta name="keywords" content="flink,集群,安装,部署">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flink官方文档翻译：安装部署（集群模式）">
+<meta property="og:url" content="http://wuchong.me/blog/2016/02/26/flink-docs-setup-cluster/index.html">
+<meta property="og:site_name" content="Jark&#39;s Blog">
+<meta property="og:description" content="本文主要介绍如何将Flink以分布式模式运行在集群上（可能是异构的）。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2022-08-03T06:46:44.502Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Flink官方文档翻译：安装部署（集群模式）">
+<meta name="twitter:description" content="本文主要介绍如何将Flink以分布式模式运行在集群上（可能是异构的）。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 4141040,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> Flink官方文档翻译：安装部署（集群模式） | Jark's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Jark's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-talks">
+          <a href="/talks" rel="section">
+            
+              <i class="menu-item-icon fa fa-microphone-stand fa-fw"></i> <br>
+            
+            演讲
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input">
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', '8Exkz7xsCTJyyCHiK9TY','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Flink官方文档翻译：安装部署（集群模式）
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-02-26T16:03:35+08:00" content="2016-02-26">
+              2016-02-26
+            </time>
+          </span>
+
+          
+            <span class="post-category">
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/分布式系统/" itemprop="url" rel="index">
+                    <span itemprop="name">分布式系统</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2016/02/26/flink-docs-setup-cluster/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="blog/2016/02/26/flink-docs-setup-cluster/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+<!--
+    
+      <div class="post-body">
+    
+    -->
+
+
+    <div class="post-body" itemprop="articleBody">
+    
+
+      
+      
+
+      
+        <p>本文主要介绍如何将Flink以分布式模式运行在集群上（可能是异构的）。</p>
+<h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><p>Flink 运行在所有类 UNIX 环境上，例如 Linux、Mac OS X 和 Cygwin（对于Windows），而且要求集群由<strong>一个master节点</strong>和<strong>一个或多个worker节点</strong>组成。在安装系统之前，确保每台机器上都已经安装了下面的软件：</p>
+<ul>
+<li><strong>Java 1.7.x</strong>或更高版本</li>
+<li><strong>ssh</strong>（Flink的脚本会用到sshd来管理远程组件）</li>
+</ul>
+<p>如果你的集群还没有完全装好这些软件，你需要安装/升级它们。例如，在 Ubuntu Linux 上， 你可以执行下面的命令安装 ssh 和 Java ：</p>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">sudo apt-<span class="builtin-name">get</span> install ssh </span><br><span class="line">sudo apt-<span class="builtin-name">get</span> install openjdk-7-jre</span><br></pre></td></tr></table></figure>
+<h3 id="SSH免密码登录"><a href="#SSH免密码登录" class="headerlink" title="SSH免密码登录"></a>SSH免密码登录</h3><p>*译注：安装过Hadoop、Spark集群的用户应该对这段很熟悉，如果已经了解，可跳过。**</p>
+<p>为了能够启动/停止远程主机上的进程，master节点需要能免密登录所有worker节点。最方便的方式就是使用ssh的公钥验证了。要安装公钥验证，首先以最终会运行Flink的用户登录master节点。<strong>所有的worker节点上也必须要有同样的用户（例如：使用相同用户名的用户）</strong>。本文会以 flink 用户为例。非常不建议使用 root 账户，这会有很多的安全问题。</p>
+<p>当你用需要的用户登录了master节点，你就可以生成一对新的公钥/私钥。下面这段命令会在 ~/.ssh 目录下生成一对新的公钥/私钥。</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">ssh-keygen -b <span class="number">2048</span> -P <span class="string">''</span> -f ~<span class="regexp">/.ssh/i</span>d_rsa</span><br></pre></td></tr></table></figure>
+<p>接下来，将公钥添加到用于认证的<code>authorized_keys</code>文件中：</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">cat ~<span class="regexp">/.ssh/i</span>d_rsa.pub &gt;&gt; ~<span class="regexp">/.ssh/</span>authorized_keys</span><br></pre></td></tr></table></figure>
+<p>最后，将<code>authorized_keys</code>文件分发给集群中所有的worker节点，你可以重复地执行下面这段命令：</p>
+<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line">scp ~<span class="regexp">/.ssh/authorized</span>_keys &lt;worker&gt;<span class="symbol">:~/</span>.ssh/</span><br></pre></td></tr></table></figure>
+<p>将上面的<code>&lt;worker&gt;</code>替代成相应worker节点的IP/Hostname。完成了上述拷贝的工作，你应该就可以从master上免密登录其他机器了。</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line">ssh <span class="tag">&lt;<span class="name">worker</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="配置JAVA-HOME"><a href="#配置JAVA-HOME" class="headerlink" title="配置JAVA_HOME"></a>配置JAVA_HOME</h3><p>Flink 需要master和worker节点都配置了<code>JAVA_HOME</code>环境变量。有两种方式可以配置。</p>
+<p>一种是，你可以在<code>conf/flink-conf.yaml</code>中设置<code>env.java.home</code>配置项为Java的安装路径。</p>
+<p>另一种是，<code>sudo vi /etc/profile</code>，在其中添加<code>JAVA_HOME</code>：</p>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line"><span class="builtin-name">export</span> <span class="attribute">JAVA_HOME</span>=/path/to/java_home/</span><br></pre></td></tr></table></figure>
+<p>然后使环境变量生效，并验证 Java 是否安装成功</p>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">$ source /etc<span class="built_in">/profile </span>  #生效环境变量</span><br><span class="line">$ java -version         #如果打印出版本信息，则说明安装成功</span><br><span class="line">java version <span class="string">"1.7.0_75"</span></span><br><span class="line">Java(TM) SE Runtime Environment (build 1.7.0_75-b13)</span><br><span class="line">Java HotSpot(TM) 64-Bit<span class="built_in"> Server </span>VM (build 24.75-b04, mixed mode)</span><br></pre></td></tr></table></figure>
+<h2 id="安装-Flink"><a href="#安装-Flink" class="headerlink" title="安装 Flink"></a>安装 Flink</h2><p>进入<a href="http://flink.apache.org/downloads.html" target="_blank" rel="noopener">下载页面</a>。请选择一个与你的Hadoop版本相匹配的Flink包。如果你不打算使用Hadoop，选择任何版本都可以。</p>
+<p>在下载了最新的发布包后，拷贝到master节点上，并解压：</p>
+<figure class="highlight jboss-cli"><table><tr><td class="code"><pre><span class="line">tar xzf flink-*<span class="string">.tgz</span></span><br><span class="line"><span class="keyword">cd</span> flink-*</span><br></pre></td></tr></table></figure>
+<h2 id="配置-Flink"><a href="#配置-Flink" class="headerlink" title="配置 Flink"></a>配置 Flink</h2><p>在解压完之后，你需要编辑<code>conf/flink-conf.yaml</code>配置Flink。</p>
+<p>设置<code>jobmanager.rpc.address</code>配置项为你的master节点地址。另外为了明确 JVM 在每个节点上所能分配的最大内存，我们需要配置<code>jobmanager.heap.mb</code>和<code>taskmanager.heap.mb</code>，值的单位是 MB。如果对于某些worker节点，你想要分配更多的内存给Flink系统，你可以在相应节点上设置<code>FLINK_TM_HEAP</code>环境变量来覆盖默认的配置。</p>
+<p>最后，你需要提供一个集群中worker节点的列表。因此，就像配置HDFS，编辑<em>conf/slaves</em>文件，然后输入每个worker节点的 IP/Hostname。每一个worker结点之后都会运行一个 TaskManager。</p>
+<p>每一条记录占一行，就像下面展示的一样：</p>
+<figure class="highlight accesslog"><table><tr><td class="code"><pre><span class="line"><span class="number">192.168.0.100</span></span><br><span class="line"><span class="number">192.168.0.101</span></span><br><span class="line">.</span><br><span class="line">.</span><br><span class="line">.</span><br><span class="line"><span class="number">192.168.0.150</span></span><br></pre></td></tr></table></figure>
+<p><em>译注：conf/master文件是用来做<a href="https://ci.apache.org/projects/flink/flink-docs-master/setup/jobmanager_high_availability.html" target="_blank" rel="noopener">JobManager HA</a>的，在这里不需要配置</em></p>
+<p>每一个worker节点上的 Flink 路径必须一致。你可以使用共享的 NSF 目录，或者拷贝整个 Flink 目录到各个worker节点。</p>
+<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line">scp -r /path/to/flink &lt;worker&gt;<span class="symbol">:/path/to/</span></span><br></pre></td></tr></table></figure>
+<p>请查阅<a href="https://ci.apache.org/projects/flink/flink-docs-master/setup/config.html" target="_blank" rel="noopener">配置页面</a>了解更多关于Flink的配置。</p>
+<p>特别的，这几个</p>
+<ul>
+<li>TaskManager 总共能使用的内存大小（<code>taskmanager.heap.mb</code>）</li>
+<li>每一台机器上能使用的 CPU 个数（<code>taskmanager.numberOfTaskSlots</code>）</li>
+<li>集群中的总 CPU 个数（<code>parallelism.default</code>）</li>
+<li>临时目录（<code>taskmanager.tmp.dirs</code>）</li>
+</ul>
+<p>是非常重要的配置项。</p>
+<h2 id="启动-Flink"><a href="#启动-Flink" class="headerlink" title="启动 Flink"></a>启动 Flink</h2><p>下面的脚本会在本地节点启动一个 JobManager，然后通过 SSH 连接所有的worker节点（<em>slaves</em>文件中所列的节点），并在每个节点上运行 TaskManager。现在你的 Flink 系统已经启动并运行了。跑在本地节点上的 JobManager 现在会在配置的 RPC 端口上监听并接收任务。</p>
+<p>假定你在master节点上，并在Flink目录中：</p>
+<figure class="highlight stata"><table><tr><td class="code"><pre><span class="line">bin/start-<span class="keyword">cluster</span>.<span class="keyword">sh</span></span><br></pre></td></tr></table></figure>
+<p>要停止Flink，也有一个 <em>stop-cluster.sh</em> 脚本。</p>
+<h2 id="添加-JobManager-TaskManager-实例到集群中"><a href="#添加-JobManager-TaskManager-实例到集群中" class="headerlink" title="添加 JobManager/TaskManager 实例到集群中"></a>添加 JobManager/TaskManager 实例到集群中</h2><p>你可以使用 <em>bin/jobmanager.sh</em> 和 <em>bin/taskmanager</em> 脚本来添加 JobManager 和 TaskManager 实例到你正在运行的集群中。</p>
+<h3 id="添加一个-JobManager"><a href="#添加一个-JobManager" class="headerlink" title="添加一个 JobManager"></a>添加一个 JobManager</h3><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">bin/jobmanager.sh (<span class="keyword">start</span> cluster)|<span class="keyword">stop</span>|<span class="keyword">stop</span>-<span class="keyword">all</span></span><br></pre></td></tr></table></figure>
+<h3 id="添加一个-TaskManager"><a href="#添加一个-TaskManager" class="headerlink" title="添加一个 TaskManager"></a>添加一个 TaskManager</h3><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">bin/taskmanager.sh <span class="keyword">start</span>|<span class="keyword">stop</span>|<span class="keyword">stop</span>-<span class="keyword">all</span></span><br></pre></td></tr></table></figure>
+<p>确保你是在需要启动/停止相应实例的节点上运行的这些脚本。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+        
+<hr>
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+  <img id="wechat_subscriber_qcode" src="https://user-images.githubusercontent.com/5378924/221934214-4ca3bc5d-6d38-4a4a-a6bc-a1dd53563879.png" alt="hoxis wechat" style="width: auto; height:200px; max-width: 100%;">
+</div>
+<div class="copyright-txt">
+  <a href="/copyright"><i class="fa fa-copyright"></i>著作权归作者所有</a>
+</div>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Flink/" rel="tag">#Flink</a>
+          
+            <a href="/tags/Flink官方文档翻译/" rel="tag">#Flink官方文档翻译</a>
+          
+            <a href="/tags/部署/" rel="tag">#部署</a>
+          
+        </div>
+      
+
+      
+      <div class="post-spread">
+        
+          <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-56d648eefec3350b" async="async"></script>
+<!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_sharing_toolbox"></div>
+        
+      </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/02/26/flink-docs-setup-local/" rel="next" title="Flink官方文档翻译：安装部署（本地模式）">
+                <i class="fa fa-chevron-left"></i> Flink官方文档翻译：安装部署（本地模式）
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/04/26/flink-internals-how-to-handle-backpressure/" rel="prev" title="Flink 原理与实现：如何处理反压问题">
+                Flink 原理与实现：如何处理反压问题 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
 
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/default_avatar.jpg" alt="WuChong">
+          <p class="site-author-name" itemprop="name">WuChong</p>
+          <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，<br>你就应该静下心来学习。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">90</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+<!--
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">分类</span>
+            </a>
+          </div>
+          -->
+
+          
+          
+          
+            <div class="site-state-item site-state-categories">
+              
+              <a href="/categories">
+              
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">77</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-sa/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="https://flink.apache.org/" target="_blank">Apache Flink</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#环境准备"><span class="nav-number">1.</span> <span class="nav-text">环境准备</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SSH免密码登录"><span class="nav-number">1.1.</span> <span class="nav-text">SSH免密码登录</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置JAVA-HOME"><span class="nav-number">1.2.</span> <span class="nav-text">配置JAVA_HOME</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装-Flink"><span class="nav-number">2.</span> <span class="nav-text">安装 Flink</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#配置-Flink"><span class="nav-number">3.</span> <span class="nav-text">配置 Flink</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#启动-Flink"><span class="nav-number">4.</span> <span class="nav-text">启动 Flink</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#添加-JobManager-TaskManager-实例到集群中"><span class="nav-number">5.</span> <span class="nav-text">添加 JobManager/TaskManager 实例到集群中</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#添加一个-JobManager"><span class="nav-number">5.1.</span> <span class="nav-text">添加一个 JobManager</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#添加一个-TaskManager"><span class="nav-number">5.2.</span> <span class="nav-text">添加一个 TaskManager</span></a></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WuChong</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.scheme !== 'Pisces' && (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always')) {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'wuchong';
+      var disqus_identifier = 'blog/2016/02/26/flink-docs-setup-cluster/';
+      var disqus_title = 'Flink官方文档翻译：安装部署（集群模式）';
+      var disqus_url = 'http://wuchong.me/blog/2016/02/26/flink-docs-setup-cluster/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
+  
+
+
+  
+  
+
+
+</body>
+</html>

@@ -1,27 +1,932 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!doctype html>
 
 
-{% block title %} {{ page.title }} | {{ config.title }} {% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next mist use-motion">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css">
+
+
+    <meta name="author" content="WuChong">
+
+
+
+  <meta name="keywords" content="Spark,YARN,集群,分布式,安装,部署,配置">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jark's Blog" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0">
+
+
+
+
+
+
+<meta name="description" content="最近毕设需要用到 Spark 集群，所以就记录下了部署的过程。我们知道 Spark 官方提供了三种集群部署方案： Standalone, Mesos, YARN。其中 Standalone 最为方便，本文主要讲述结合 YARN 的部署方案。">
+<meta name="keywords" content="Spark,YARN,集群,分布式,安装,部署,配置">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spark On YARN 集群安装部署">
+<meta property="og:url" content="http://wuchong.me/blog/2015/04/04/spark-on-yarn-cluster-deploy/index.html">
+<meta property="og:site_name" content="Jark&#39;s Blog">
+<meta property="og:description" content="最近毕设需要用到 Spark 集群，所以就记录下了部署的过程。我们知道 Spark 官方提供了三种集群部署方案： Standalone, Mesos, YARN。其中 Standalone 最为方便，本文主要讲述结合 YARN 的部署方案。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://ww4.sinaimg.cn/mw690/81b78497jw1eqwa7uqndoj20za0p8afa.jpg">
+<meta property="og:updated_time" content="2022-08-03T06:46:44.511Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Spark On YARN 集群安装部署">
+<meta name="twitter:description" content="最近毕设需要用到 Spark 集群，所以就记录下了部署的过程。我们知道 Spark 官方提供了三种集群部署方案： Standalone, Mesos, YARN。其中 Standalone 最为方便，本文主要讲述结合 YARN 的部署方案。">
+<meta name="twitter:image" content="http://ww4.sinaimg.cn/mw690/81b78497jw1eqwa7uqndoj20za0p8afa.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 4141040,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> Spark On YARN 集群安装部署 | Jark's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Jark's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-talks">
+          <a href="/talks" rel="section">
+            
+              <i class="menu-item-icon fa fa-microphone-stand fa-fw"></i> <br>
+            
+            演讲
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input">
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', '8Exkz7xsCTJyyCHiK9TY','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Spark On YARN 集群安装部署
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-04-04T23:45:34+08:00" content="2015-04-04">
+              2015-04-04
+            </time>
+          </span>
+
+          
+            <span class="post-category">
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/分布式系统/" itemprop="url" rel="index">
+                    <span itemprop="name">分布式系统</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2015/04/04/spark-on-yarn-cluster-deploy/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="blog/2015/04/04/spark-on-yarn-cluster-deploy/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+<!--
+    
+      <div class="post-body">
+    
+    -->
+
+
+    <div class="post-body" itemprop="articleBody">
+    
+
+      
+      
+
+      
+        <p>最近毕设需要用到 Spark 集群，所以就记录下了部署的过程。我们知道 Spark 官方提供了三种集群部署方案： Standalone, Mesos, YARN。其中 Standalone 最为方便，本文主要讲述结合 YARN 的部署方案。</p>
+<p>软件环境：</p>
+<blockquote>
+<p>Ubuntu 14.04.1 LTS (GNU/Linux 3.13.0-32-generic x86_64)<br>Hadoop: 2.6.0<br>Spark: 1.3.0</p>
+</blockquote>
+<h2 id="0-写在前面"><a href="#0-写在前面" class="headerlink" title="0 写在前面"></a>0 写在前面</h2><p>本例中的演示均为非 root 权限，所以有些命令行需要加 sudo，如果你是 root 身份运行，请忽略 sudo。下载安装的软件建议都放在 home 目录之上，比如<code>~/workspace</code>中，这样比较方便，以免权限问题带来不必要的麻烦。</p>
+<a id="more"></a>
+<h2 id="1-环境准备"><a href="#1-环境准备" class="headerlink" title="1. 环境准备"></a>1. 环境准备</h2><h3 id="修改主机名"><a href="#修改主机名" class="headerlink" title="修改主机名"></a>修改主机名</h3><p>我们将搭建1个master，2个slave的集群方案。首先修改主机名<code>vi /etc/hostname</code>，在master上修改为<code>master</code>，其中一个slave上修改为<code>slave1</code>，另一个同理。</p>
+<h3 id="配置hosts"><a href="#配置hosts" class="headerlink" title="配置hosts"></a>配置hosts</h3><p>在每台主机上修改host文件<br><figure class="highlight accesslog"><table><tr><td class="code"><pre><span class="line">vi /etc/hosts</span><br><span class="line"></span><br><span class="line"><span class="number">10.1.1.107</span>      master</span><br><span class="line"><span class="number">10.1.1.108</span>      slave1</span><br><span class="line"><span class="number">10.1.1.109</span>      slave2</span><br></pre></td></tr></table></figure></p>
+<p>配置之后ping一下用户名看是否生效<br><figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">ping slave1</span><br><span class="line">ping slave2</span><br></pre></td></tr></table></figure></p>
+<h3 id="SSH-免密码登录"><a href="#SSH-免密码登录" class="headerlink" title="SSH 免密码登录"></a>SSH 免密码登录</h3><p>安装Openssh server<br><figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">sudo apt-<span class="builtin-name">get</span> install openssh-server</span><br></pre></td></tr></table></figure></p>
+<p>在所有机器上都生成私钥和公钥<br><figure class="highlight 1c"><table><tr><td class="code"><pre><span class="line">ssh-keygen -t rsa   <span class="meta">#一路回车</span></span><br></pre></td></tr></table></figure></p>
+<p>需要让机器间都能相互访问，就把每个机子上的<code>id_rsa.pub</code>发给master节点，传输公钥可以用scp来传输。<br><figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line">scp ~<span class="regexp">/.ssh/id</span>_rsa.pub spark<span class="variable">@master</span><span class="symbol">:~/</span>.ssh/id_rsa.pub.slave1</span><br></pre></td></tr></table></figure></p>
+<p>在master上，将所有公钥加到用于认证的公钥文件<code>authorized_keys</code>中<br><figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">cat ~<span class="regexp">/.ssh/i</span>d_rsa.pub* &gt;&gt; ~<span class="regexp">/.ssh/</span>authorized_keys</span><br></pre></td></tr></table></figure></p>
+<p>将公钥文件<code>authorized_keys</code>分发给每台slave<br><figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line">scp ~<span class="regexp">/.ssh/authorized</span>_keys spark<span class="variable">@slave1</span><span class="symbol">:~/</span>.ssh/</span><br></pre></td></tr></table></figure></p>
+<p>在每台机子上验证SSH无密码通信<br><figure class="highlight crmsh"><table><tr><td class="code"><pre><span class="line">ssh <span class="literal">master</span></span><br><span class="line">ssh slave1</span><br><span class="line">ssh slave2</span><br></pre></td></tr></table></figure></p>
+<p>如果登陆测试不成功，则可能需要修改文件authorized_keys的权限（权限的设置非常重要，因为不安全的设置安全设置,会让你不能使用RSA功能 ）<br><figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">chmod <span class="number">600</span> ~<span class="regexp">/.ssh/</span>authorized_keys</span><br></pre></td></tr></table></figure></p>
+<h2 id="安装-Java"><a href="#安装-Java" class="headerlink" title="安装 Java"></a>安装 Java</h2><p>从<a href="http://www.oracle.com/technetwork/java/javase/overview/index.html" target="_blank" rel="noopener">官网</a>下载最新版 Java 就可以，Spark官方说明 Java 只要是6以上的版本都可以，我下的是 jdk-7u75-linux-x64.gz<br>在<code>~/workspace</code>目录下直接解压<br><figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">tar</span> <span class="selector-tag">-zxvf</span> <span class="selector-tag">jdk-7u75-linux-x64</span><span class="selector-class">.gz</span></span><br></pre></td></tr></table></figure></p>
+<p>修改环境变量<code>sudo vi /etc/profile</code>，添加下列内容，<strong>注意将home路径替换成你的</strong>：<br><figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line"><span class="builtin-name">export</span> <span class="attribute">WORK_SPACE</span>=/home/spark/workspace/</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">JAVA_HOME</span>=<span class="variable">$WORK_SPACE</span>/jdk1.7.0_75</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">JRE_HOME</span>=/home/spark/work/jdk1.7.0_75/jre</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">PATH</span>=<span class="variable">$JAVA_HOME</span>/bin:$JAVA_HOME/jre/bin:$PATH</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">CLASSPATH</span>=<span class="variable">$CLASSPATH</span>:.:$JAVA_HOME/lib:$JAVA_HOME/jre/lib</span><br></pre></td></tr></table></figure></p>
+<p>然后使环境变量生效，并验证 Java 是否安装成功<br><figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">$ source /etc<span class="built_in">/profile </span>  #生效环境变量</span><br><span class="line">$ java -version         #如果打印出如下版本信息，则说明安装成功</span><br><span class="line">java version <span class="string">"1.7.0_75"</span></span><br><span class="line">Java(TM) SE Runtime Environment (build 1.7.0_75-b13)</span><br><span class="line">Java HotSpot(TM) 64-Bit<span class="built_in"> Server </span>VM (build 24.75-b04, mixed mode)</span><br></pre></td></tr></table></figure></p>
+<h2 id="安装-Scala"><a href="#安装-Scala" class="headerlink" title="安装 Scala"></a>安装 Scala</h2><p>Spark官方要求 Scala 版本为 2.10.x，注意不要下错版本，我这里下了 2.10.4，<a href="http://www.scala-lang.org/download/2.10.4.html" target="_blank" rel="noopener">官方下载地址</a>（可恶的天朝大局域网下载 Scala 龟速一般）。</p>
+<p>同样我们在<code>~/workspace</code>中解压<br><figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">tar</span> <span class="selector-tag">-zxvf</span> <span class="selector-tag">scala-2</span><span class="selector-class">.10</span><span class="selector-class">.4</span><span class="selector-class">.tgz</span></span><br></pre></td></tr></table></figure></p>
+<p>再次修改环境变量<code>sudo vi /etc/profile</code>，添加以下内容：<br><figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line"><span class="builtin-name">export</span> <span class="attribute">SCALA_HOME</span>=<span class="variable">$WORK_SPACE</span>/scala-2.10.4</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">PATH</span>=<span class="variable">$PATH</span>:$SCALA_HOME/bin</span><br></pre></td></tr></table></figure></p>
+<p>同样的方法使环境变量生效，并验证 scala 是否安装成功<br><figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">$ source /etc<span class="built_in">/profile </span>  #生效环境变量</span><br><span class="line">$ scala -version        #如果打印出如下版本信息，则说明安装成功</span><br><span class="line">Scala code runner version 2.10.4 -- Copyright 2002-2013, LAMP/EPFL</span><br></pre></td></tr></table></figure></p>
+<h2 id="安装配置-Hadoop-YARN"><a href="#安装配置-Hadoop-YARN" class="headerlink" title="安装配置 Hadoop YARN"></a>安装配置 Hadoop YARN</h2><h3 id="下载解压"><a href="#下载解压" class="headerlink" title="下载解压"></a>下载解压</h3><p>从<a href="http://hadoop.apache.org/releases.html#Download" target="_blank" rel="noopener">官网</a>下载 hadoop2.6.0 版本，这里给个我们学校的<a href="http://mirror.bit.edu.cn/apache/hadoop/common/hadoop-2.6.0/hadoop-2.6.0.tar.gz" target="_blank" rel="noopener">镜像下载地址</a>。</p>
+<p>同样我们在<code>~/workspace</code>中解压<br><figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">tar</span> <span class="selector-tag">-zxvf</span> <span class="selector-tag">hadoop-2</span><span class="selector-class">.6</span><span class="selector-class">.0</span><span class="selector-class">.tar</span><span class="selector-class">.gz</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="配置-Hadoop"><a href="#配置-Hadoop" class="headerlink" title="配置 Hadoop"></a>配置 Hadoop</h3><p><code>cd ~/workspace/hadoop-2.6.0/etc/hadoop</code>进入hadoop配置目录，需要配置有以下7个文件：<code>hadoop-env.sh</code>，<code>yarn-env.sh</code>，<code>slaves</code>，<code>core-site.xml</code>，<code>hdfs-site.xml</code>，<code>maprd-site.xml</code>，<code>yarn-site.xml</code></p>
+<ol>
+<li><p>在<code>hadoop-env.sh</code>中配置JAVA_HOME</p>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line"><span class="comment"># The java implementation to use.</span></span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">JAVA_HOME</span>=/home/spark/workspace/jdk1.7.0_75</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在<code>yarn-env.sh</code>中配置JAVA_HOME</p>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line"><span class="comment"># some Java parameters</span></span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">JAVA_HOME</span>=/home/spark/workspace/jdk1.7.0_75</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在<code>slaves</code>中配置slave节点的ip或者host，</p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">slave1</span><br><span class="line">slave2</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改<code>core-site.xml</code></p>
+<figure class="highlight dts"><table><tr><td class="code"><pre><span class="line"><span class="params">&lt;configuration&gt;</span></span><br><span class="line">    <span class="params">&lt;property&gt;</span></span><br><span class="line">        <span class="params">&lt;name&gt;</span>fs.defaultFS<span class="params">&lt;/name&gt;</span></span><br><span class="line">        <span class="params">&lt;value&gt;</span>hdfs:<span class="comment">//master:9000/&lt;/value&gt;</span></span><br><span class="line">    <span class="params">&lt;/property&gt;</span></span><br><span class="line">    <span class="params">&lt;property&gt;</span></span><br><span class="line">         <span class="params">&lt;name&gt;</span>hadoop.tmp.dir<span class="params">&lt;/name&gt;</span></span><br><span class="line">         <span class="params">&lt;value&gt;</span>file:<span class="meta-keyword">/home/</span>spark<span class="meta-keyword">/workspace/</span>hadoop<span class="number">-2.6</span><span class="number">.0</span>/tmp<span class="params">&lt;/value&gt;</span></span><br><span class="line">    <span class="params">&lt;/property&gt;</span></span><br><span class="line"><span class="params">&lt;/configuration&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改<code>hdfs-site.xml</code></p>
+<figure class="highlight dts"><table><tr><td class="code"><pre><span class="line"><span class="params">&lt;configuration&gt;</span></span><br><span class="line">    <span class="params">&lt;property&gt;</span></span><br><span class="line">        <span class="params">&lt;name&gt;</span>dfs.namenode.secondary.http-address<span class="params">&lt;/name&gt;</span></span><br><span class="line">        <span class="params">&lt;value&gt;</span>master:<span class="number">9001</span><span class="params">&lt;/value&gt;</span></span><br><span class="line">    <span class="params">&lt;/property&gt;</span></span><br><span class="line">    <span class="params">&lt;property&gt;</span></span><br><span class="line">        <span class="params">&lt;name&gt;</span>dfs.namenode.name.dir<span class="params">&lt;/name&gt;</span></span><br><span class="line">        <span class="params">&lt;value&gt;</span>file:<span class="meta-keyword">/home/</span>spark<span class="meta-keyword">/workspace/</span>hadoop<span class="number">-2.6</span><span class="number">.0</span><span class="meta-keyword">/dfs/</span>name<span class="params">&lt;/value&gt;</span></span><br><span class="line">    <span class="params">&lt;/property&gt;</span></span><br><span class="line">    <span class="params">&lt;property&gt;</span></span><br><span class="line">        <span class="params">&lt;name&gt;</span>dfs.datanode.data.dir<span class="params">&lt;/name&gt;</span></span><br><span class="line">        <span class="params">&lt;value&gt;</span>file:<span class="meta-keyword">/home/</span>spark<span class="meta-keyword">/workspace/</span>hadoop<span class="number">-2.6</span><span class="number">.0</span><span class="meta-keyword">/dfs/</span>data<span class="params">&lt;/value&gt;</span></span><br><span class="line">    <span class="params">&lt;/property&gt;</span></span><br><span class="line">    <span class="params">&lt;property&gt;</span></span><br><span class="line">        <span class="params">&lt;name&gt;</span>dfs.replication<span class="params">&lt;/name&gt;</span></span><br><span class="line">        <span class="params">&lt;value&gt;</span><span class="number">3</span><span class="params">&lt;/value&gt;</span></span><br><span class="line">    <span class="params">&lt;/property&gt;</span></span><br><span class="line"><span class="params">&lt;/configuration&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改<code>mapred-site.xml</code></p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>mapreduce.framework.name<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>yarn<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改<code>yarn-site.xml</code></p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.nodemanager.aux-services<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>mapreduce_shuffle<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.nodemanager.aux-services.mapreduce.shuffle.class<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>org.apache.hadoop.mapred.ShuffleHandler<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.resourcemanager.address<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>master:8032<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.resourcemanager.scheduler.address<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>master:8030<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.resourcemanager.resource-tracker.address<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>master:8035<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.resourcemanager.admin.address<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>master:8033<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.resourcemanager.webapp.address<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>master:8088<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>将配置好的<code>hadoop-2.6.0</code>文件夹分发给所有slaves吧<br><figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line">scp -r ~<span class="regexp">/workspace/hadoop</span><span class="number">-2.6</span>.0 spark<span class="variable">@slave1</span><span class="symbol">:~/workspace/</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="启动-Hadoop"><a href="#启动-Hadoop" class="headerlink" title="启动 Hadoop"></a>启动 Hadoop</h3><p>在 master 上执行以下操作，就可以启动 hadoop 了。<br><figure class="highlight livecodeserver"><table><tr><td class="code"><pre><span class="line">cd ~/workspace/hadoop<span class="number">-2.6</span><span class="number">.0</span>     <span class="comment">#进入hadoop目录</span></span><br><span class="line">bin/hadoop namenode -<span class="built_in">format</span>     <span class="comment">#格式化namenode</span></span><br><span class="line">sbin/<span class="built_in">start</span>-dfs.sh               <span class="comment">#启动dfs </span></span><br><span class="line">sbin/<span class="built_in">start</span>-yarn.sh              <span class="comment">#启动yarn</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="验证-Hadoop-是否安装成功"><a href="#验证-Hadoop-是否安装成功" class="headerlink" title="验证 Hadoop 是否安装成功"></a>验证 Hadoop 是否安装成功</h3><p>可以通过<code>jps</code>命令查看各个节点启动的进程是否正常。在 master 上应该有以下几个进程：<br><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="string">$</span> <span class="string">jps</span>  <span class="comment">#run on master</span></span><br><span class="line"><span class="number">3407</span> <span class="string">SecondaryNameNode</span></span><br><span class="line"><span class="number">3218</span> <span class="string">NameNode</span></span><br><span class="line"><span class="number">3552</span> <span class="string">ResourceManager</span></span><br><span class="line"><span class="number">3910</span> <span class="string">Jps</span></span><br></pre></td></tr></table></figure></p>
+<p>在每个slave上应该有以下几个进程：<br><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="string">$</span> <span class="string">jps</span>   <span class="comment">#run on slaves</span></span><br><span class="line"><span class="number">2072</span> <span class="string">NodeManager</span></span><br><span class="line"><span class="number">2213</span> <span class="string">Jps</span></span><br><span class="line"><span class="number">1962</span> <span class="string">DataNode</span></span><br></pre></td></tr></table></figure></p>
+<p>或者在浏览器中输入 <a href="http://master:8088" target="_blank" rel="noopener">http://master:8088</a> ，应该有 hadoop 的管理界面出来了，并能看到 slave1 和 slave2 节点。</p>
+<h2 id="Spark安装"><a href="#Spark安装" class="headerlink" title="Spark安装"></a>Spark安装</h2><h3 id="下载解压-1"><a href="#下载解压-1" class="headerlink" title="下载解压"></a>下载解压</h3><p>进入<a href="http://spark.apache.org/downloads.html" target="_blank" rel="noopener">官方下载地址</a>下载最新版 Spark。我下载的是 <a href="http://mirror.bit.edu.cn/apache/spark/spark-1.3.0/spark-1.3.0.tgz" target="_blank" rel="noopener">spark-1.3.0-bin-hadoop2.4.tgz</a>。</p>
+<p>在<code>~/workspace</code>目录下解压<br><figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">tar</span> <span class="selector-tag">-zxvf</span> <span class="selector-tag">spark-1</span><span class="selector-class">.3</span><span class="selector-class">.0-bin-hadoop2</span><span class="selector-class">.4</span><span class="selector-class">.tgz</span></span><br><span class="line"><span class="selector-tag">mv</span> <span class="selector-tag">spark-1</span><span class="selector-class">.3</span><span class="selector-class">.0-bin-hadoop2</span><span class="selector-class">.4</span> <span class="selector-tag">spark-1</span><span class="selector-class">.3</span><span class="selector-class">.0</span>    #原来的文件名太长了，修改下</span><br></pre></td></tr></table></figure></p>
+<h3 id="配置-Spark"><a href="#配置-Spark" class="headerlink" title="配置 Spark"></a>配置 Spark</h3><figure class="highlight vim"><table><tr><td class="code"><pre><span class="line"><span class="keyword">cd</span> ~/workspace/spark-<span class="number">1.3</span>.<span class="number">0</span>/<span class="keyword">conf</span>    #进入spark配置目录</span><br><span class="line"><span class="keyword">cp</span> spark-env.<span class="keyword">sh</span>.template spark-env.<span class="keyword">sh</span>   #从配置模板复制</span><br><span class="line"><span class="keyword">vi</span> spark-env.<span class="keyword">sh</span>     #添加配置内容</span><br></pre></td></tr></table></figure>
+<p>在<code>spark-env.sh</code>末尾添加以下内容（这是我的配置，你可以自行修改）：<br><figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line"><span class="builtin-name">export</span> <span class="attribute">SCALA_HOME</span>=/home/spark/workspace/scala-2.10.4</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">JAVA_HOME</span>=/home/spark/workspace/jdk1.7.0_75</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">HADOOP_HOME</span>=/home/spark/workspace/hadoop-2.6.0</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">HADOOP_CONF_DIR</span>=<span class="variable">$HADOOP_HOME</span>/etc/hadoop</span><br><span class="line"><span class="attribute">SPARK_MASTER_IP</span>=master</span><br><span class="line"><span class="attribute">SPARK_LOCAL_DIRS</span>=/home/spark/workspace/spark-1.3.0</span><br><span class="line"><span class="attribute">SPARK_DRIVER_MEMORY</span>=1G</span><br></pre></td></tr></table></figure></p>
+<p>注：在设置Worker进程的CPU个数和内存大小，要注意机器的实际硬件条件，如果配置的超过当前Worker节点的硬件条件，Worker进程会启动失败。</p>
+<p><code>vi slaves</code>在slaves文件下填上slave主机名：<br><figure class="highlight"><table><tr><td class="code"><pre><span class="line">slave1</span><br><span class="line">slave2</span><br></pre></td></tr></table></figure></p>
+<p>将配置好的<code>spark-1.3.0</code>文件夹分发给所有slaves吧<br><figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line">scp -r ~<span class="regexp">/workspace/spark</span><span class="number">-1.3</span>.0 spark<span class="variable">@slave1</span><span class="symbol">:~/workspace/</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="启动Spark"><a href="#启动Spark" class="headerlink" title="启动Spark"></a>启动Spark</h3><figure class="highlight vim"><table><tr><td class="code"><pre><span class="line">sbin/start-<span class="keyword">all</span>.<span class="keyword">sh</span></span><br></pre></td></tr></table></figure>
+<h3 id="验证-Spark-是否安装成功"><a href="#验证-Spark-是否安装成功" class="headerlink" title="验证 Spark 是否安装成功"></a>验证 Spark 是否安装成功</h3><p>用<code>jps</code>检查，在 master 上应该有以下几个进程：<br><figure class="highlight lsl"><table><tr><td class="code"><pre><span class="line">$ jps</span><br><span class="line"><span class="number">7949</span> Jps</span><br><span class="line"><span class="number">7328</span> SecondaryNameNode</span><br><span class="line"><span class="number">7805</span> Master</span><br><span class="line"><span class="number">7137</span> NameNode</span><br><span class="line"><span class="number">7475</span> ResourceManager</span><br></pre></td></tr></table></figure></p>
+<p>在 slave  上应该有以下几个进程：<br><figure class="highlight lsl"><table><tr><td class="code"><pre><span class="line">$jps</span><br><span class="line"><span class="number">3132</span> DataNode</span><br><span class="line"><span class="number">3759</span> Worker</span><br><span class="line"><span class="number">3858</span> Jps</span><br><span class="line"><span class="number">3231</span> NodeManager</span><br></pre></td></tr></table></figure></p>
+<p>进入Spark的Web管理页面： <a href="http://master:8080" target="_blank" rel="noopener">http://master:8080</a><br><img src="http://ww4.sinaimg.cn/mw690/81b78497jw1eqwa7uqndoj20za0p8afa.jpg" alt></p>
+<h3 id="运行示例"><a href="#运行示例" class="headerlink" title="运行示例"></a>运行示例</h3><figure class="highlight crystal"><table><tr><td class="code"><pre><span class="line"><span class="comment">#本地模式两线程运行</span></span><br><span class="line">./bin/run-example SparkPi <span class="number">10</span> --master local[<span class="number">2</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment">#Spark Standalone 集群模式运行</span></span><br><span class="line">./bin/spark-submit \</span><br><span class="line">  --<span class="class"><span class="keyword">class</span> <span class="title">org</span>.<span class="title">apache</span>.<span class="title">spark</span>.<span class="title">examples</span>.<span class="title">SparkPi</span> \</span></span><br><span class="line">  --master <span class="symbol">spark:</span>/<span class="regexp">/master:7077 \</span></span><br><span class="line"><span class="regexp">  lib/spark</span>-examples-<span class="number">1.3</span>.<span class="number">0</span>-hadoop2.<span class="number">4.0</span>.jar \</span><br><span class="line">  <span class="number">100</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#Spark on YARN 集群上 yarn-cluster 模式运行</span></span><br><span class="line">./bin/spark-submit \</span><br><span class="line">    --<span class="class"><span class="keyword">class</span> <span class="title">org</span>.<span class="title">apache</span>.<span class="title">spark</span>.<span class="title">examples</span>.<span class="title">SparkPi</span> \</span></span><br><span class="line">    --master yarn-cluster \  <span class="comment"># can also be `yarn-client`</span></span><br><span class="line">    <span class="class"><span class="keyword">lib</span>/<span class="title">spark</span>-<span class="title">examples</span>*.<span class="title">jar</span> \</span></span><br><span class="line">    <span class="number">10</span></span><br></pre></td></tr></table></figure>
+<p>注意 Spark on YARN 支持两种运行模式，分别为<code>yarn-cluster</code>和<code>yarn-client</code>，具体的区别可以看<a href="http://www.iteblog.com/archives/1223" target="_blank" rel="noopener">这篇博文</a>，从广义上讲，yarn-cluster适用于生产环境；而yarn-client适用于交互和调试，也就是希望快速地看到application的输出。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+        
+<hr>
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+  <img id="wechat_subscriber_qcode" src="https://user-images.githubusercontent.com/5378924/221934214-4ca3bc5d-6d38-4a4a-a6bc-a1dd53563879.png" alt="hoxis wechat" style="width: auto; height:200px; max-width: 100%;">
+</div>
+<div class="copyright-txt">
+  <a href="/copyright"><i class="fa fa-copyright"></i>著作权归作者所有</a>
+</div>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Spark/" rel="tag">#Spark</a>
+          
+        </div>
+      
+
+      
+      <div class="post-spread">
+        
+          <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-56d648eefec3350b" async="async"></script>
+<!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_sharing_toolbox"></div>
+        
+      </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2015/03/30/git-useful-skills/" rel="next" title="Git 常用技能">
+                <i class="fa fa-chevron-left"></i> Git 常用技能
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2015/04/05/hbase-cluster-deploy/" rel="prev" title="HBase 集群安装部署">
+                HBase 集群安装部署 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
 
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/default_avatar.jpg" alt="WuChong">
+          <p class="site-author-name" itemprop="name">WuChong</p>
+          <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，<br>你就应该静下心来学习。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">90</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+<!--
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">分类</span>
+            </a>
+          </div>
+          -->
+
+          
+          
+          
+            <div class="site-state-item site-state-categories">
+              
+              <a href="/categories">
+              
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">77</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-sa/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="https://flink.apache.org/" target="_blank">Apache Flink</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0-写在前面"><span class="nav-number">1.</span> <span class="nav-text">0 写在前面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-环境准备"><span class="nav-number">2.</span> <span class="nav-text">1. 环境准备</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#修改主机名"><span class="nav-number">2.1.</span> <span class="nav-text">修改主机名</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置hosts"><span class="nav-number">2.2.</span> <span class="nav-text">配置hosts</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SSH-免密码登录"><span class="nav-number">2.3.</span> <span class="nav-text">SSH 免密码登录</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装-Java"><span class="nav-number">3.</span> <span class="nav-text">安装 Java</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装-Scala"><span class="nav-number">4.</span> <span class="nav-text">安装 Scala</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装配置-Hadoop-YARN"><span class="nav-number">5.</span> <span class="nav-text">安装配置 Hadoop YARN</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#下载解压"><span class="nav-number">5.1.</span> <span class="nav-text">下载解压</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置-Hadoop"><span class="nav-number">5.2.</span> <span class="nav-text">配置 Hadoop</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#启动-Hadoop"><span class="nav-number">5.3.</span> <span class="nav-text">启动 Hadoop</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#验证-Hadoop-是否安装成功"><span class="nav-number">5.4.</span> <span class="nav-text">验证 Hadoop 是否安装成功</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Spark安装"><span class="nav-number">6.</span> <span class="nav-text">Spark安装</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#下载解压-1"><span class="nav-number">6.1.</span> <span class="nav-text">下载解压</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置-Spark"><span class="nav-number">6.2.</span> <span class="nav-text">配置 Spark</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#启动Spark"><span class="nav-number">6.3.</span> <span class="nav-text">启动Spark</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#验证-Spark-是否安装成功"><span class="nav-number">6.4.</span> <span class="nav-text">验证 Spark 是否安装成功</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#运行示例"><span class="nav-number">6.5.</span> <span class="nav-text">运行示例</span></a></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WuChong</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.scheme !== 'Pisces' && (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always')) {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'wuchong';
+      var disqus_identifier = 'blog/2015/04/04/spark-on-yarn-cluster-deploy/';
+      var disqus_title = 'Spark On YARN 集群安装部署';
+      var disqus_url = 'http://wuchong.me/blog/2015/04/04/spark-on-yarn-cluster-deploy/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
+  
+
+
+  
+  
+
+
+</body>
+</html>

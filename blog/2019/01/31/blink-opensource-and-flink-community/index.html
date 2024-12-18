@@ -1,27 +1,899 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!doctype html>
 
 
-{% block title %} {{ page.title }} | {{ config.title }} {% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next mist use-motion">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css">
+
+
+    <meta name="author" content="WuChong">
+
+
+
+  <meta name="keywords" content="Blink,Flink,开源">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jark's Blog" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0">
+
+
+
+
+
+
+<meta name="description" content="前几天 Blink 开源的消息刷了朋友圈，因为笔者一直关注着社区的发展。所以今天想从我个人的角度来聊聊 Blink 开源，社区 merge Blink 的计划，以及最近发生的一些很有意义的事情。">
+<meta name="keywords" content="Blink,Flink,开源">
+<meta property="og:type" content="article">
+<meta property="og:title" content="聊聊Blink开源和Flink社区近况">
+<meta property="og:url" content="http://wuchong.me/blog/2019/01/31/blink-opensource-and-flink-community/index.html">
+<meta property="og:site_name" content="Jark&#39;s Blog">
+<meta property="og:description" content="前几天 Blink 开源的消息刷了朋友圈，因为笔者一直关注着社区的发展。所以今天想从我个人的角度来聊聊 Blink 开源，社区 merge Blink 的计划，以及最近发生的一些很有意义的事情。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://img.alicdn.com/tfs/TB1vmdhEMHqK1RjSZFgXXa7JXXa-1080-661.png">
+<meta property="og:updated_time" content="2022-08-03T06:46:44.501Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="聊聊Blink开源和Flink社区近况">
+<meta name="twitter:description" content="前几天 Blink 开源的消息刷了朋友圈，因为笔者一直关注着社区的发展。所以今天想从我个人的角度来聊聊 Blink 开源，社区 merge Blink 的计划，以及最近发生的一些很有意义的事情。">
+<meta name="twitter:image" content="https://img.alicdn.com/tfs/TB1vmdhEMHqK1RjSZFgXXa7JXXa-1080-661.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 4141040,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> 聊聊Blink开源和Flink社区近况 | Jark's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Jark's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-talks">
+          <a href="/talks" rel="section">
+            
+              <i class="menu-item-icon fa fa-microphone-stand fa-fw"></i> <br>
+            
+            演讲
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input">
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', '8Exkz7xsCTJyyCHiK9TY','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                聊聊Blink开源和Flink社区近况
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2019-01-31T16:34:15+08:00" content="2019-01-31">
+              2019-01-31
+            </time>
+          </span>
+
+          
+            <span class="post-category">
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Flink/" itemprop="url" rel="index">
+                    <span itemprop="name">Flink</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2019/01/31/blink-opensource-and-flink-community/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="blog/2019/01/31/blink-opensource-and-flink-community/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+<!--
+    
+      <div class="post-body">
+    
+    -->
+
+
+    <div class="post-body" itemprop="articleBody">
+    
+
+      
+      
+
+      
+        <p>前几天 Blink 开源的消息刷了朋友圈，因为笔者一直关注着社区的发展。所以今天想从我个人的角度来聊聊 Blink 开源，社区 merge Blink 的计划，以及最近发生的一些很有意义的事情。</p>
+<h2 id="Blink-开源"><a href="#Blink-开源" class="headerlink" title="Blink 开源"></a>Blink 开源</h2><p>这次 Blink 开源的主要目的是让社区的开发者们能尽早地尝试一些他们感兴趣的功能与改进。我觉得最核心的贡献包括：</p>
+<ul>
+<li><strong>Stream SQL 的新功能和性能优化：</strong>如维表Join、TopN、支持迟到数据和提早输出的Window、有效解决Agg数据倾斜问题等。</li>
+<li><strong>完整且高性能的 Batch SQL：</strong>跑通全部 TPC-H/TPC-DS （比当前 Flink Batch SQL 快 10x 以上），能够读取 Hive meta 和 data 。</li>
+<li><strong>易用性提升：</strong>焕然一新的Web UI，与 Zeppelin 的集成，交互式编程的支持。</li>
+</ul>
+<p>Stream SQL 上的功能补齐和性能优化经阿里内部多年千锤百炼打磨而来，毫无疑问是社区用户们最为翘首以盼的功能，笔者认为这部分的开源和回馈能迅速将 Flink SQL 的流式计算能力提升到高度成熟级别。</p>
+<p>同时，Blink 对Batch SQL 上的完善和优化弥补了 Flink 长久以来在批处理能力上的不足，这也为未来Flink深度统一批流大业打下了更为坚实的基础。</p>
+<p>另外值得一提的是这次Blink开源的新UI，是由 NG-ZORRO 的作者 vthinkxie 亲自操刀，一改以往 Apache 项目 Web UI 略为朴素的特点。新UI的简洁美观程度比起商业化产品可谓有过之而无不及，其易用性更是得到阿里内部的深度检验与高度认可。</p>
+<p><img src="https://img.alicdn.com/tfs/TB1vmdhEMHqK1RjSZFgXXa7JXXa-1080-661.png" alt></p>
+<p>回到 Blink 开源本身，要谈论其意义首先要清楚 Blink 与 Flink 的关系。从阿里多篇公开的报导中我们也了解到 “Blink 永远不会成为另外一个项目，如果后续进入 Apache 一定是成为 Flink 的一部分”，这点从 Blink 最后是以 Flink 的分支方式开源进一步得到了印证。另外 Blink 开源的核心改进将来都有希望合并进 Flink，这必将极大加速 Flink 的发展，同时也会为 Flink 打开更广阔的舞台。对于 Flink 用户来说，无疑也是个好消息，用户不仅能享受到更好用的产品，同时也拥有了更多想象的空间。相信未来几年的大数据领域，也会因此而变得格外精彩。</p>
+<h2 id="Blink-merge-的计划"><a href="#Blink-merge-的计划" class="headerlink" title="Blink merge 的计划"></a>Blink merge 的计划</h2><p>接下来聊一个大家都格外关心的话题，Blink 的特性将如何合并到 Flink 中</p>
+<p>合并 Blink 的方案是在社区公开讨论的，目前方案已经基本确定，从社区大神 Stephan 和 Timo 发起的方案讨论邮件中我们可以了解到合并的大致方案。</p>
+<p>首先总体方针：尽可能地与目前的 Table API 保持兼容，使用户无感知地升级。</p>
+<p>改动最大的两个模块会是：(1) SQL/Table Query Processor，(2) batch scheduling/failover/shuffle 。</p>
+<p>对于 Query Processor（下文简称 QP），社区计划逐渐地构建起一个基于Blink的 QP，默认仍使用 Flink 原生的 QP，Blink QP 会以插件的方式存在，用户可以使用时可以配置成用 Blink QP 来执行（这非常像 Beam 的 runner 架构）。直到 Blink QP 完全合并进来了且稳定了，会作为默认的 QP 实现，而 Flink QP 最终会被移除。为了完成这个方案，flink-table 模块需要做一些模块的拆解和重构，为了尽快拆解完模块和重构，社区可能会短期内暂缓一些 Table API/SQL 的功能开发和贡献。更详细的方案可以看下 <a href="http://apache-flink-mailing-list-archive.1008284.n3.nabble.com/DISCUSS-FLIP-32-Restructure-flink-table-for-future-contributions-td26543.html" target="_blank" rel="noopener">FLIP-32</a>（见文末链接[3]）。目前这块相关的开发工作已经在进行中了。 </p>
+<p>对于 batch scheduling &amp; failover 来说，目前已经有一个在进行中的调度重构方案了 FLINK-10429。当这个完成后，Blink 的实现可以以插件的方式作为新的 scheduler 和 failover handler 加入。在测试完备后可以作为默认的策略。对于 Shuffle Service，目前也已经有一个在讨论中的方案了：<a href="http://apache-flink-mailing-list-archive.1008284.n3.nabble.com/DISCUSS-Proposal-of-external-shuffle-service-td23988.html" target="_blank" rel="noopener">见文末链接[4]</a>。</p>
+<h2 id="Flink-社区的近况"><a href="#Flink-社区的近况" class="headerlink" title="Flink 社区的近况"></a>Flink 社区的近况</h2><p>就个人的感受而言，最近 Flink 社区正在发生两件重要的事情。一是上文说的 Blink 开源，另一件就是社区对中文用户的日益重视。</p>
+<h3 id="建立-Apache-Flink-中文邮件列表"><a href="#建立-Apache-Flink-中文邮件列表" class="headerlink" title="建立 Apache Flink 中文邮件列表"></a>建立 Apache Flink 中文邮件列表</h3><p>Apache Flink 社区最近为中文用户建立了官方的中文邮件列表，提供了一个官方的渠道给中文用户做问题交流。起因是社区在最近的统计中发现，过去三个月内访问 flink.apache.org 官方网站的用户中有 30% 来自中国。</p>
+<p>感兴趣的用户可以通过下面的流程来订阅：</p>
+<p>1、发送任意邮件到 <a href="mailto:user-zh-subscribe@flink.apache.org" target="_blank" rel="noopener">user-zh-subscribe@flink.apache.org</a><br>2、收到官方确认邮件<br>3、回复该邮件 confirm 即可订阅</p>
+<p>订阅成功后将收到 Flink 官方的中文邮件列表的消息，就可以用中文在上面问问题和帮助别人解答问题了。</p>
+<p>这件事对笔者触动比较大，因为 Apache 以往一向推崇使用英文交流，肯为中文用户单独开设中文邮件列表的顶级项目实为罕见，据我所知 Flink 是第一个。相信这个举动也是社区做的一次较大的创新和尝试，同时这也从侧面反映了来自中国的开源力量在世界的舞台上获得了越来越多的关注与尊重。同时也期待着可以有更多 Flink 中文社区志愿者参与到这个项目中来，共建社区生态，为中国的开源事业贡献一份力量。</p>
+<h3 id="中文文档支持计划"><a href="#中文文档支持计划" class="headerlink" title="中文文档支持计划"></a>中文文档支持计划</h3><p>之前由中文社区的小伙伴们共同翻译的中文文档（托管在 <a href="https://flink-china.org/" target="_blank" rel="noopener">https://flink-china.org/</a> ），现在计划将贡献给 Apache Flink，并已在邮件列表中发起讨论。讨论的内容包括如何在 Flink 主干分支中同时维护中英文文档，如何做中英文文档同步和翻译，中文文档的地址和链接等等。更详细的支持计划可以看下 <a href="http://apache-flink-mailing-list-archive.1008284.n3.nabble.com/DISCUSS-Contributing-Chinese-website-and-docs-to-Apache-Flink-td26603.html" target="_blank" rel="noopener">链接[6]</a>。</p>
+<p>文档是一个开源项目重要的组成部分，也是参与开源贡献、融入开源社区的一种方式。感兴趣的同学可以关注下这个邮件的动态，参与到后续的翻译贡献中去。</p>
+<h3 id="全面拥抱中文用户"><a href="#全面拥抱中文用户" class="headerlink" title="全面拥抱中文用户"></a>全面拥抱中文用户</h3><p>从社区里发生的和正在发生的一些事情中可以看出，Apache Flink 社区正在拥抱中文用户，能将中文用户以如此高的优先级来支持的社区真不多。这对于国内用户来说无疑是一个积极的信号，同时这一系列举动也很可能会影响接下来几年国内大数据生态圈的变化。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ol>
+<li><a href="http://apache-flink-mailing-list-archive.1008284.n3.nabble.com/ANNOUNCE-Contributing-Alibaba-s-Blink-td26429.html" target="_blank" rel="noopener">[ANNOUNCE] Contributing Alibaba’s Blink</a></li>
+<li><a href="http://apache-flink-mailing-list-archive.1008284.n3.nabble.com/DISCUSS-A-strategy-for-merging-the-Blink-enhancements-td26446.html" target="_blank" rel="noopener">[DISCUSS] A strategy for merging the Blink enhancements</a></li>
+<li><a href="http://apache-flink-mailing-list-archive.1008284.n3.nabble.com/DISCUSS-FLIP-32-Restructure-flink-table-for-future-contributions-td26543.html" target="_blank" rel="noopener">[DISCUSS] FLIP-32: Restructure flink-table for future contributions</a></li>
+<li><a href="http://apache-flink-mailing-list-archive.1008284.n3.nabble.com/DISCUSS-Proposal-of-external-shuffle-service-td23988.html" target="_blank" rel="noopener">[DISCUSS] Proposal of external shuffle service</a></li>
+<li><a href="http://apache-flink-mailing-list-archive.1008284.n3.nabble.com/DISCUSS-Start-a-user-zh-flink-apache-org-mailing-list-for-the-Chinese-speaking-community-td26531.html" target="_blank" rel="noopener">[DISCUSS] Start a user-zh@flink.apache.org mailing list for the Chinese-speaking community?</a></li>
+<li><a href="http://apache-flink-mailing-list-archive.1008284.n3.nabble.com/DISCUSS-Contributing-Chinese-website-and-docs-to-Apache-Flink-td26603.html" target="_blank" rel="noopener">[DISCUSS] Contributing Chinese website and docs to Apache Flink</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+        
+<hr>
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+  <img id="wechat_subscriber_qcode" src="https://user-images.githubusercontent.com/5378924/221934214-4ca3bc5d-6d38-4a4a-a6bc-a1dd53563879.png" alt="hoxis wechat" style="width: auto; height:200px; max-width: 100%;">
+</div>
+<div class="copyright-txt">
+  <a href="/copyright"><i class="fa fa-copyright"></i>著作权归作者所有</a>
+</div>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Flink/" rel="tag">#Flink</a>
+          
+        </div>
+      
+
+      
+      <div class="post-spread">
+        
+          <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-56d648eefec3350b" async="async"></script>
+<!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_sharing_toolbox"></div>
+        
+      </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2018/12/03/flink-tips-4-steps-flink-application-production-ready/" rel="next" title="Flink 小贴士 (7): 4个步骤，让 Flink 应用达到生产状态">
+                <i class="fa fa-chevron-left"></i> Flink 小贴士 (7): 4个步骤，让 Flink 应用达到生产状态
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2019/02/12/how-to-become-apache-committer/" rel="prev" title="如何从小白成长为 Apache Committer?">
+                如何从小白成长为 Apache Committer? <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
 
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/default_avatar.jpg" alt="WuChong">
+          <p class="site-author-name" itemprop="name">WuChong</p>
+          <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，<br>你就应该静下心来学习。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">90</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+<!--
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">分类</span>
+            </a>
+          </div>
+          -->
+
+          
+          
+          
+            <div class="site-state-item site-state-categories">
+              
+              <a href="/categories">
+              
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">77</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-sa/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="https://flink.apache.org/" target="_blank">Apache Flink</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Blink-开源"><span class="nav-number">1.</span> <span class="nav-text">Blink 开源</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Blink-merge-的计划"><span class="nav-number">2.</span> <span class="nav-text">Blink merge 的计划</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Flink-社区的近况"><span class="nav-number">3.</span> <span class="nav-text">Flink 社区的近况</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#建立-Apache-Flink-中文邮件列表"><span class="nav-number">3.1.</span> <span class="nav-text">建立 Apache Flink 中文邮件列表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#中文文档支持计划"><span class="nav-number">3.2.</span> <span class="nav-text">中文文档支持计划</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#全面拥抱中文用户"><span class="nav-number">3.3.</span> <span class="nav-text">全面拥抱中文用户</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WuChong</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.scheme !== 'Pisces' && (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always')) {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'wuchong';
+      var disqus_identifier = 'blog/2019/01/31/blink-opensource-and-flink-community/';
+      var disqus_title = '聊聊Blink开源和Flink社区近况';
+      var disqus_url = 'http://wuchong.me/blog/2019/01/31/blink-opensource-and-flink-community/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
+  
+
+
+  
+  
+
+
+</body>
+</html>

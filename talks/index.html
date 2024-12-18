@@ -1,49 +1,580 @@
-{% extends '_layout.swig' %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!doctype html>
 
-{% block title %}
-  {% set page_title_suffix = ' | ' + config.title %}
 
-  {% if page.type === "categories" %}
-    {{ __('title.category') + page_title_suffix }}
-  {% elif page.type === "tags" %}
-    {{ __('title.tag') + page_title_suffix }}
-  {% else %}
-    {{ page.title + page_title_suffix }}
-  {% endif %}
-{% endblock %}
 
-{% block content %}
+  
+
+
+<html class="theme-next mist use-motion">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css">
+
+
+    <meta name="author" content="WuChong">
+
+
+
+  <meta name="keywords" content="Java,Flink,分布式,流计算,批计算">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jark's Blog" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0">
+
+
+
+
+
+
+<meta name="description" content="公开演讲/分享2024 2024.12 🌎 Keynote - Fluss: Next-Gen Streaming Storage for Real-Time Analytics @ Flink Forward Jakarta 2024 2024.11 Keynote - Fluss: Next-Gen Streaming Storage for Real-Time Analytics @ Fl">
+<meta property="og:type" content="website">
+<meta property="og:title" content="My Talks">
+<meta property="og:url" content="http://wuchong.me/talks/index.html">
+<meta property="og:site_name" content="Jark&#39;s Blog">
+<meta property="og:description" content="公开演讲/分享2024 2024.12 🌎 Keynote - Fluss: Next-Gen Streaming Storage for Real-Time Analytics @ Flink Forward Jakarta 2024 2024.11 Keynote - Fluss: Next-Gen Streaming Storage for Real-Time Analytics @ Fl">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2024-12-18T03:37:34.141Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="My Talks">
+<meta name="twitter:description" content="公开演讲/分享2024 2024.12 🌎 Keynote - Fluss: Next-Gen Streaming Storage for Real-Time Analytics @ Flink Forward Jakarta 2024 2024.11 Keynote - Fluss: Next-Gen Streaming Storage for Real-Time Analytics @ Fl">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 4141040,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title>
+  
+
+  
+    My Talks | Jark's Blog
+  
+</title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left  ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Jark's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-talks">
+          <a href="/talks" rel="section">
+            
+              <i class="menu-item-icon fa fa-microphone-stand fa-fw"></i> <br>
+            
+            演讲
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input">
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', '8Exkz7xsCTJyyCHiK9TY','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {# tagcloud page support #}
-    {% if page.type === "tags" %}
-      <div class="tag-cloud">
-        <div class="tag-cloud-title">
-            {{ _p('counter.tag_cloud', site.tags.length) }}
-        </div>
-        <div class="tag-cloud-tags">
-          {{ tagcloud({min_font: 12, max_font: 30, amount: 200, color: true, start_color: '#ccc', end_color: '#111'}) }}
-        </div>
-      </div>
-    {% elif page.type === 'categories' %}
-      <div class="category-all-page">
-        <div class="category-all-title">
-            {{ _p('counter.categories', site.categories.length) }}
-        </div>
-        <div class="category-all">
-          {{ list_categories() }}
-        </div>
-      </div>
-    {% else %}
-      {{ page.content }}
-    {% endif %}
+    
+    
+      <h2 id="公开演讲-分享"><a href="#公开演讲-分享" class="headerlink" title="公开演讲/分享"></a>公开演讲/分享</h2><h3 id="2024"><a href="#2024" class="headerlink" title="2024"></a>2024</h3><ul>
+<li><strong>2024.12 🌎 <a href="https://asia.flink-forward.org/jakarta-2024/?spm=ffa.ffa-home.0.0.35d86b18Jx47SW" target="_blank" rel="noopener">Keynote - Fluss: Next-Gen Streaming Storage for Real-Time Analytics</a> @ Flink Forward Jakarta 2024</strong></li>
+<li>2024.11 <a href="https://developer.aliyun.com/topic/flinkforward2024?spm=ffa.ffa-home.0.0.35d86b18OLozpa" target="_blank" rel="noopener">Keynote - Fluss: Next-Gen Streaming Storage for Real-Time Analytics</a> @ Flink Forward Shanghai 2024</li>
+<li><strong>2024.10 🌎 <a href="https://www.ververica.academy/courses/3d163483-5040-4d60-b5b3-755c3277edf7/activities/a366d118-6c53-47ef-91bb-289fc2462b07" target="_blank" rel="noopener">Is Kafka the Best Storage for Streaming Analytics?</a> @ Flink Forward Berlin 2024</strong></li>
+<li><strong>2024.10 🌎 <a href="https://www.ververica.academy/courses/3d163483-5040-4d60-b5b3-755c3277edf7/activities/1af290fd-05bc-4fab-90be-6ed4628399be" target="_blank" rel="noopener">Keynote: The Future - Introducing Fluss</a> @ Flink Forward Berlin 2024</strong></li>
+<li>2024.09 <a href>实时计算UniFlow：Flink + Paimon 构建流批一体实时湖仓</a> @ 云栖大会·杭州 2024</li>
+</ul>
+<h3 id="2023"><a href="#2023" class="headerlink" title="2023"></a>2023</h3><ul>
+<li>2023.12 <a href="https://flink-forward.org.cn/" target="_blank" rel="noopener">Keynote: Next Station of Flink CDC </a> @ Flink Forward Asia 2023</li>
+<li>2023.12 <a href="https://flink-forward.org.cn/" target="_blank" rel="noopener">流计算需要什么样的流存储？</a> @ Flink Forward Asia 2023</li>
+<li><strong>2023.11 🌎 <a href="https://www.flink-forward.org/seattle-2023/agenda#" target="_blank" rel="noopener">Apache Flink 2.0 Preview</a> @ Flink Forward Seattle 2023</strong> </li>
+<li><strong>2023.11 🌎 <a href="https://www.flink-forward.org/seattle-2023/agenda#" target="_blank" rel="noopener">Flink SQL: Challenges of Building Streaming SQL Engine</a> @ Flink Forward Seattle 2023</strong> </li>
+<li>2023.07 <a href="https://mp.weixin.qq.com/s/Iqvs6rsr1NAQATx9A2muMw" target="_blank" rel="noopener">Apache Flink: 从流式计算走向流式数仓</a> @ DataFunSummit 数据基础架构峰会 2023</li>
+<li>2023.03 <a href="https://mp.weixin.qq.com/s/dW5rG1atZrln87CT3UT0KA" target="_blank" rel="noopener">基于Flink CDC和 OceanBase 的云上实时数仓探索</a> @ Oceanbase DevCon 2023</li>
+</ul>
+<h3 id="2022"><a href="#2022" class="headerlink" title="2022"></a>2022</h3><ul>
+<li><strong>2022.12 🌎 <a href="https://www.youtube.com/watch?v=2QZV_mVvK24" target="_blank" rel="noopener">Change Data Capture With Apache Flink</a> @ Decodable Webinar</strong></li>
+<li>2022.12 <a href="https://mp.weixin.qq.com/s/JKghBLNy0WIEgE4YO6v9Nw" target="_blank" rel="noopener">Apache Flink: 从流式计算走向流式数仓</a> @ PingCAP DevCon 2022 </li>
+<li>2022.09 <a href="https://flink-learning.org.cn/activity/detail/f30571911e47478ddf4047eeb518d796" target="_blank" rel="noopener">Flink 1.16：Hive SQL 如何平迁到 Flink SQL</a> @ Flink Meetup 北京站</li>
+<li>2022.09 <a href="https://mp.weixin.qq.com/s/iddWVp-JlbDny_GFoeRbNg" target="_blank" rel="noopener">现代数据栈基础论坛</a> @ DataFunSummit 现代数据栈技术峰会 2022 </li>
+<li>2022.05 <a href="https://flink-learning.org.cn/activity/detail/226e92cf8bae4096656d4c8f85435d52" target="_blank" rel="noopener">Flink CDC Meetup</a> @ Flink CDC Meetup</li>
+</ul>
+<h3 id="2021"><a href="#2021" class="headerlink" title="2021"></a>2021</h3><ul>
+<li>2021.12 <a href="https://flink-learning.org.cn/activity/detail/9506bf52a3e44ff35f2b448ae5b9f8f3" target="_blank" rel="noopener">Flink CDC 如何简化实时数据入湖入仓</a> @ Flink Forward Asia 2021</li>
+</ul>
+<h3 id="2020"><a href="#2020" class="headerlink" title="2020"></a>2020</h3><ul>
+<li>2020.12 <a href="https://flink-learning.org.cn/activity/detail/72985e8a11d5a179177e24fad99ca7f0" target="_blank" rel="noopener">基于 Flink SQL 构建流批一体的 ETL 数据集成</a> @ Flink Forward Asia 2020</li>
+<li><strong>2020.10 🌎 <a href="https://www.youtube.com/watch?v=5AThYUD4grA" target="_blank" rel="noopener">Change Data Capture and Processing with Flink SQL</a> @ Flink Forward Global 2020</strong></li>
+<li>2020.08 <a href="https://www.bilibili.com/video/BV1zt4y1D7kt/" target="_blank" rel="noopener">基于 Flink CDC 的实时数据同步方案</a> @ 在线直播</li>
+<li>2020.08 <a href="https://flink-learning.org.cn/activity/detail/61c4075a984d57fb7994e23f1feeb0c0" target="_blank" rel="noopener">Flink SQL 1.11 新功能与最佳实践</a> @ Flink Meetup 上海站</li>
+<li>2020.07 <a href="https://flink-learning.org.cn/activity/detail/ce291f1884900705f1107e05171475e4" target="_blank" rel="noopener">Flink SQL/Table 介绍与实战</a> @ Flink必知必会经典课程</li>
+<li>2020.05 <a href="https://www.bilibili.com/video/BV17f4y127qd/" target="_blank" rel="noopener">Flink Contributor 速成指南</a> @ Flink直播教程</li>
+<li><strong>2020.03 🌎 <a href="https://www.youtube.com/watch?v=KDD8e4GE12w&amp;list=PLDX4T_cnKjD0ngnBSU-bYGfgVv17MiwA7" target="_blank" rel="noopener">A Deep Dive into Flink SQL</a> @ Flink Forward Virtual 2020 (San Francisco)</strong></li>
+<li>2020.02 <a href="https://www.bilibili.com/video/BV1n7411w7z3/" target="_blank" rel="noopener">基于 Flink SQL 构建实时应用</a> @ 在线直播</li>
+<li>2019.11 <a href="https://flink-learning.org.cn/activity/detail/58dded75f22f2952b248c12966e968f4" target="_blank" rel="noopener">深入探索 Apache Flink SQL 流批统一的查询引擎与最佳实践</a> @ Flink Forward Asia 2019</li>
+</ul>
+<h3 id="2019"><a href="#2019" class="headerlink" title="2019"></a>2019</h3><ul>
+<li>2019.08 <a href="https://flink-learning.org.cn/activity/detail/c9757ccbb91622d29ec903e832a051d1" target="_blank" rel="noopener">Flink SQL 1.9.0 技术内幕和最佳实践</a> @ Flink Meetup 深圳站</li>
+<li>2019.08 <a href="https://developer.aliyun.com/article/717834" target="_blank" rel="noopener">Apache Flink v1.9 发布</a> @ 在线直播</li>
+<li>2019.05 <a href="https://www.infoq.cn/article/g7i1t5e72oova_a13g3g" target="_blank" rel="noopener">Apache Flink 社区最新动向及 1.9 版本的功能展望</a> @ 广州QCon</li>
+<li>2019.04 <a href="https://www.bilibili.com/video/BV1m441147TZ/?spm_id_from=333.999.0.0&amp;vd_source=38fb7c9160d70280787eaedb67b19b3d" target="_blank" rel="noopener">Flink SQL 编程</a> @ Flink直播教程</li>
+</ul>
+<h3 id="2018"><a href="#2018" class="headerlink" title="2018"></a>2018</h3><ul>
+<li>2018.12 <a href="https://flink-learning.org.cn/article/detail/37af7794497700cd4bdf5db0f841d32e" target="_blank" rel="noopener">基于Streaming构建统一的数据处理引擎的挑战与实践</a> @ Flink Forward Asia 2018</li>
+<li>2018.09 <a href="https://flink-learning.org.cn/activity/detail/887d12dca88c1395505d4e57a9e26ce9" target="_blank" rel="noopener">Flink技术介绍和新功能展望</a> @ Flink Meetup 成都站</li>
+<li>2018.05 <a href="http://blog.itpub.net/31077337/viewspace-2213617/" target="_blank" rel="noopener">大数据实时计算 Flink SQL 解密</a> @ 第九届中国数据库技术大会</li>
+</ul>
+<h3 id="2017"><a href="#2017" class="headerlink" title="2017"></a>2017</h3><ul>
+<li>2017.12 <a href="https://yunqi.aliyun.com/2017/beijing/meeting?spm=a2c4e.11165380.927663.3.4b7c5e80I8UVAQ#1220-01" target="_blank" rel="noopener">阿里云流计算 Flink SQL 核心功能解密</a> @ 云栖大会·北京</li>
+<li>2017.11 <a href="https://yunqi.aliyun.com/2017/guangdong/meeting" target="_blank" rel="noopener">阿里云流计算 Flink SQL 核心功能解密</a> @ 云栖大会·广东</li>
+<li>2017.10 <a href="https://qcon.infoq.cn/2017/shanghai/presentation/1160" target="_blank" rel="noopener">基于 Blink SQL 的阿里实时计算平台</a> @ 上海QCon</li>
+</ul>
+
+    
   </div>
 
   
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(false) }}
-{% endblock %}
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel  sidebar-panel-active ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/default_avatar.jpg" alt="WuChong">
+          <p class="site-author-name" itemprop="name">WuChong</p>
+          <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，<br>你就应该静下心来学习。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">90</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+<!--
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">分类</span>
+            </a>
+          </div>
+          -->
+
+          
+          
+          
+            <div class="site-state-item site-state-categories">
+              
+              <a href="/categories">
+              
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">77</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-sa/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="https://flink.apache.org/" target="_blank">Apache Flink</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WuChong</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'wuchong';
+      var disqus_identifier = 'talks/index.html';
+      var disqus_title = 'My Talks';
+      var disqus_url = 'http://wuchong.me/talks/index.html';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
+  
+
+
+  
+  
+
+
+</body>
+</html>

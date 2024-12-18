@@ -1,27 +1,935 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!doctype html>
 
 
-{% block title %} {{ page.title }} | {{ config.title }} {% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next mist use-motion">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css">
+
+
+    <meta name="author" content="WuChong">
+
+
+
+  <meta name="keywords" content="游记,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jark's Blog" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0">
+
+
+
+
+
+
+<meta name="description" content="多图预警，所有图片均由爪机拍摄 2月5日，这天刚好是公司年会，请了假带着女友坐在飞往三亚的飞机上，一路踩着棉花糖般的云朵抵达了三亚，开始了五天五夜之行。 这次旅游的行程安排只计划了两三天，结果行程有些局促，幸好还算顺利。五个晚上我们换了四个酒店，三亚之行俨然成了三亚酒店之旅，一路上多半与旅行箱结伴，走过了3湾1岛1公园。一位阿姨见状感叹也只有年轻人敢这样，不过现在回味起来也多了很多不一样的体验。">
+<meta name="keywords" content="游记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="北纬18°，三亚的碧海琼天">
+<meta property="og:url" content="http://wuchong.me/blog/2015/02/17/trip-of-sanya/index.html">
+<meta property="og:site_name" content="Jark&#39;s Blog">
+<meta property="og:description" content="多图预警，所有图片均由爪机拍摄 2月5日，这天刚好是公司年会，请了假带着女友坐在飞往三亚的飞机上，一路踩着棉花糖般的云朵抵达了三亚，开始了五天五夜之行。 这次旅游的行程安排只计划了两三天，结果行程有些局促，幸好还算顺利。五个晚上我们换了四个酒店，三亚之行俨然成了三亚酒店之旅，一路上多半与旅行箱结伴，走过了3湾1岛1公园。一位阿姨见状感叹也只有年轻人敢这样，不过现在回味起来也多了很多不一样的体验。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://ww4.sinaimg.cn/mw690/81b78497gw1epc8zha21kj21kw16oqpa.jpg">
+<meta property="og:image" content="http://ww3.sinaimg.cn/mw690/81b78497gw1epc8yj1lptj21kw16o1kx.jpg">
+<meta property="og:image" content="http://ww4.sinaimg.cn/mw690/81b78497gw1epc90yo8lzj21kw16oe81.jpg">
+<meta property="og:image" content="http://ww3.sinaimg.cn/mw690/81b78497gw1epc90uzobtj20yo0q0grf.jpg">
+<meta property="og:updated_time" content="2022-08-03T06:46:44.512Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="北纬18°，三亚的碧海琼天">
+<meta name="twitter:description" content="多图预警，所有图片均由爪机拍摄 2月5日，这天刚好是公司年会，请了假带着女友坐在飞往三亚的飞机上，一路踩着棉花糖般的云朵抵达了三亚，开始了五天五夜之行。 这次旅游的行程安排只计划了两三天，结果行程有些局促，幸好还算顺利。五个晚上我们换了四个酒店，三亚之行俨然成了三亚酒店之旅，一路上多半与旅行箱结伴，走过了3湾1岛1公园。一位阿姨见状感叹也只有年轻人敢这样，不过现在回味起来也多了很多不一样的体验。">
+<meta name="twitter:image" content="http://ww4.sinaimg.cn/mw690/81b78497gw1epc8zha21kj21kw16oqpa.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 4141040,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> 北纬18°，三亚的碧海琼天 | Jark's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Jark's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-talks">
+          <a href="/talks" rel="section">
+            
+              <i class="menu-item-icon fa fa-microphone-stand fa-fw"></i> <br>
+            
+            演讲
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input">
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', '8Exkz7xsCTJyyCHiK9TY','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                北纬18°，三亚的碧海琼天
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-02-17T21:35:13+08:00" content="2015-02-17">
+              2015-02-17
+            </time>
+          </span>
+
+          
+            <span class="post-category">
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/随笔生活/" itemprop="url" rel="index">
+                    <span itemprop="name">随笔生活</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2015/02/17/trip-of-sanya/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="blog/2015/02/17/trip-of-sanya/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+<!--
+    
+      <div class="post-body">
+    
+    -->
+
+
+    <div class="post-body" itemprop="articleBody">
+    
+
+      
+      
+        <div class="post-gallery" itemscope itemtype="http://schema.org/ImageGallery">
+          
+          
+            <div class="post-gallery-row">
+              <a class="post-gallery-img fancybox" href="http://ww4.sinaimg.cn/mw690/81b78497gw1epc8zha21kj21kw16oqpa.jpg" rel="gallery_cm4tupe9l0075yy0iu8v9ys3v" itemscope itemtype="http://schema.org/ImageObject" itemprop="url">
+                <img src="http://ww4.sinaimg.cn/mw690/81b78497gw1epc8zha21kj21kw16oqpa.jpg" itemprop="contentUrl">
+              </a>
+            
+          
+            
+              <a class="post-gallery-img fancybox" href="http://ww3.sinaimg.cn/mw690/81b78497gw1epc8yj1lptj21kw16o1kx.jpg" rel="gallery_cm4tupe9l0075yy0iu8v9ys3v" itemscope itemtype="http://schema.org/ImageObject" itemprop="url">
+                <img src="http://ww3.sinaimg.cn/mw690/81b78497gw1epc8yj1lptj21kw16o1kx.jpg" itemprop="contentUrl">
+              </a>
+            
+          
+            
+              <a class="post-gallery-img fancybox" href="http://ww4.sinaimg.cn/mw690/81b78497gw1epc90yo8lzj21kw16oe81.jpg" rel="gallery_cm4tupe9l0075yy0iu8v9ys3v" itemscope itemtype="http://schema.org/ImageObject" itemprop="url">
+                <img src="http://ww4.sinaimg.cn/mw690/81b78497gw1epc90yo8lzj21kw16oe81.jpg" itemprop="contentUrl">
+              </a>
+            </div>
+          
+            <div class="post-gallery-row">
+              <a class="post-gallery-img fancybox" href="http://ww3.sinaimg.cn/mw690/81b78497gw1epc90uzobtj20yo0q0grf.jpg" rel="gallery_cm4tupe9l0075yy0iu8v9ys3v" itemscope itemtype="http://schema.org/ImageObject" itemprop="url">
+                <img src="http://ww3.sinaimg.cn/mw690/81b78497gw1epc90uzobtj20yo0q0grf.jpg" itemprop="contentUrl">
+              </a>
+            
+          
+
+          
+          </div>
+        </div>
+      
+
+      
+        <p><strong>多图预警，所有图片均由爪机拍摄</strong></p>
+<p>2月5日，这天刚好是公司年会，请了假带着女友坐在飞往三亚的飞机上，一路踩着棉花糖般的云朵抵达了三亚，开始了五天五夜之行。</p>
+<p>这次旅游的行程安排只计划了两三天，结果行程有些局促，幸好还算顺利。五个晚上我们换了四个酒店，三亚之行俨然成了三亚酒店之旅，一路上多半与旅行箱结伴，走过了3湾1岛1公园。一位阿姨见状感叹也只有年轻人敢这样，不过现在回味起来也多了很多不一样的体验。</p>
+<a id="more"></a>
+<h2 id="Day-0"><a href="#Day-0" class="headerlink" title="Day 0"></a>Day 0</h2><p>抵达凤凰机场，前往新疆大厦，迎着海风走了走夜色中的三亚湾。</p>
+<p><img src="http://ww2.sinaimg.cn/mw690/81b78497gw1epc8wug0ksj21kw16o7q0.jpg" alt="新疆大厦，帆船设计"></p>
+<h2 id="Day-1-三亚湾"><a href="#Day-1-三亚湾" class="headerlink" title="Day 1 三亚湾"></a>Day 1 三亚湾</h2><p>离开新疆大厦，前往大东海。传说中的海景房：</p>
+<p><img src="http://ww4.sinaimg.cn/mw690/81b78497gw1epc8wzon9uj21kw16owzn.jpg" alt="大东海海景房"></p>
+<p>前往椰梦长廊。椰梦长廊属于三亚湾，有长长的椰林带，比较出名的是这里是三亚最适合观看海上日落的地方。可惜我们等了一下午，中午还是艳阳高照，傍晚却是乌云密布，很遗憾没有看到「半江瑟瑟半江红」的美景。</p>
+<p><img src="http://ww2.sinaimg.cn/mw690/81b78497gw1epc8x42k1jj21kw23u1il.jpg" alt="日落前的三亚湾"></p>
+<p>晚上在第一市场吃了最奢侈的一顿海鲜大餐，辣炒白螺真是赞，还是不习惯一些奇奇怪怪的海洋生物。</p>
+<h2 id="Day-2-大东海"><a href="#Day-2-大东海" class="headerlink" title="Day 2 大东海"></a>Day 2 大东海</h2><p>大东海是最适合住宿的地方，身处市区，交通四通八达，出门右拐就有不亚于亚龙湾远甚于三亚湾的沙滩。吃完午饭来个椰子，游个泳，晒个日光浴，甚是惬意。</p>
+<p><img src="http://ww4.sinaimg.cn/mw690/81b78497gw1epc8xg6bbmj21kw16oqv5.jpg" alt="大东海"></p>
+<h2 id="Day-3-热带森林天堂公园"><a href="#Day-3-热带森林天堂公园" class="headerlink" title="Day 3 热带森林天堂公园"></a>Day 3 热带森林天堂公园</h2><p>森林天堂是我最留恋最喜欢的一个景点，这里也是《非诚勿扰2》的主拍摄地。看厌了海滩，来森林里感受下自然的气息还是很不错的。</p>
+<p>我们订了鸟巢的酒店，管家们非常热心地来山下接我们。坐着游览车沿山路而上，路抖弯急，有点过山车般的刺激。迎面还会遇到下山的游览车，擦肩而过时会嘲我们大声喊「啊~~~」，没有心理准备会被吓一跳。「那是这里游客们独有的打招呼方式」，管家说。</p>
+<p><img src="http://p.chanyouji.cn/26881/1362232816156p17klmdnu91ii71tvn1g41bmkljoa.jpg-display_ggg" alt></p>
+<p>拿着房卡可以游览森林公园内的所有景点，这也是我们选择住在山顶的原因。</p>
+<p><img src="http://ww4.sinaimg.cn/mw690/81b78497gw1epc8zha21kj21kw16oqpa.jpg" alt="清晨山顶的景色"></p>
+<p><img src="http://ww4.sinaimg.cn/mw690/81b78497gw1epcoj6ullgj20q00yokc6.jpg" alt="槟榔树"></p>
+<p><img src="http://ww1.sinaimg.cn/mw690/81b78497gw1epcojawuw9j20yo0yo7kz.jpg" alt="《非诚勿扰2》拍摄场地"></p>
+<p><img src="http://ww3.sinaimg.cn/mw690/81b78497gw1epc906jk9uj21f01w0u0x.jpg" alt="葛优舒淇的试婚房，我肯定这沙发他们坐过"></p>
+<p><img src="http://ww3.sinaimg.cn/mw690/81b78497gw1epc90d4a2vj21kw23uhdu.jpg" alt="过江索道"></p>
+<p><img src="http://ww4.sinaimg.cn/mw690/81b78497gw1epc8zf52hxj21f01w04qp.jpg" alt="价值198/位的自助早餐，免费的"></p>
+<h2 id="Day-4-亚龙湾"><a href="#Day-4-亚龙湾" class="headerlink" title="Day 4 亚龙湾"></a>Day 4 亚龙湾</h2><p>森林天堂离亚龙湾很近，十多分钟的车程就到达了我们的下一个酒店。其前靠花园人工湖，背靠亚龙湾，风景尤美。相对于去海滩溜达（又是海滩），我更喜欢在花园里坐着发呆。</p>
+<p><img src="http://ww4.sinaimg.cn/mw690/81b78497gw1epc91cc91hj21f01w0u0x.jpg" alt="发呆"></p>
+<p><img src="http://ww3.sinaimg.cn/mw690/81b78497gw1epc90uzobtj20yo0q0grf.jpg" alt="特别喜欢这张在亚龙湾沙滩拍的照片"></p>
+<h2 id="Day-5-蜈支洲岛"><a href="#Day-5-蜈支洲岛" class="headerlink" title="Day 5 蜈支洲岛"></a>Day 5 蜈支洲岛</h2><p>三亚好像有一个不成文的规矩，来三亚必去蜈支洲。就好像没去过蜈支洲就白去了三亚一样，因为传说中最好的海滩就在蜈支洲岛。不过像我这种粗人是看不出区别的，给我印象深刻的是沙滩上各种壳，走路都苦难，还不如亚龙湾的细柔。不过，由于还没有过度开发，海水还是很清澈的。</p>
+<p><img src="http://ww2.sinaimg.cn/mw690/81b78497gw1epc90r265gj21kw23unpd.jpg" alt="蜈支洲海滩，清澈干净"></p>
+<p><img src="http://ww2.sinaimg.cn/mw690/81b78497gw1epc92bllwfj20q00yowjm.jpg" alt="妈祖庙附近"></p>
+<p>最后去了趟「海棠湾免税购物中心」，满足了下这小女生的愿望。刷卡的哔哔声中，为我们的三亚之旅画上了句点。</p>
+<p><img src="http://ww1.sinaimg.cn/mw690/81b78497gw1epc90tz85bj21kw16o4qp.jpg" alt="海棠湾免税购物中心"></p>
+<h2 id="小贴士"><a href="#小贴士" class="headerlink" title="小贴士"></a>小贴士</h2><ol>
+<li>三亚很多景点有免费班车，千万别信网上的信息，很多都是过期的，最好打客服电话确认。</li>
+<li>不要像我这样一天换一个酒店，太折腾了。老老实实住市区就是了（豪华游除外）。</li>
+<li>有条件的话，可以在蜈支洲岛上的珊瑚酒店住几天，乐得逍遥自在。</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+        
+<hr>
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+  <img id="wechat_subscriber_qcode" src="https://user-images.githubusercontent.com/5378924/221934214-4ca3bc5d-6d38-4a4a-a6bc-a1dd53563879.png" alt="hoxis wechat" style="width: auto; height:200px; max-width: 100%;">
+</div>
+<div class="copyright-txt">
+  <a href="/copyright"><i class="fa fa-copyright"></i>著作权归作者所有</a>
+</div>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/游记/" rel="tag">#游记</a>
+          
+        </div>
+      
+
+      
+      <div class="post-spread">
+        
+          <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-56d648eefec3350b" async="async"></script>
+<!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_sharing_toolbox"></div>
+        
+      </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2015/02/02/shadowsocks-install-and-optimize/" rel="next" title="科学上网之 Shadowsocks 安装及优化加速">
+                <i class="fa fa-chevron-left"></i> 科学上网之 Shadowsocks 安装及优化加速
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2015/03/12/support-jacman-to-Hexo-3/" rel="prev" title="Jacman 支持 Hexo 3">
+                Jacman 支持 Hexo 3 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
 
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/default_avatar.jpg" alt="WuChong">
+          <p class="site-author-name" itemprop="name">WuChong</p>
+          <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，<br>你就应该静下心来学习。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">90</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+<!--
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">分类</span>
+            </a>
+          </div>
+          -->
+
+          
+          
+          
+            <div class="site-state-item site-state-categories">
+              
+              <a href="/categories">
+              
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">77</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-sa/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="https://flink.apache.org/" target="_blank">Apache Flink</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Day-0"><span class="nav-number">1.</span> <span class="nav-text">Day 0</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Day-1-三亚湾"><span class="nav-number">2.</span> <span class="nav-text">Day 1 三亚湾</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Day-2-大东海"><span class="nav-number">3.</span> <span class="nav-text">Day 2 大东海</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Day-3-热带森林天堂公园"><span class="nav-number">4.</span> <span class="nav-text">Day 3 热带森林天堂公园</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Day-4-亚龙湾"><span class="nav-number">5.</span> <span class="nav-text">Day 4 亚龙湾</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Day-5-蜈支洲岛"><span class="nav-number">6.</span> <span class="nav-text">Day 5 蜈支洲岛</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#小贴士"><span class="nav-number">7.</span> <span class="nav-text">小贴士</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WuChong</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.scheme !== 'Pisces' && (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always')) {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'wuchong';
+      var disqus_identifier = 'blog/2015/02/17/trip-of-sanya/';
+      var disqus_title = '北纬18°，三亚的碧海琼天';
+      var disqus_url = 'http://wuchong.me/blog/2015/02/17/trip-of-sanya/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
+  
+
+
+  
+  
+
+
+</body>
+</html>

@@ -1,27 +1,904 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!doctype html>
 
 
-{% block title %} {{ page.title }} | {{ config.title }} {% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next mist use-motion">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css">
+
+
+    <meta name="author" content="WuChong">
+
+
+
+  <meta name="keywords" content="科学上网,VPS,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jark's Blog" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0">
+
+
+
+
+
+
+<meta name="description" content="今天 glgoo 暂停服务了，赖以生存的 Google 曲线救国方案没了，GoAgent 又太慢，遂想折腾个 VPS 搭个代理解决科学上网的燃眉之急。DigitalOcean 作为一个 VPS 提供商新秀，以其高性价比的优势一直与高富帅的老大哥 Linode 争夺市场。最近更是在 GitHub 针对高校学生的优惠活动「GitHub Student Developer Pack」中推出免费 $100">
+<meta name="keywords" content="科学上网,VPS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DigitalOcean VPS 科学上网体验">
+<meta property="og:url" content="http://wuchong.me/blog/2014/10/17/do-vps-ss/index.html">
+<meta property="og:site_name" content="Jark&#39;s Blog">
+<meta property="og:description" content="今天 glgoo 暂停服务了，赖以生存的 Google 曲线救国方案没了，GoAgent 又太慢，遂想折腾个 VPS 搭个代理解决科学上网的燃眉之急。DigitalOcean 作为一个 VPS 提供商新秀，以其高性价比的优势一直与高富帅的老大哥 Linode 争夺市场。最近更是在 GitHub 针对高校学生的优惠活动「GitHub Student Developer Pack」中推出免费 $100">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://ww2.sinaimg.cn/large/81b78497jw1eldy44qjgcj20hu06b0u4.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/81b78497jw1eleh03z0fij20n006g3za.jpg">
+<meta property="og:image" content="http://ww2.sinaimg.cn/mw690/81b78497jw1elejn2ajctj21040rs0vb.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/mw690/81b78497tw1elejwjkbxij216g0x6qdd.jpg">
+<meta property="og:updated_time" content="2022-08-03T06:46:44.501Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="DigitalOcean VPS 科学上网体验">
+<meta name="twitter:description" content="今天 glgoo 暂停服务了，赖以生存的 Google 曲线救国方案没了，GoAgent 又太慢，遂想折腾个 VPS 搭个代理解决科学上网的燃眉之急。DigitalOcean 作为一个 VPS 提供商新秀，以其高性价比的优势一直与高富帅的老大哥 Linode 争夺市场。最近更是在 GitHub 针对高校学生的优惠活动「GitHub Student Developer Pack」中推出免费 $100">
+<meta name="twitter:image" content="http://ww2.sinaimg.cn/large/81b78497jw1eldy44qjgcj20hu06b0u4.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 4141040,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> DigitalOcean VPS 科学上网体验 | Jark's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Jark's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-talks">
+          <a href="/talks" rel="section">
+            
+              <i class="menu-item-icon fa fa-microphone-stand fa-fw"></i> <br>
+            
+            演讲
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input">
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', '8Exkz7xsCTJyyCHiK9TY','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                DigitalOcean VPS 科学上网体验
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2014-10-17T12:31:18+08:00" content="2014-10-17">
+              2014-10-17
+            </time>
+          </span>
+
+          
+            <span class="post-category">
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/杂项资源/" itemprop="url" rel="index">
+                    <span itemprop="name">杂项资源</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2014/10/17/do-vps-ss/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="blog/2014/10/17/do-vps-ss/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+<!--
+    
+      <div class="post-body">
+    
+    -->
+
+
+    <div class="post-body" itemprop="articleBody">
+    
+
+      
+      
+
+      
+        <p>今天 <a href="https://www.glgoo.com/" target="_blank" rel="noopener">glgoo</a> 暂停服务了，赖以生存的 Google 曲线救国方案没了，GoAgent 又太慢，遂想折腾个 VPS 搭个代理解决科学上网的燃眉之急。</p>
+<p><img src="http://ww2.sinaimg.cn/large/81b78497jw1eldy44qjgcj20hu06b0u4.jpg" alt></p>
+<p><a href="https://www.digitalocean.com/?refcode=54668030e22a" target="_blank" rel="noopener">DigitalOcean</a> 作为一个 VPS 提供商新秀，以其高性价比的优势一直与高富帅的老大哥 Linode 争夺市场。最近更是在 GitHub 针对高校学生的优惠活动「<a href="https://education.github.com/pack/" target="_blank" rel="noopener">GitHub Student Developer Pack</a>」中推出免费 $100 的优惠服务，如果以最便宜的 $5/月 计算，可以用小两年了。对于长这么大还没玩过VPS的孩子来说，这诱惑太大了。用VPS来科学上网当然有点大材小用了，更多的是想在VPS架一些自己的网站（非博客）、跑些脚本、学点东西。<br><a id="more"></a></p>
+<p>但是对于普通学生来说要拿到这100刀还是比较麻烦的。首先，你得有个 GtiHub 账号，并且验证了你的 edu 邮箱（之前笔者在 GitHub 推出学生免费私人仓库时已经验证过了，再次感谢GitHub）。然后点击<a href="https://education.github.com/pack/" target="_blank" rel="noopener">GitHub Student Developer Pack</a> 活动页面中「Get your pack」按钮，就可以看到合作产品的优惠活动了，这里包括了来自 NameCheap 的免费 .ME 域名，再次推荐。</p>
+<p><img src="http://ww1.sinaimg.cn/large/81b78497jw1eleh03z0fij20n006g3za.jpg" alt></p>
+<p>通过上图的链接和邀请码注册后，就可看到100刀了，但是还需要绑定个人信用卡或者使用 Paypal 支付5刀才能激活。前者可以用财付通的<a href="https://www.tenpay.com/v2/account/interna/index.shtml" target="_blank" rel="noopener">运通虚拟国际卡</a>，但是目前已经不开放申请了。所以就用Paypal支付5刀吧。Paypal的激活就此略过。这之后就顺利的拿到 $105 了。</p>
+<h2 id="第一个VPS"><a href="#第一个VPS" class="headerlink" title="第一个VPS"></a>第一个VPS</h2><p>接着就能快速创建VPS了，选择 $5/月的足矣，机房最好选在旧金山，DigitalOcean 美国西海岸机房速度还是非常优秀的，比纽约的要好，千万不能选新加坡，因为貌似还没有国内专线所以速度不敢恭维。如果已经创建了你的 Droplet 又想换机房，可以参考<a href="http://www.laozuo.org/3907.html" target="_blank" rel="noopener">这篇博客</a>。完成后便会收到含有主机 IP、登陆账户、密码的邮件。</p>
+<p>在 Mac/Linux 上可以直接在终端 ssh 到 VPS。Windows 的话我使用的 <a href="http://www.putty.org/" target="_blank" rel="noopener">PuTTY</a>。接着你就可以操控你的 VPS 了。 </p>
+<h2 id="ShadowSocks-科学上网"><a href="#ShadowSocks-科学上网" class="headerlink" title="ShadowSocks 科学上网"></a>ShadowSocks 科学上网</h2><p>ShadowSocks 说自己是一个「可穿透防火墙的轻量代理」。OK！这正是我想要的，能满足我科学上网的需求就够了。ShadowSocks 的 GitHub Wiki 主页上已经有详细的<a href="https://github.com/clowwindy/shadowsocks/wiki/Shadowsocks-%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E" target="_blank" rel="noopener">中文使用说明</a>了。但作为搬运工，还是简要说明下吧。</p>
+<p>1.在服务端安装 shadowsocks 库<br><figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">apt-get <span class="keyword">install</span> python-pip</span><br><span class="line">pip <span class="keyword">install</span> shadowsocks</span><br></pre></td></tr></table></figure></p>
+<p>2.创建配置文件<code>/etc/shadowsocks.json</code>。示例：<br><figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"server"</span>:<span class="string">"服务器 IP 地址"</span>,</span><br><span class="line">    <span class="attr">"server_port"</span>:<span class="number">8388</span>,</span><br><span class="line">    <span class="attr">"local_address"</span>: <span class="string">"127.0.0.1"</span>,</span><br><span class="line">    <span class="attr">"local_port"</span>:<span class="number">1080</span>,</span><br><span class="line">    <span class="attr">"password"</span>:<span class="string">"mypassword"</span>,</span><br><span class="line">    <span class="attr">"timeout"</span>:<span class="number">300</span>,</span><br><span class="line">    <span class="attr">"method"</span>:<span class="string">"aes-256-cfb"</span>,</span><br><span class="line">    <span class="attr">"fast_open"</span>: <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">"workers"</span>: <span class="number">1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>上述配置，只需要修改<code>server</code>和<code>password</code>，其他默认即可。</p>
+<p>在服务器上运行 <code>ssserver -c /etc/shadowsocks.json</code> 即可。如果要在后台运行， 请使用 <a href="#后台运行">SuperVisor</a>.</p>
+<p>3.在 Mac/Windows 推荐使用客户端 <a href="https://github.com/shadowsocks/shadowsocks-gui" target="_blank" rel="noopener">Shadowsocks GUI</a> 连接代理。配置也非常简单，注意server ip 和 password 改成自己的。</p>
+<p><img src="http://ww2.sinaimg.cn/mw690/81b78497jw1elejn2ajctj21040rs0vb.jpg" alt></p>
+<p>Mac 端的启动后可以自动实现全局科学上网，并根据 GFWList 区分墙内外流量。Windows 端的需要配合浏览器代理一起使用，Chrome 的话推荐 <a href="https://chrome.google.com/webstore/detail/proxy-switchysharp/dpplabbmogkhghncfbfdeeokoefdjegm" target="_blank" rel="noopener">SwitchySharp</a>切换代理设置。把浏览器代理设为下列参数即可：</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line">协议: <span class="selector-tag">socks5</span></span><br><span class="line">地址: 127<span class="selector-class">.0</span><span class="selector-class">.0</span><span class="selector-class">.1</span></span><br><span class="line">端口: 你填的 <span class="selector-tag">local_port</span></span><br></pre></td></tr></table></figure>
+<p>如果无法安装 SwitchySharp，可以先用下列参数启动 Chrome，强制它使用代理：<br><figure class="highlight jboss-cli"><table><tr><td class="code"><pre><span class="line">Chrome.exe <span class="params">--proxy-server=</span><span class="string">"socks5://127.0.0.1:1080"</span> <span class="params">--host-resolver-rules=</span><span class="string">"MAP * 0.0.0.0 , EXCLUDE localhost"</span></span><br></pre></td></tr></table></figure></p>
+<p>移动端也可以参考<a href="https://github.com/clowwindy/shadowsocks/wiki/Ports-and-Clients" target="_blank" rel="noopener">Ports and Clients</a>下载对应软件。但是只能在其内置浏览器中科学上网，所以移动端上 ShadowSocks 就不如 VPN 方便。</p>
+<p>4.完成</p>
+<h2 id="后台运行"><a href="#后台运行" class="headerlink" title="后台运行"></a>后台运行</h2><p>如果要在后台运行，请使用 <a href="https://github.com/clowwindy/shadowsocks/wiki/%E7%94%A8-Supervisor-%E8%BF%90%E8%A1%8C-Shadowsocks" target="_blank" rel="noopener">supervisor</a>。</p>
+<p>执行</p>
+<figure class="highlight vim"><table><tr><td class="code"><pre><span class="line">apt-<span class="built_in">get</span> <span class="keyword">update</span></span><br><span class="line">apt-<span class="built_in">get</span> install <span class="keyword">python</span>-pip <span class="keyword">python</span>-m2crypto supervisor</span><br><span class="line">pip install shadowsocks</span><br></pre></td></tr></table></figure>
+<p>编辑 <code>/etc/supervisor/conf.d/shadowsocks.conf</code><br><figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[program:shadowsocks]</span></span><br><span class="line"><span class="attr">command</span>=ssserver -c /etc/shadowsocks.json</span><br><span class="line"><span class="attr">autorestart</span>=<span class="literal">true</span></span><br><span class="line"><span class="attr">user</span>=nobody</span><br></pre></td></tr></table></figure></p>
+<p>在 <code>/etc/default/supervisor</code> 最后加一行：<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">ulimit</span> -n 51200</span><br></pre></td></tr></table></figure></p>
+<p>执行<br><figure class="highlight crmsh"><table><tr><td class="code"><pre><span class="line">service supervisor <span class="literal">start</span></span><br><span class="line">supervisorctl reload</span><br></pre></td></tr></table></figure></p>
+<p>如果遇到问题，可以检查日志：<br><figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line">supervisorctl tail -f shadowsocks <span class="built_in">stderr</span></span><br></pre></td></tr></table></figure></p>
+<p>如果修改了 shadowsocks 配置 <code>/etc/shadowsocks.json</code>， 可以重启 shadowsocks：<br><figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">supervisorctl restart shadowsocks</span></span><br></pre></td></tr></table></figure></p>
+<p>如果修改了 Supervisor 的配置文件 /etc/supervisor/*， 可以更新 supervisor 配置：<br><figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">supervisorctl update</span></span><br></pre></td></tr></table></figure></p>
+<p>最后看看效果，访问 Google 和 Youtube 的速度如下：</p>
+<p><img src="http://ww1.sinaimg.cn/mw690/81b78497tw1elejwjkbxij216g0x6qdd.jpg" alt></p>
+<p>总体很满意，打开 Google 秒开，校园网看 Youtube 1080视频无压力。用来科学上网绝对是没问题了。甩 GoAgent 好几条街了。</p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>DigitalOcean VPS + ShadowSocks 能基本满足科学上网的需求了。但是我说了用 VPS 来科学上网就大材小用了，如果你只是为了科学上网，或者你不是程序员，看到 VPS 什么的就头大，那最好的办法就是买个 VPN ，方便实惠速度又快。在这里我比较推荐 <a href="http://ugetvpn.com/?r=10ccb0196cc0a49b" target="_blank" rel="noopener">云梯VPN</a>，算是国内比较出色的一款服务，最低10元/月，基本上国外网站都是秒开，看Youtube视频无压力，配置安装基本都傻瓜一键式，覆盖多平台（我这么做广告，是不是应该给点广告费啊）。唯一要吐槽的就是居然只有包年套餐！</p>
+<p>需要的可以走这里：<a href="http://ugetvpn.com/?r=10ccb0196cc0a49b" target="_blank" rel="noopener">云梯VPN</a>。线路推荐使用新加坡1号。</p>
+<p>-EOF-</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+        
+<hr>
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+  <img id="wechat_subscriber_qcode" src="https://user-images.githubusercontent.com/5378924/221934214-4ca3bc5d-6d38-4a4a-a6bc-a1dd53563879.png" alt="hoxis wechat" style="width: auto; height:200px; max-width: 100%;">
+</div>
+<div class="copyright-txt">
+  <a href="/copyright"><i class="fa fa-copyright"></i>著作权归作者所有</a>
+</div>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/科学上网/" rel="tag">#科学上网</a>
+          
+            <a href="/tags/VPS/" rel="tag">#VPS</a>
+          
+        </div>
+      
+
+      
+      <div class="post-spread">
+        
+          <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-56d648eefec3350b" async="async"></script>
+<!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_sharing_toolbox"></div>
+        
+      </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2014/09/30/looking-for-a-job-summary/" rel="next" title="找工作小记——善待挫折">
+                <i class="fa fa-chevron-left"></i> 找工作小记——善待挫折
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2014/10/31/10-interesting-java-projects-you-can-contribute-and-learn/" rel="prev" title="【译】10个你能参与并学习的Java开源项目">
+                【译】10个你能参与并学习的Java开源项目 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
 
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/default_avatar.jpg" alt="WuChong">
+          <p class="site-author-name" itemprop="name">WuChong</p>
+          <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，<br>你就应该静下心来学习。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">90</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+<!--
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">分类</span>
+            </a>
+          </div>
+          -->
+
+          
+          
+          
+            <div class="site-state-item site-state-categories">
+              
+              <a href="/categories">
+              
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">77</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-sa/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="https://flink.apache.org/" target="_blank">Apache Flink</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#第一个VPS"><span class="nav-number">1.</span> <span class="nav-text">第一个VPS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ShadowSocks-科学上网"><span class="nav-number">2.</span> <span class="nav-text">ShadowSocks 科学上网</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后台运行"><span class="nav-number">3.</span> <span class="nav-text">后台运行</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后记"><span class="nav-number">4.</span> <span class="nav-text">后记</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WuChong</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.scheme !== 'Pisces' && (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always')) {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'wuchong';
+      var disqus_identifier = 'blog/2014/10/17/do-vps-ss/';
+      var disqus_title = 'DigitalOcean VPS 科学上网体验';
+      var disqus_url = 'http://wuchong.me/blog/2014/10/17/do-vps-ss/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
+  
+
+
+  
+  
+
+
+</body>
+</html>

@@ -1,27 +1,949 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!doctype html>
 
 
-{% block title %} {{ page.title }} | {{ config.title }} {% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next mist use-motion">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css">
+
+
+    <meta name="author" content="WuChong">
+
+
+
+  <meta name="keywords" content="Flink原理与实现,Flink">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jark's Blog" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0">
+
+
+
+
+
+
+<meta name="description" content="Flink 认为 Batch 是 Streaming 的一个特例，所以 Flink 底层引擎是一个流式引擎，在上面实现了流处理和批处理。而窗口（window）就是从 Streaming 到 Batch 的一个桥梁。Flink 提供了非常完善的窗口机制，这是我认为的 Flink 最大的亮点之一（其他的亮点包括消息乱序处理，和 checkpoint 机制）。本文我们将介绍流式处理中的窗口概念，介绍 F">
+<meta name="keywords" content="Flink原理与实现,Flink">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flink 原理与实现：Window 机制">
+<meta property="og:url" content="http://wuchong.me/blog/2016/05/25/flink-internals-window-mechanism/index.html">
+<meta property="og:site_name" content="Jark&#39;s Blog">
+<meta property="og:description" content="Flink 认为 Batch 是 Streaming 的一个特例，所以 Flink 底层引擎是一个流式引擎，在上面实现了流处理和批处理。而窗口（window）就是从 Streaming 到 Batch 的一个桥梁。Flink 提供了非常完善的窗口机制，这是我认为的 Flink 最大的亮点之一（其他的亮点包括消息乱序处理，和 checkpoint 机制）。本文我们将介绍流式处理中的窗口概念，介绍 F">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB1bwsTJVXXXXaBaXXXXXXXXXXX">
+<meta property="og:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB1plkxJVXXXXXqXpXXXXXXXXXX">
+<meta property="og:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB15yMeJVXXXXbbXFXXXXXXXXXX">
+<meta property="og:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB1OCT6JVXXXXcjXVXXXXXXXXXX">
+<meta property="og:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB1swNgKXXXXXc4XpXXXXXXXXXX">
+<meta property="og:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB15vcUJVXXXXcGXVXXXXXXXXXX">
+<meta property="og:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB1iihcKXXXXXavXFXXXXXXXXXX">
+<meta property="og:updated_time" content="2022-08-03T06:46:44.505Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Flink 原理与实现：Window 机制">
+<meta name="twitter:description" content="Flink 认为 Batch 是 Streaming 的一个特例，所以 Flink 底层引擎是一个流式引擎，在上面实现了流处理和批处理。而窗口（window）就是从 Streaming 到 Batch 的一个桥梁。Flink 提供了非常完善的窗口机制，这是我认为的 Flink 最大的亮点之一（其他的亮点包括消息乱序处理，和 checkpoint 机制）。本文我们将介绍流式处理中的窗口概念，介绍 F">
+<meta name="twitter:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB1bwsTJVXXXXaBaXXXXXXXXXXX">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 4141040,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> Flink 原理与实现：Window 机制 | Jark's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Jark's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-talks">
+          <a href="/talks" rel="section">
+            
+              <i class="menu-item-icon fa fa-microphone-stand fa-fw"></i> <br>
+            
+            演讲
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input">
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', '8Exkz7xsCTJyyCHiK9TY','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Flink 原理与实现：Window 机制
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-05-25T13:56:19+08:00" content="2016-05-25">
+              2016-05-25
+            </time>
+          </span>
+
+          
+            <span class="post-category">
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Flink/" itemprop="url" rel="index">
+                    <span itemprop="name">Flink</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2016/05/25/flink-internals-window-mechanism/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="blog/2016/05/25/flink-internals-window-mechanism/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+<!--
+    
+      <div class="post-body">
+    
+    -->
+
+
+    <div class="post-body" itemprop="articleBody">
+    
+
+      
+      
+
+      
+        <p>Flink 认为 Batch 是 Streaming 的一个特例，所以 Flink 底层引擎是一个流式引擎，在上面实现了流处理和批处理。而窗口（window）就是从 Streaming 到 Batch 的一个桥梁。Flink 提供了非常完善的窗口机制，这是我认为的 Flink 最大的亮点之一（其他的亮点包括消息乱序处理，和 checkpoint 机制）。本文我们将介绍流式处理中的窗口概念，介绍 Flink 内建的一些窗口和 Window API，最后讨论下窗口在底层是如何实现的。</p>
+<h2 id="什么是-Window"><a href="#什么是-Window" class="headerlink" title="什么是 Window"></a>什么是 Window</h2><p>在流处理应用中，数据是连续不断的，因此我们不可能等到所有数据都到了才开始处理。当然我们可以每来一个消息就处理一次，但是有时我们需要做一些聚合类的处理，例如：在过去的1分钟内有多少用户点击了我们的网页。在这种情况下，我们必须定义一个窗口，用来收集最近一分钟内的数据，并对这个窗口内的数据进行计算。</p>
+<p>窗口可以是时间驱动的（Time Window，例如：每30秒钟），也可以是数据驱动的（Count Window，例如：每一百个元素）。一种经典的窗口分类可以分成：翻滚窗口（Tumbling Window，无重叠），滚动窗口（Sliding Window，有重叠），和会话窗口（Session Window，活动间隙）。</p>
+<a id="more"></a>
+<p>我们举个具体的场景来形象地理解不同窗口的概念。假设，淘宝网会记录每个用户每次购买的商品个数，我们要做的是统计不同窗口中用户购买商品的总数。下图给出了几种经典的窗口切分概述图：</p>
+<p><img src="http://img3.tbcdn.cn/5476e8b07b923/TB1bwsTJVXXXXaBaXXXXXXXXXXX" alt></p>
+<p>上图中，raw data stream 代表用户的购买行为流，圈中的数字代表该用户本次购买的商品个数，事件是按时间分布的，所以可以看出事件之间是有time gap的。Flink 提供了上图中所有的窗口类型，下面我们会逐一进行介绍。</p>
+<h3 id="Time-Window"><a href="#Time-Window" class="headerlink" title="Time Window"></a>Time Window</h3><p>就如名字所说的，Time Window 是根据时间对数据流进行分组的。这里我们涉及到了流处理中的时间问题，时间问题和消息乱序问题是紧密关联的，这是流处理中现存的难题之一，我们将在后续的 <a href="#">EventTime 和消息乱序处理</a> 中对这部分问题进行深入探讨。这里我们只需要知道 Flink 提出了三种时间的概念，分别是event time（事件时间：事件发生时的时间），ingestion time（摄取时间：事件进入流处理系统的时间），processing time（处理时间：消息被计算处理的时间）。Flink 中窗口机制和时间类型是完全解耦的，也就是说当需要改变时间类型时不需要更改窗口逻辑相关的代码。</p>
+<ul>
+<li><p><strong>Tumbling Time Window</strong><br>如上图，我们需要统计每一分钟中用户购买的商品的总数，需要将用户的行为事件按每一分钟进行切分，这种切分被成为翻滚时间窗口（Tumbling Time Window）。翻滚窗口能将数据流切分成不重叠的窗口，每一个事件只能属于一个窗口。通过使用 DataStream API，我们可以这样实现：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Stream of (userId, buyCnt)</span></span><br><span class="line"><span class="keyword">val</span> buyCnts: <span class="type">DataStream</span>[(<span class="type">Int</span>, <span class="type">Int</span>)] = ...</span><br><span class="line"></span><br><span class="line"><span class="keyword">val</span> tumblingCnts: <span class="type">DataStream</span>[(<span class="type">Int</span>, <span class="type">Int</span>)] = buyCnts</span><br><span class="line">  <span class="comment">// key stream by userId</span></span><br><span class="line">  .keyBy(<span class="number">0</span>) </span><br><span class="line">  <span class="comment">// tumbling time window of 1 minute length</span></span><br><span class="line">  .timeWindow(<span class="type">Time</span>.minutes(<span class="number">1</span>))</span><br><span class="line">  <span class="comment">// compute sum over buyCnt</span></span><br><span class="line">  .sum(<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>Sliding Time Window</strong><br>但是对于某些应用，它们需要的窗口是不间断的，需要平滑地进行窗口聚合。比如，我们可以每30秒计算一次最近一分钟用户购买的商品总数。这种窗口我们称为滑动时间窗口（Sliding Time Window）。在滑窗中，一个元素可以对应多个窗口。通过使用 DataStream API，我们可以这样实现：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> slidingCnts: <span class="type">DataStream</span>[(<span class="type">Int</span>, <span class="type">Int</span>)] = buyCnts</span><br><span class="line">  .keyBy(<span class="number">0</span>) </span><br><span class="line">  <span class="comment">// sliding time window of 1 minute length and 30 secs trigger interval</span></span><br><span class="line">  .timeWindow(<span class="type">Time</span>.minutes(<span class="number">1</span>), <span class="type">Time</span>.seconds(<span class="number">30</span>))</span><br><span class="line">  .sum(<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="Count-Window"><a href="#Count-Window" class="headerlink" title="Count Window"></a>Count Window</h3><p>Count Window 是根据元素个数对数据流进行分组的。</p>
+<ul>
+<li><p><strong>Tumbling Count Window</strong><br>当我们想要每100个用户购买行为事件统计购买总数，那么每当窗口中填满100个元素了，就会对窗口进行计算，这种窗口我们称之为翻滚计数窗口（Tumbling Count Window），上图所示窗口大小为3个。通过使用 DataStream API，我们可以这样实现：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Stream of (userId, buyCnts)</span></span><br><span class="line"><span class="keyword">val</span> buyCnts: <span class="type">DataStream</span>[(<span class="type">Int</span>, <span class="type">Int</span>)] = ...</span><br><span class="line"></span><br><span class="line"><span class="keyword">val</span> tumblingCnts: <span class="type">DataStream</span>[(<span class="type">Int</span>, <span class="type">Int</span>)] = buyCnts</span><br><span class="line">  <span class="comment">// key stream by sensorId</span></span><br><span class="line">  .keyBy(<span class="number">0</span>)</span><br><span class="line">  <span class="comment">// tumbling count window of 100 elements size</span></span><br><span class="line">  .countWindow(<span class="number">100</span>)</span><br><span class="line">  <span class="comment">// compute the buyCnt sum </span></span><br><span class="line">  .sum(<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<ul>
+<li><p><strong>Sliding Count Window</strong><br>当然Count Window 也支持 Sliding Window，虽在上图中未描述出来，但和Sliding Time Window含义是类似的，例如计算每10个元素计算一次最近100个元素的总和，代码示例如下。</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> slidingCnts: <span class="type">DataStream</span>[(<span class="type">Int</span>, <span class="type">Int</span>)] = vehicleCnts</span><br><span class="line">  .keyBy(<span class="number">0</span>)</span><br><span class="line">  <span class="comment">// sliding count window of 100 elements size and 10 elements trigger interval</span></span><br><span class="line">  .countWindow(<span class="number">100</span>, <span class="number">10</span>)</span><br><span class="line">  .sum(<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="Session-Window"><a href="#Session-Window" class="headerlink" title="Session Window"></a>Session Window</h3><p>在这种用户交互事件流中，我们首先想到的是将事件聚合到会话窗口中（一段用户持续活跃的周期），由非活跃的间隙分隔开。如上图所示，就是需要计算每个用户在活跃期间总共购买的商品数量，如果用户30秒没有活动则视为会话断开（假设raw data stream是单个用户的购买行为流）。Session Window 的示例代码如下：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Stream of (userId, buyCnts)</span></span><br><span class="line"><span class="keyword">val</span> buyCnts: <span class="type">DataStream</span>[(<span class="type">Int</span>, <span class="type">Int</span>)] = ...</span><br><span class="line">  </span><br><span class="line"><span class="keyword">val</span> sessionCnts: <span class="type">DataStream</span>[(<span class="type">Int</span>, <span class="type">Int</span>)] = vehicleCnts</span><br><span class="line">  .keyBy(<span class="number">0</span>)</span><br><span class="line">  <span class="comment">// session window based on a 30 seconds session gap interval </span></span><br><span class="line">  .window(<span class="type">ProcessingTimeSessionWindows</span>.withGap(<span class="type">Time</span>.seconds(<span class="number">30</span>)))</span><br><span class="line">  .sum(<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<p>一般而言，window 是在无限的流上定义了一个有限的元素集合。这个集合可以是基于时间的，元素个数的，时间和个数结合的，会话间隙的，或者是自定义的。Flink 的 DataStream API 提供了简洁的算子来满足常用的窗口操作，同时提供了通用的窗口机制来允许用户自己定义窗口分配逻辑。下面我们会对 Flink 窗口相关的 API 进行剖析。</p>
+<h2 id="剖析-Window-API"><a href="#剖析-Window-API" class="headerlink" title="剖析 Window API"></a>剖析 Window API</h2><p>得益于 Flink Window API 松耦合设计，我们可以非常灵活地定义符合特定业务的窗口。Flink 中定义一个窗口主要需要以下三个组件。</p>
+<ul>
+<li><p><strong>Window Assigner：</strong>用来决定某个元素被分配到哪个/哪些窗口中去。</p>
+<p>如下类图展示了目前内置实现的 Window Assigners：<br><img src="http://img3.tbcdn.cn/5476e8b07b923/TB1plkxJVXXXXXqXpXXXXXXXXXX" alt></p>
+</li>
+<li><p><strong>Trigger：</strong>触发器。决定了一个窗口何时能够被计算或清除，每个窗口都会拥有一个自己的Trigger。</p>
+<p>如下类图展示了目前内置实现的 Triggers：<br><img src="http://img3.tbcdn.cn/5476e8b07b923/TB15yMeJVXXXXbbXFXXXXXXXXXX" alt></p>
+</li>
+<li><p><strong>Evictor：</strong>可以译为“驱逐者”。在Trigger触发之后，在窗口被处理之前，Evictor（如果有Evictor的话）会用来剔除窗口中不需要的元素，相当于一个filter。</p>
+<p>如下类图展示了目前内置实现的 Evictors：<br><img src="http://img3.tbcdn.cn/5476e8b07b923/TB1OCT6JVXXXXcjXVXXXXXXXXXX" alt></p>
+</li>
+</ul>
+<p>上述三个组件的不同实现的不同组合，可以定义出非常复杂的窗口。Flink 中内置的窗口也都是基于这三个组件构成的，当然内置窗口有时候无法解决用户特殊的需求，所以 Flink 也暴露了这些窗口机制的内部接口供用户实现自定义的窗口。下面我们将基于这三者探讨窗口的实现机制。</p>
+<h2 id="Window-的实现"><a href="#Window-的实现" class="headerlink" title="Window 的实现"></a>Window 的实现</h2><p>下图描述了 Flink 的窗口机制以及各组件之间是如何相互工作的。</p>
+<p><img src="http://img3.tbcdn.cn/5476e8b07b923/TB1swNgKXXXXXc4XpXXXXXXXXXX" alt></p>
+<p>首先上图中的组件都位于一个算子（window operator）中，数据流源源不断地进入算子，每一个到达的元素都会被交给 WindowAssigner。WindowAssigner 会决定元素被放到哪个或哪些窗口（window），可能会创建新窗口。因为一个元素可以被放入多个窗口中，所以同时存在多个窗口是可能的。注意，<code>Window</code>本身只是一个ID标识符，其内部可能存储了一些元数据，如<code>TimeWindow</code>中有开始和结束时间，但是并不会存储窗口中的元素。窗口中的元素实际存储在 Key/Value State 中，key为<code>Window</code>，value为元素集合（或聚合值）。为了保证窗口的容错性，该实现依赖了 Flink 的 State 机制（参见 <a href="https://ci.apache.org/projects/flink/flink-docs-master/apis/streaming/state.html" target="_blank" rel="noopener">state 文档</a>）。</p>
+<p>每一个窗口都拥有一个属于自己的 Trigger，Trigger上会有定时器，用来决定一个窗口何时能够被计算或清除。每当有元素加入到该窗口，或者之前注册的定时器超时了，那么Trigger都会被调用。Trigger的返回结果可以是 continue（不做任何操作），fire（处理窗口数据），purge（移除窗口和窗口中的数据），或者 fire + purge。一个Trigger的调用结果只是fire的话，那么会计算窗口并保留窗口原样，也就是说窗口中的数据仍然保留不变，等待下次Trigger fire的时候再次执行计算。一个窗口可以被重复计算多次知道它被 purge 了。在purge之前，窗口会一直占用着内存。</p>
+<p>当Trigger fire了，窗口中的元素集合就会交给<code>Evictor</code>（如果指定了的话）。Evictor 主要用来遍历窗口中的元素列表，并决定最先进入窗口的多少个元素需要被移除。剩余的元素会交给用户指定的函数进行窗口的计算。如果没有 Evictor 的话，窗口中的所有元素会一起交给函数进行计算。</p>
+<p>计算函数收到了窗口的元素（可能经过了 Evictor 的过滤），并计算出窗口的结果值，并发送给下游。窗口的结果值可以是一个也可以是多个。DataStream API 上可以接收不同类型的计算函数，包括预定义的<code>sum()</code>,<code>min()</code>,<code>max()</code>，还有 <code>ReduceFunction</code>，<code>FoldFunction</code>，还有<code>WindowFunction</code>。WindowFunction 是最通用的计算函数，其他的预定义的函数基本都是基于该函数实现的。</p>
+<p>Flink 对于一些聚合类的窗口计算（如sum,min）做了优化，因为聚合类的计算不需要将窗口中的所有数据都保存下来，只需要保存一个result值就可以了。每个进入窗口的元素都会执行一次聚合函数并修改result值。这样可以大大降低内存的消耗并提升性能。但是如果用户定义了 Evictor，则不会启用对聚合窗口的优化，因为 Evictor 需要遍历窗口中的所有元素，必须要将窗口中所有元素都存下来。</p>
+<h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><p>上述的三个组件构成了 Flink 的窗口机制。为了更清楚地描述窗口机制，以及解开一些疑惑（比如 purge 和 Evictor 的区别和用途），我们将一步步地解释 Flink 内置的一些窗口（Time Window，Count Window，Session Window）是如何实现的。</p>
+<h3 id="Count-Window-实现"><a href="#Count-Window-实现" class="headerlink" title="Count Window 实现"></a>Count Window 实现</h3><p>Count Window 是使用三组件的典范，我们可以在 <code>KeyedStream</code> 上创建 Count Window，其源码如下所示：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// tumbling count window</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> WindowedStream&lt;T, KEY, GlobalWindow&gt; <span class="title">countWindow</span><span class="params">(<span class="keyword">long</span> size)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> window(GlobalWindows.create())  <span class="comment">// create window stream using GlobalWindows</span></span><br><span class="line">      .trigger(PurgingTrigger.of(CountTrigger.of(size))); <span class="comment">// trigger is window size</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// sliding count window</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> WindowedStream&lt;T, KEY, GlobalWindow&gt; <span class="title">countWindow</span><span class="params">(<span class="keyword">long</span> size, <span class="keyword">long</span> slide)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> window(GlobalWindows.create())</span><br><span class="line">    .evictor(CountEvictor.of(size))  <span class="comment">// evictor is window size</span></span><br><span class="line">    .trigger(CountTrigger.of(slide)); <span class="comment">// trigger is slide size</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>第一个函数是申请翻滚计数窗口，参数为窗口大小。第二个函数是申请滑动计数窗口，参数分别为窗口大小和滑动大小。它们都是基于 <code>GlobalWindows</code> 这个 WindowAssigner 来创建的窗口，该assigner会将所有元素都分配到同一个global window中，所有<code>GlobalWindows</code>的返回值一直是 <code>GlobalWindow</code> 单例。基本上自定义的窗口都会基于该assigner实现。</p>
+<p>翻滚计数窗口并不带evictor，只注册了一个trigger。该trigger是带purge功能的 CountTrigger。也就是说每当窗口中的元素数量达到了 window-size，trigger就会返回fire+purge，窗口就会执行计算并清空窗口中的所有元素，再接着储备新的元素。从而实现了tumbling的窗口之间无重叠。</p>
+<p>滑动计数窗口的各窗口之间是有重叠的，但我们用的 GlobalWindows assinger 从始至终只有一个窗口，不像 sliding time assigner 可以同时存在多个窗口。所以trigger结果不能带purge，也就是说计算完窗口后窗口中的数据要保留下来（供下个滑窗使用）。另外，trigger的间隔是slide-size，evictor的保留的元素个数是window-size。也就是说，每个滑动间隔就触发一次窗口计算，并保留下最新进入窗口的window-size个元素，剔除旧元素。</p>
+<p>假设有一个滑动计数窗口，每2个元素计算一次最近4个元素的总和，那么窗口工作示意图如下所示：</p>
+<p><img src="http://img3.tbcdn.cn/5476e8b07b923/TB15vcUJVXXXXcGXVXXXXXXXXXX" alt></p>
+<p>图中所示的各个窗口逻辑上是不同的窗口，但在物理上是同一个窗口。该滑动计数窗口，trigger的触发条件是元素个数达到2个（每进入2个元素就会触发一次），evictor保留的元素个数是4个，每次计算完窗口总和后会保留剩余的元素。所以第一次触发trigger是当元素5进入，第三次触发trigger是当元素2进入，并驱逐5和2，计算剩余的4个元素的总和（22）并发送出去，保留下2,4,9,7元素供下个逻辑窗口使用。</p>
+<h3 id="Time-Window-实现"><a href="#Time-Window-实现" class="headerlink" title="Time Window 实现"></a>Time Window 实现</h3><p>同样的，我们也可以在 <code>KeyedStream</code> 上申请 Time Window，其源码如下所示：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// tumbling time window</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> WindowedStream&lt;T, KEY, TimeWindow&gt; <span class="title">timeWindow</span><span class="params">(Time size)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (environment.getStreamTimeCharacteristic() == TimeCharacteristic.ProcessingTime) &#123;</span><br><span class="line">    <span class="keyword">return</span> window(TumblingProcessingTimeWindows.of(size));</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> window(TumblingEventTimeWindows.of(size));</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// sliding time window</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> WindowedStream&lt;T, KEY, TimeWindow&gt; <span class="title">timeWindow</span><span class="params">(Time size, Time slide)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (environment.getStreamTimeCharacteristic() == TimeCharacteristic.ProcessingTime) &#123;</span><br><span class="line">    <span class="keyword">return</span> window(SlidingProcessingTimeWindows.of(size, slide));</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> window(SlidingEventTimeWindows.of(size, slide));</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在方法体内部会根据当前环境注册的时间类型，使用不同的WindowAssigner创建window。可以看到，EventTime和IngestTime都使用了<code>XXXEventTimeWindows</code>这个assigner，因为EventTime和IngestTime在底层的实现上只是在Source处为Record打时间戳的实现不同，在window operator中的处理逻辑是一样的。</p>
+<p>这里我们主要分析sliding process time window，如下是相关源码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SlidingProcessingTimeWindows</span> <span class="keyword">extends</span> <span class="title">WindowAssigner</span>&lt;<span class="title">Object</span>, <span class="title">TimeWindow</span>&gt; </span>&#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> serialVersionUID = <span class="number">1L</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">long</span> size;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">long</span> slide;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="title">SlidingProcessingTimeWindows</span><span class="params">(<span class="keyword">long</span> size, <span class="keyword">long</span> slide)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.size = size;</span><br><span class="line">    <span class="keyword">this</span>.slide = slide;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> Collection&lt;TimeWindow&gt; <span class="title">assignWindows</span><span class="params">(Object element, <span class="keyword">long</span> timestamp)</span> </span>&#123;</span><br><span class="line">    timestamp = System.currentTimeMillis();</span><br><span class="line">    List&lt;TimeWindow&gt; windows = <span class="keyword">new</span> ArrayList&lt;&gt;((<span class="keyword">int</span>) (size / slide));</span><br><span class="line">    <span class="comment">// 对齐时间戳</span></span><br><span class="line">    <span class="keyword">long</span> lastStart = timestamp - timestamp % slide;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">long</span> start = lastStart;</span><br><span class="line">      start &gt; timestamp - size;</span><br><span class="line">      start -= slide) &#123;</span><br><span class="line">      <span class="comment">// 当前时间戳对应了多个window</span></span><br><span class="line">      windows.add(<span class="keyword">new</span> TimeWindow(start, start + size));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> windows;</span><br><span class="line">  &#125;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ProcessingTimeTrigger</span> <span class="keyword">extends</span> <span class="title">Trigger</span>&lt;<span class="title">Object</span>, <span class="title">TimeWindow</span>&gt; </span>&#123;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="comment">// 每个元素进入窗口都会调用该方法</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> TriggerResult <span class="title">onElement</span><span class="params">(Object element, <span class="keyword">long</span> timestamp, TimeWindow window, TriggerContext ctx)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 注册定时器，当系统时间到达window end timestamp时会回调该trigger的onProcessingTime方法</span></span><br><span class="line">    ctx.registerProcessingTimeTimer(window.getEnd());</span><br><span class="line">    <span class="keyword">return</span> TriggerResult.CONTINUE;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="comment">// 返回结果表示执行窗口计算并清空窗口</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> TriggerResult <span class="title">onProcessingTime</span><span class="params">(<span class="keyword">long</span> time, TimeWindow window, TriggerContext ctx)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> TriggerResult.FIRE_AND_PURGE;</span><br><span class="line">  &#125;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>首先，<code>SlidingProcessingTimeWindows</code>会对每个进入窗口的元素根据系统时间分配到<code>(size / slide)</code>个不同的窗口，并会在每个窗口上根据窗口结束时间注册一个定时器（相同窗口只会注册一份），当定时器超时时意味着该窗口完成了，这时会回调对应窗口的Trigger的<code>onProcessingTime</code>方法，返回FIRE_AND_PURGE，也就是会执行窗口计算并清空窗口。整个过程示意图如下：</p>
+<p><img src="http://img3.tbcdn.cn/5476e8b07b923/TB1iihcKXXXXXavXFXXXXXXXXXX" alt></p>
+<p>如上图所示横轴代表时间戳（为简化问题，时间戳从0开始），第一条record会被分配到[-5,5)和[0,10)两个窗口中，当系统时间到5时，就会计算[-5,5)窗口中的数据，并将结果发送出去，最后清空窗口中的数据，释放该窗口资源。</p>
+<h3 id="Session-Window-实现"><a href="#Session-Window-实现" class="headerlink" title="Session Window 实现"></a>Session Window 实现</h3><p>Session Window 是一个需求很强烈的窗口机制，但Session也比之前的Window更复杂，所以 Flink 也是在即将到来的 1.1.0 版本中才支持了该功能。由于篇幅问题，我们将在后续的 <a href="#">Session Window 的实现</a> 中深入探讨 Session Window 的实现。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://ci.apache.org/projects/flink/flink-docs-release-1.0/concepts/concepts.html#time-and-windows" target="_blank" rel="noopener">Flink Concepts</a></li>
+<li><a href="https://flink.apache.org/news/2015/12/04/Introducing-windows.html" target="_blank" rel="noopener">Introducing Stream Windows in Apache Flink
+</a></li>
+<li><a href="https://cwiki.apache.org/confluence/display/FLINK/Streaming+Window+Join+Rework" target="_blank" rel="noopener">Streaming Window Join Rework</a></li>
+<li><a href="https://cwiki.apache.org/confluence/pages/viewpage.action?pageId=60624830" target="_blank" rel="noopener">Window Semantics (and Implementation)</a></li>
+<li><a href="http://blog.madhukaraphatak.com/introduction-to-flink-streaming-part-6" target="_blank" rel="noopener">Introduction to Flink Streaming - Part 6 : Anatomy of Window API</a></li>
+<li><a href="http://blog.madhukaraphatak.com/introduction-to-flink-streaming-part-5" target="_blank" rel="noopener">Introduction to Flink Streaming - Part 5 : Window API in Flink</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+        
+<hr>
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+  <img id="wechat_subscriber_qcode" src="https://user-images.githubusercontent.com/5378924/221934214-4ca3bc5d-6d38-4a4a-a6bc-a1dd53563879.png" alt="hoxis wechat" style="width: auto; height:200px; max-width: 100%;">
+</div>
+<div class="copyright-txt">
+  <a href="/copyright"><i class="fa fa-copyright"></i>著作权归作者所有</a>
+</div>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Flink/" rel="tag">#Flink</a>
+          
+            <a href="/tags/Flink原理与实现/" rel="tag">#Flink原理与实现</a>
+          
+        </div>
+      
+
+      
+      <div class="post-spread">
+        
+          <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-56d648eefec3350b" async="async"></script>
+<!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_sharing_toolbox"></div>
+        
+      </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/05/20/flink-internals-streams-and-operations-on-streams/" rel="next" title="Flink 原理与实现：数据流上的类型和操作">
+                <i class="fa fa-chevron-left"></i> Flink 原理与实现：数据流上的类型和操作
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/06/06/flink-internals-session-window/" rel="prev" title="Flink 原理与实现：Session Window">
+                Flink 原理与实现：Session Window <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
 
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/default_avatar.jpg" alt="WuChong">
+          <p class="site-author-name" itemprop="name">WuChong</p>
+          <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，<br>你就应该静下心来学习。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">90</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+<!--
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">分类</span>
+            </a>
+          </div>
+          -->
+
+          
+          
+          
+            <div class="site-state-item site-state-categories">
+              
+              <a href="/categories">
+              
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">77</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-sa/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="https://flink.apache.org/" target="_blank">Apache Flink</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是-Window"><span class="nav-number">1.</span> <span class="nav-text">什么是 Window</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Time-Window"><span class="nav-number">1.1.</span> <span class="nav-text">Time Window</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Count-Window"><span class="nav-number">1.2.</span> <span class="nav-text">Count Window</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Session-Window"><span class="nav-number">1.3.</span> <span class="nav-text">Session Window</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#剖析-Window-API"><span class="nav-number">2.</span> <span class="nav-text">剖析 Window API</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Window-的实现"><span class="nav-number">3.</span> <span class="nav-text">Window 的实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#源码分析"><span class="nav-number">4.</span> <span class="nav-text">源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Count-Window-实现"><span class="nav-number">4.1.</span> <span class="nav-text">Count Window 实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Time-Window-实现"><span class="nav-number">4.2.</span> <span class="nav-text">Time Window 实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Session-Window-实现"><span class="nav-number">4.3.</span> <span class="nav-text">Session Window 实现</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WuChong</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.scheme !== 'Pisces' && (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always')) {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'wuchong';
+      var disqus_identifier = 'blog/2016/05/25/flink-internals-window-mechanism/';
+      var disqus_title = 'Flink 原理与实现：Window 机制';
+      var disqus_url = 'http://wuchong.me/blog/2016/05/25/flink-internals-window-mechanism/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
+  
+
+
+  
+  
+
+
+</body>
+</html>

@@ -1,27 +1,960 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!doctype html>
 
 
-{% block title %} {{ page.title }} | {{ config.title }} {% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next mist use-motion">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css">
+
+
+    <meta name="author" content="WuChong">
+
+
+
+  <meta name="keywords" content="flink,sql,flinksql,实践">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jark's Blog" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0">
+
+
+
+
+
+
+<meta name="description" content="注： 本教程实践基于 Ververica 开源的 sql-training 项目。基于 Flink 1.7.2 。  通过本课你能学到什么？本文将通过五个实例来贯穿 Flink SQL 的编程实践，主要会涵盖以下几个方面的内容。  如何使用 SQL CLI 客户端 如何在流上运行 SQL 查询 运行 window aggregate 与 non-window aggregate，理解其区别 如何">
+<meta name="keywords" content="flink,sql,flinksql,实践">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flink SQL 编程实践">
+<meta property="og:url" content="http://wuchong.me/blog/2019/08/20/flink-sql-training/index.html">
+<meta property="og:site_name" content="Jark&#39;s Blog">
+<meta property="og:description" content="注： 本教程实践基于 Ververica 开源的 sql-training 项目。基于 Flink 1.7.2 。  通过本课你能学到什么？本文将通过五个实例来贯穿 Flink SQL 的编程实践，主要会涵盖以下几个方面的内容。  如何使用 SQL CLI 客户端 如何在流上运行 SQL 查询 运行 window aggregate 与 non-window aggregate，理解其区别 如何">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://img.alicdn.com/tfs/TB1giprai_1gK0jSZFqXXcpaXXa-1224-1146.png">
+<meta property="og:image" content="https://img.alicdn.com/tfs/TB19WduabH1gK0jSZFwXXc7aXXa-1034-292.png">
+<meta property="og:image" content="https://img.alicdn.com/tfs/TB1.f0wahn1gK0jSZKPXXXvUXXa-3104-1978.png">
+<meta property="og:image" content="https://img.alicdn.com/tfs/TB1pSBsaXY7gK0jSZKzXXaikpXa-3104-1978.png">
+<meta property="og:image" content="https://img.alicdn.com/tfs/TB1aKxAabr1gK0jSZR0XXbP8XXa-3104-1250.png">
+<meta property="og:image" content="https://img.alicdn.com/tfs/TB1F0XCaoD1gK0jSZFGXXbd3FXa-3104-1214.png">
+<meta property="og:image" content="https://img.alicdn.com/tfs/TB1Ku0zahD1gK0jSZFsXXbldVXa-2566-1266.png">
+<meta property="og:image" content="https://img.alicdn.com/tfs/TB1.GRFakY2gK0jSZFgXXc5OFXa-1908-1502.png">
+<meta property="og:updated_time" content="2022-08-03T06:46:44.505Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Flink SQL 编程实践">
+<meta name="twitter:description" content="注： 本教程实践基于 Ververica 开源的 sql-training 项目。基于 Flink 1.7.2 。  通过本课你能学到什么？本文将通过五个实例来贯穿 Flink SQL 的编程实践，主要会涵盖以下几个方面的内容。  如何使用 SQL CLI 客户端 如何在流上运行 SQL 查询 运行 window aggregate 与 non-window aggregate，理解其区别 如何">
+<meta name="twitter:image" content="https://img.alicdn.com/tfs/TB1giprai_1gK0jSZFqXXcpaXXa-1224-1146.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 4141040,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> Flink SQL 编程实践 | Jark's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Jark's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-talks">
+          <a href="/talks" rel="section">
+            
+              <i class="menu-item-icon fa fa-microphone-stand fa-fw"></i> <br>
+            
+            演讲
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input">
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', '8Exkz7xsCTJyyCHiK9TY','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Flink SQL 编程实践
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2019-08-20T16:16:22+08:00" content="2019-08-20">
+              2019-08-20
+            </time>
+          </span>
+
+          
+            <span class="post-category">
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Flink/" itemprop="url" rel="index">
+                    <span itemprop="name">Flink</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2019/08/20/flink-sql-training/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="blog/2019/08/20/flink-sql-training/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+<!--
+    
+      <div class="post-body">
+    
+    -->
+
+
+    <div class="post-body" itemprop="articleBody">
+    
+
+      
+      
+
+      
+        <blockquote>
+<p>注： 本教程实践基于 Ververica 开源的 <a href="https://github.com/ververica/sql-training" target="_blank" rel="noopener">sql-training</a> 项目。基于 Flink 1.7.2 。</p>
+</blockquote>
+<h2 id="通过本课你能学到什么？"><a href="#通过本课你能学到什么？" class="headerlink" title="通过本课你能学到什么？"></a>通过本课你能学到什么？</h2><p>本文将通过五个实例来贯穿 Flink SQL 的编程实践，主要会涵盖以下几个方面的内容。</p>
+<ol>
+<li>如何使用 SQL CLI 客户端</li>
+<li>如何在流上运行 SQL 查询</li>
+<li>运行 window aggregate 与 non-window aggregate，理解其区别</li>
+<li>如何用 SQL 消费 Kafka 数据</li>
+<li>如何用 SQL 将结果写入 Kafka 和 ElasticSearch</li>
+</ol>
+<p>本文假定您已具备基础的 SQL 知识。</p>
+<a id="more"></a>
+<h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><p>本文教程是基于 Docker 进行的，因此你只需要安装了 <a href="https://www.docker.com/" target="_blank" rel="noopener">Docker</a> 即可。不需要依赖 Java、Scala 环境、或是IDE。</p>
+<p>注意：Docker 默认配置的资源可能不太够，会导致运行 Flink Job 时卡死。因此推荐配置 Docker 资源到 3-4 GB，3-4 CPUs。</p>
+<p><img src="https://img.alicdn.com/tfs/TB1giprai_1gK0jSZFqXXcpaXXa-1224-1146.png" alt></p>
+<p>本次教程的环境使用 Docker Compose 来安装，包含了所需的各种服务的容器，包括：</p>
+<ul>
+<li>Flink SQL Client：用来提交query，以及可视化结果</li>
+<li>Flink JobManager 和 TaskManager：用来运行 Flink SQL 任务。</li>
+<li>Apache Kafka：用来生成输入流和写入结果流。</li>
+<li>Apache Zookeeper：Kafka 的依赖项</li>
+<li>ElasticSearch：用来写入结果</li>
+</ul>
+<p>我们已经提供好了Docker Compose 配置文件，可以直接下载 <a href="https://raw.githubusercontent.com/ververica/sql-training/master/docker-compose.yml" target="_blank" rel="noopener">docker-compose.yml</a> 文件。</p>
+<p>然后打开命令行窗口，进入存放 <code>docker-compose.yml</code> 文件的目录，然后运行以下命令：</p>
+<ul>
+<li><strong>Linux &amp; MacOS</strong></li>
+</ul>
+<figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">docker-compose up -d</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>Windows</strong></li>
+</ul>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line"><span class="builtin-name">set</span> <span class="attribute">COMPOSE_CONVERT_WINDOWS_PATHS</span>=1</span><br><span class="line">docker-compose up -d</span><br></pre></td></tr></table></figure>
+<p><code>docker-compose</code> 命令会启动所有所需的容器。第一次运行的时候，Docker 会自动地从 Docker Hub 下载镜像，这可能会需要一段时间（将近 2.3GB）。之后运行的话，几秒钟就能启动起来了。运行成功的话，会在命令行中看到以下输出，并且也可以在 <a href="http://localhost:8081" target="_blank" rel="noopener">http://localhost:8081</a> 访问到 Flink Web UI。</p>
+<p><img src="https://img.alicdn.com/tfs/TB19WduabH1gK0jSZFwXXc7aXXa-1034-292.png" alt></p>
+<h2 id="运行-Flink-SQL-CLI-客户端"><a href="#运行-Flink-SQL-CLI-客户端" class="headerlink" title="运行 Flink SQL CLI 客户端"></a>运行 Flink SQL CLI 客户端</h2><p>运行下面命令进入 Flink SQL CLI 。</p>
+<figure class="highlight axapta"><table><tr><td class="code"><pre><span class="line">docker-compose exec sql-<span class="keyword">client</span> ./sql-<span class="keyword">client</span>.sh</span><br></pre></td></tr></table></figure>
+<p>该命令会在容器中启动 Flink SQL CLI 客户端。然后你会看到如下的欢迎界面。</p>
+<p><img src="https://img.alicdn.com/tfs/TB1.f0wahn1gK0jSZKPXXXvUXXa-3104-1978.png" alt></p>
+<h2 id="数据介绍"><a href="#数据介绍" class="headerlink" title="数据介绍"></a>数据介绍</h2><p>Docker Compose 中已经预先注册了一些表和数据，可以运行 <code>SHOW TABLES;</code> 来查看。本文会用到的数据是 <code>Rides</code> 表，这是一张出租车的行车记录数据流，包含了时间和位置信息，运行 <code>DESCRIBE Rides;</code> 可以查看表结构。</p>
+<figure class="highlight groovy"><table><tr><td class="code"><pre><span class="line">Flink SQL&gt; DESCRIBE Rides;</span><br><span class="line">root</span><br><span class="line"> |-- <span class="string">rideId:</span> Long           <span class="comment">// 行为ID (包含两条记录，一条入一条出）</span></span><br><span class="line"> |-- <span class="string">taxiId:</span> Long           <span class="comment">// 出租车ID </span></span><br><span class="line"> |-- <span class="string">isStart:</span> Boolean       <span class="comment">// 开始 or 结束</span></span><br><span class="line"> |-- <span class="string">lon:</span> Float             <span class="comment">// 经度</span></span><br><span class="line"> |-- <span class="string">lat:</span> Float             <span class="comment">// 纬度</span></span><br><span class="line"> |-- <span class="string">rideTime:</span> TimeIndicatorTypeInfo(rowtime)     <span class="comment">// 时间</span></span><br><span class="line"> |-- <span class="string">psgCnt:</span> Integer        <span class="comment">// 乘客数</span></span><br></pre></td></tr></table></figure>
+<p>Rides 表的详细定义见 <a href="https://github.com/ververica/sql-training/blob/master/build-image/training-config.yaml" target="_blank" rel="noopener">training-config.yaml</a>。</p>
+<h2 id="实例1：过滤"><a href="#实例1：过滤" class="headerlink" title="实例1：过滤"></a>实例1：过滤</h2><p>例如我们现在只想查看<strong>发生在纽约的行车记录</strong>。</p>
+<p>注：Docker 环境中已经预定义了一些内置函数，如 <code>isInNYC(lon, lat)</code> 可以确定一个经纬度是否在纽约，<code>toAreaId(lon, lat)</code> 可以将经纬度转换成区块。</p>
+<p>因此，此处我们可以使用 <code>isInNYC</code> 来快速过滤出纽约的行车记录。在 SQL CLI 中运行如下 Query：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> Rides <span class="keyword">WHERE</span> isInNYC(lon, lat);</span><br></pre></td></tr></table></figure>
+<p>SQL CLI 便会提交一个 SQL 任务到 Docker 集群中，从数据源（Rides 流存储在Kafka中）不断拉取数据，并通过 <code>isInNYC</code> 过滤出所需的数据。SQL CLI 也会进入可视化模式，并不断刷新展示过滤后的结果：</p>
+<p><img src="https://img.alicdn.com/tfs/TB1pSBsaXY7gK0jSZKzXXaikpXa-3104-1978.png" alt></p>
+<p>也可以到 <a href="http://localhost:8081" target="_blank" rel="noopener">http://localhost:8081</a> 查看 Flink 作业的运行情况。</p>
+<h2 id="实例2：Group-Aggregate"><a href="#实例2：Group-Aggregate" class="headerlink" title="实例2：Group Aggregate"></a>实例2：Group Aggregate</h2><p>我们的另一个需求是计算<strong>搭载每种乘客数量的行车事件数</strong>。也就是搭载1个乘客的行车数、搭载2个乘客的行车… 当然，我们仍然只关心纽约的行车事件。</p>
+<p>因此，我们可以按照乘客数<code>psgCnt</code>做分组，使用 <code>COUNT(*)</code> 计算出每个分组的事件数，注意在分组前需要先过滤出<code>isInNYC</code>的数据。在 SQL CLI 中运行如下 Query：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> psgCnt, <span class="keyword">COUNT</span>(*) <span class="keyword">AS</span> cnt </span><br><span class="line"><span class="keyword">FROM</span> Rides </span><br><span class="line"><span class="keyword">WHERE</span> isInNYC(lon, lat)</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> psgCnt;</span><br></pre></td></tr></table></figure>
+<p>SQL CLI 的可视化结果如下所示，结果每秒都在发生变化。不过最大的乘客数不会超过 6 人。</p>
+<p><img src="https://img.alicdn.com/tfs/TB1aKxAabr1gK0jSZR0XXbP8XXa-3104-1250.png" alt></p>
+<h2 id="实例3：Window-Aggregate"><a href="#实例3：Window-Aggregate" class="headerlink" title="实例3：Window Aggregate"></a>实例3：Window Aggregate</h2><p>为了持续地监测纽约的交通流量，需要计算出<strong>每个区块每5分钟的进入的车辆数</strong>。我们只关心至少有5辆车子进入的区块。</p>
+<p>此处需要涉及到窗口计算（每5分钟），所以需要用到 Tumbling Window 的语法。“每个区块” 所以还要按照 <code>toAreaId</code> 进行分组计算。“进入的车辆数” 所以在分组前需要根据 <code>isStart</code> 字段过滤出进入的行车记录，并使用 <code>COUNT(*)</code> 统计车辆数。最后还有一个 “至少有5辆车子的区块” 的条件，这是一个基于统计值的过滤条件，所以可以用 SQL HAVING 子句来完成。</p>
+<p>最后的 Query 如下所示：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">  toAreaId(lon, lat) <span class="keyword">AS</span> area, </span><br><span class="line">  TUMBLE_END(rideTime, <span class="built_in">INTERVAL</span> <span class="string">'5'</span> <span class="keyword">MINUTE</span>) <span class="keyword">AS</span> window_end, </span><br><span class="line">  <span class="keyword">COUNT</span>(*) <span class="keyword">AS</span> cnt </span><br><span class="line"><span class="keyword">FROM</span> Rides </span><br><span class="line"><span class="keyword">WHERE</span> isInNYC(lon, lat) <span class="keyword">and</span> isStart</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> </span><br><span class="line">  toAreaId(lon, lat), </span><br><span class="line">  TUMBLE(rideTime, <span class="built_in">INTERVAL</span> <span class="string">'5'</span> <span class="keyword">MINUTE</span>) </span><br><span class="line"><span class="keyword">HAVING</span> <span class="keyword">COUNT</span>(*) &gt;= <span class="number">5</span>;</span><br></pre></td></tr></table></figure>
+<p>在 SQL CLI 中运行后，其可视化结果如下所示，每个 area + window_end 的结果输出后就不会再发生变化，但是会每隔 5 分钟会输出一批新窗口的结果。因为 Docker 环境中的source我们做了10倍的加速读取（相对于原始速度），所以演示的时候，大概每隔30秒就会输出一批新窗口。</p>
+<p><img src="https://img.alicdn.com/tfs/TB1F0XCaoD1gK0jSZFGXXbd3FXa-3104-1214.png" alt></p>
+<h2 id="Window-Aggregate-与-Group-Aggregate-的区别"><a href="#Window-Aggregate-与-Group-Aggregate-的区别" class="headerlink" title="Window Aggregate 与 Group Aggregate 的区别"></a>Window Aggregate 与 Group Aggregate 的区别</h2><p>从实例2和实例3的结果显示上，可以体验出来 Window Aggregate 与 Group Aggregate 是有一些明显的区别的。其主要的区别是，Window Aggregate 是当window结束时才输出，其输出的结果是最终值，不会再进行修改，其输出流是一个 <strong>Append 流</strong>。而 Group Aggregate 是每处理一条数据，就输出最新的结果，其结果是在不断更新的，就好像数据库中的数据一样，其输出流是一个 <strong>Update 流</strong>。</p>
+<p>另外一个区别是，window 由于有 watermark ，可以精确知道哪些窗口已经过期了，所以可以及时清理过期状态，保证状态维持在稳定的大小。而 Group Aggregate 因为不知道哪些数据是过期的，所以状态会无限增长，这对于生产作业来说不是很稳定，所以建议对 Group Aggregate 的作业配上 State TTL 的配置。</p>
+<p><img src="https://img.alicdn.com/tfs/TB1Ku0zahD1gK0jSZFsXXbldVXa-2566-1266.png" alt></p>
+<p>例如统计每个店铺每天的实时PV，那么就可以将 TTL 配置成 24+ 小时，因为一天前的状态一般来说就用不到了。</p>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">SELECT  DATE_FORMAT(ts, <span class="string">'yyyy-MM-dd'</span>), shop_id, COUNT(*) as pv</span><br><span class="line"><span class="keyword">FROM</span> T</span><br><span class="line">GROUP BY DATE_FORMAT(ts, <span class="string">'yyyy-MM-dd'</span>), shop_id</span><br></pre></td></tr></table></figure>
+<p>当然，如果 TTL 配置地太小，可能会清除掉一些有用的状态和数据，从而导致数据精确性地问题。这也是用户需要权衡地一个参数。</p>
+<h2 id="实例4：将-Append-流写入-Kafka"><a href="#实例4：将-Append-流写入-Kafka" class="headerlink" title="实例4：将 Append 流写入 Kafka"></a>实例4：将 Append 流写入 Kafka</h2><p>上一小节介绍了 Window Aggregate 和 Group Aggregate 的区别，以及 Append 流和 Update 流的区别。在 Flink 中，目前 Update 流只能写入支持更新的外部存储，如 MySQL, HBase, ElasticSearch。Append 流可以写入任意地存储，不过一般写入日志类型的系统，如 Kafka。</p>
+<p>这里我们希望将<strong>“每10分钟的搭乘的乘客数”</strong>写入Kafka。</p>
+<p>我们已经预定义了一张 Kafka 的结果表 <code>Sink_TenMinPsgCnts</code>（<a href="https://github.com/ververica/sql-training/blob/master/build-image/training-config.yaml" target="_blank" rel="noopener">training-config.yaml</a> 中有完整的表定义）。</p>
+<p>在执行 Query 前，我们先运行如下命令，来监控写入到 <code>TenMinPsgCnts</code> topic 中的数据：</p>
+<figure class="highlight jboss-cli"><table><tr><td class="code"><pre><span class="line">docker-compose exec sql-client <span class="string">/opt/kafka-client/bin/kafka-console-consumer.sh</span> <span class="params">--bootstrap-server</span> kafka<span class="function">:9092</span> <span class="params">--topic</span> TenMinPsgCnts <span class="params">--from-beginning</span></span><br></pre></td></tr></table></figure>
+<p>每10分钟的搭乘的乘客数可以使用 Tumbling Window 来描述，我们使用 <code>INSERT INTO Sink_TenMinPsgCnts</code> 来直接将 Query 结果写入到结果表。</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> Sink_TenMinPsgCnts </span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">  TUMBLE_START(rideTime, <span class="built_in">INTERVAL</span> <span class="string">'10'</span> <span class="keyword">MINUTE</span>) <span class="keyword">AS</span> cntStart,  </span><br><span class="line">  TUMBLE_END(rideTime, <span class="built_in">INTERVAL</span> <span class="string">'10'</span> <span class="keyword">MINUTE</span>) <span class="keyword">AS</span> cntEnd,</span><br><span class="line">  <span class="keyword">CAST</span>(<span class="keyword">SUM</span>(psgCnt) <span class="keyword">AS</span> <span class="built_in">BIGINT</span>) <span class="keyword">AS</span> cnt </span><br><span class="line"><span class="keyword">FROM</span> Rides </span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> TUMBLE(rideTime, <span class="built_in">INTERVAL</span> <span class="string">'10'</span> <span class="keyword">MINUTE</span>);</span><br></pre></td></tr></table></figure>
+<p>我们可以监控到 <code>TenMinPsgCnts</code>  topic 的数据以 JSON 的形式写入到了 Kafka 中：</p>
+<p><img src="https://img.alicdn.com/tfs/TB1.GRFakY2gK0jSZFgXXc5OFXa-1908-1502.png" alt></p>
+<h2 id="实例5：将-Update-流写入-ElasticSearch"><a href="#实例5：将-Update-流写入-ElasticSearch" class="headerlink" title="实例5：将 Update 流写入 ElasticSearch"></a>实例5：将 Update 流写入 ElasticSearch</h2><p>最后我们实践一下将一个持续更新的 Update 流写入 ElasticSearch 中。我们希望将<strong>“每个区域出发的行车数”</strong>，写入到 ES 中。</p>
+<p>我们也已经预定义好了一张 <code>Sink_AreaCnts</code> 的 ElasticSearch 结果表（<a href="https://github.com/ververica/sql-training/blob/master/build-image/training-config.yaml" target="_blank" rel="noopener">training-config.yaml</a> 中有完整的表定义）。该表中只有两个字段 <code>areaId</code> 和 <code>cnt</code>。</p>
+<p>同样的，我们也使用 <code>INSERT INTO</code> 将 Query 结果直接写入到 <code>Sink_AreaCnts</code> 表中。</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> Sink_AreaCnts </span><br><span class="line"><span class="keyword">SELECT</span> toAreaId(lon, lat) <span class="keyword">AS</span> areaId, <span class="keyword">COUNT</span>(*) <span class="keyword">AS</span> cnt </span><br><span class="line"><span class="keyword">FROM</span> Rides </span><br><span class="line"><span class="keyword">WHERE</span> isStart</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> toAreaId(lon, lat);</span><br></pre></td></tr></table></figure>
+<p>在 SQL CLI 中执行上述 Query 后，Elasticsearch 会自动地创建 <code>area-cnts</code> 索引。Elasticsearch 提供了一个 REST API 。我们可以访问 </p>
+<ul>
+<li>查看<code>area-cnts</code>索引的详细信息： <a href="http://localhost:9200/area-cnts" target="_blank" rel="noopener">http://localhost:9200/area-cnts</a> </li>
+<li>查看<code>area-cnts</code>索引的统计信息： <a href="http://localhost:9200/area-cnts/_stats" target="_blank" rel="noopener">http://localhost:9200/area-cnts/_stats</a></li>
+<li>返回<code>area-cnts</code>索引的内容：<a href="http://localhost:9200/area-cnts/_search" target="_blank" rel="noopener">http://localhost:9200/area-cnts/_search</a></li>
+<li>显示 区块 49791 的行车数：<a href="http://localhost:9200/area-cnts/_search?q=areaId:49791" target="_blank" rel="noopener">http://localhost:9200/area-cnts/_search?q=areaId:49791</a></li>
+</ul>
+<p>随着 Query 的一直运行，你也可以观察到一些统计值（<code>_all.primaries.docs.count</code>, <code>_all.primaries.docs.deleted</code>）在不断的增长：<a href="http://localhost:9200/area-cnts/_stats" target="_blank" rel="noopener">http://localhost:9200/area-cnts/_stats</a></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文带大家使用 Docker Compose 快速上手 Flink SQL 的编程，并对比 Window Aggregate 和 Group Aggregate 的区别，以及这两种类型的作业如何写入到 外部系统中。感兴趣的同学，可以基于这个 Docker 环境更加深入地去实践，例如运行自己写的 UDF , UDTF, UDAF。查询内置地其他源表等等。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+        
+<hr>
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+  <img id="wechat_subscriber_qcode" src="https://user-images.githubusercontent.com/5378924/221934214-4ca3bc5d-6d38-4a4a-a6bc-a1dd53563879.png" alt="hoxis wechat" style="width: auto; height:200px; max-width: 100%;">
+</div>
+<div class="copyright-txt">
+  <a href="/copyright"><i class="fa fa-copyright"></i>著作权归作者所有</a>
+</div>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/flink/" rel="tag">#flink</a>
+          
+        </div>
+      
+
+      
+      <div class="post-spread">
+        
+          <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-56d648eefec3350b" async="async"></script>
+<!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_sharing_toolbox"></div>
+        
+      </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2019/02/12/how-to-become-apache-committer/" rel="next" title="如何从小白成长为 Apache Committer?">
+                <i class="fa fa-chevron-left"></i> 如何从小白成长为 Apache Committer?
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2019/09/02/flink-sql-1-9-read-from-kafka-write-into-mysql/" rel="prev" title="Flink 1.9 实战：使用 SQL 读取  Kafka 并写入 MySQL">
+                Flink 1.9 实战：使用 SQL 读取  Kafka 并写入 MySQL <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
 
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/default_avatar.jpg" alt="WuChong">
+          <p class="site-author-name" itemprop="name">WuChong</p>
+          <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，<br>你就应该静下心来学习。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">90</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+<!--
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">分类</span>
+            </a>
+          </div>
+          -->
+
+          
+          
+          
+            <div class="site-state-item site-state-categories">
+              
+              <a href="/categories">
+              
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">77</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-sa/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="https://flink.apache.org/" target="_blank">Apache Flink</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#通过本课你能学到什么？"><span class="nav-text">通过本课你能学到什么？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#环境准备"><span class="nav-text">环境准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#运行-Flink-SQL-CLI-客户端"><span class="nav-text">运行 Flink SQL CLI 客户端</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据介绍"><span class="nav-text">数据介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实例1：过滤"><span class="nav-text">实例1：过滤</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实例2：Group-Aggregate"><span class="nav-text">实例2：Group Aggregate</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实例3：Window-Aggregate"><span class="nav-text">实例3：Window Aggregate</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Window-Aggregate-与-Group-Aggregate-的区别"><span class="nav-text">Window Aggregate 与 Group Aggregate 的区别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实例4：将-Append-流写入-Kafka"><span class="nav-text">实例4：将 Append 流写入 Kafka</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实例5：将-Update-流写入-ElasticSearch"><span class="nav-text">实例5：将 Update 流写入 ElasticSearch</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-text">总结</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WuChong</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.scheme !== 'Pisces' && (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always')) {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'wuchong';
+      var disqus_identifier = 'blog/2019/08/20/flink-sql-training/';
+      var disqus_title = 'Flink SQL 编程实践';
+      var disqus_url = 'http://wuchong.me/blog/2019/08/20/flink-sql-training/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
+  
+
+
+  
+  
+
+
+</body>
+</html>

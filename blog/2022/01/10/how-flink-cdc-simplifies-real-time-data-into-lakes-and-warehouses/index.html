@@ -1,27 +1,994 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!doctype html>
 
 
-{% block title %} {{ page.title }} | {{ config.title }} {% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next mist use-motion">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css">
+
+
+    <meta name="author" content="WuChong">
+
+
+
+  <meta name="keywords" content="Flink,Flink CDC,入仓入湖">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jark's Blog" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0">
+
+
+
+
+
+
+<meta name="description" content="本文整理自我在 Flink Forward Asia 2021 的分享，该分享以 5 个章节详细介绍如何使用 Flink CDC 来简化实时数据的入湖入仓, 文章的主要内容如下：Flink CDC 介绍、Flink CDC 的核心特性、Flink CDC 的开源生态、Flink CDC 在阿里巴巴的实践与改进、Flink CDC 的未来规划。">
+<meta name="keywords" content="Flink,Flink CDC,入仓入湖">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flink CDC 如何简化实时数据入湖入仓">
+<meta property="og:url" content="http://wuchong.me/blog/2022/01/10/how-flink-cdc-simplifies-real-time-data-into-lakes-and-warehouses/index.html">
+<meta property="og:site_name" content="Jark&#39;s Blog">
+<meta property="og:description" content="本文整理自我在 Flink Forward Asia 2021 的分享，该分享以 5 个章节详细介绍如何使用 Flink CDC 来简化实时数据的入湖入仓, 文章的主要内容如下：Flink CDC 介绍、Flink CDC 的核心特性、Flink CDC 的开源生态、Flink CDC 在阿里巴巴的实践与改进、Flink CDC 的未来规划。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://user-images.githubusercontent.com/5378924/221934643-e6cee2ef-e4ba-4cb1-b85a-2f8a2e7940bc.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/5378924/221934717-2d4de44c-7eb3-47a0-ac7e-a95c2afba0d6.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/5378924/221934773-0366ae9a-180c-41ad-956b-add6254772f2.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/5378924/221934809-1c4fdbe9-14e8-495e-9629-0f6d30d9208a.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/5378924/221934838-24bc9edf-2c68-4dfe-8b40-002d101b28cf.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/5378924/221934889-6df96fc4-db4e-4ef9-b5f3-0587937929ac.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/5378924/221934930-ab4365be-f221-49d6-84c5-42a543658e1f.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/5378924/221934963-fc0ee42f-8a06-425e-99f5-39b517dcb117.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/5378924/221935011-e02add2d-d3b9-4493-8bed-b40a597b16ab.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/5378924/221935048-73e9bda1-03d3-4300-9137-5b74e0ce06c2.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/5378924/221935142-0b288405-9b50-416b-8b83-3644d23b1ebf.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/5378924/221935195-71903539-60ea-4aba-bd2f-c67f7d5f72f5.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/5378924/221935245-3e7cd218-6b7d-4dc9-a675-3af6f70dc93d.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/5378924/221935292-6f35e6d7-f16f-4f2d-a002-5384c5b09009.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/5378924/221935344-0c55c457-efa2-43a9-89b9-8dfa03811f4d.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/5378924/221935361-936fc8f9-5668-4829-9041-d6986d05bec8.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/5378924/221935387-1b7f0ce4-cfb7-4c33-bee4-26534c2b8d6e.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/5378924/221935471-c4c1578f-738a-4e81-83c8-ceab33bfee82.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/5378924/221935553-7ba2fc2e-3ef5-4226-8dc1-8b315d353c90.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/5378924/221935585-7bb95c9a-5a06-4017-9fce-4b9ac6131c74.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/5378924/221935687-4685de73-c3ba-4263-a061-7425fe017144.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/5378924/221935727-9959b785-ea60-40e8-9db7-2e5bc78993b3.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/5378924/221935772-38974f81-1425-4489-a183-059098b6119f.png">
+<meta property="og:updated_time" content="2023-02-28T17:55:59.768Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Flink CDC 如何简化实时数据入湖入仓">
+<meta name="twitter:description" content="本文整理自我在 Flink Forward Asia 2021 的分享，该分享以 5 个章节详细介绍如何使用 Flink CDC 来简化实时数据的入湖入仓, 文章的主要内容如下：Flink CDC 介绍、Flink CDC 的核心特性、Flink CDC 的开源生态、Flink CDC 在阿里巴巴的实践与改进、Flink CDC 的未来规划。">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/5378924/221934643-e6cee2ef-e4ba-4cb1-b85a-2f8a2e7940bc.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 4141040,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> Flink CDC 如何简化实时数据入湖入仓 | Jark's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Jark's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-talks">
+          <a href="/talks" rel="section">
+            
+              <i class="menu-item-icon fa fa-microphone-stand fa-fw"></i> <br>
+            
+            演讲
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input">
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', '8Exkz7xsCTJyyCHiK9TY','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Flink CDC 如何简化实时数据入湖入仓
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2022-01-10T01:35:43+08:00" content="2022-01-10">
+              2022-01-10
+            </time>
+          </span>
+
+          
+            <span class="post-category">
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Flink/" itemprop="url" rel="index">
+                    <span itemprop="name">Flink</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2022/01/10/how-flink-cdc-simplifies-real-time-data-into-lakes-and-warehouses/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="blog/2022/01/10/how-flink-cdc-simplifies-real-time-data-into-lakes-and-warehouses/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+<!--
+    
+      <div class="post-body">
+    
+    -->
+
+
+    <div class="post-body" itemprop="articleBody">
+    
+
+      
+      
+
+      
+        <h2 id="一、Flink-CDC-介绍"><a href="#一、Flink-CDC-介绍" class="headerlink" title="一、Flink CDC 介绍"></a>一、Flink CDC 介绍</h2><p>从广义的概念上讲，能够捕获数据变更的技术, 我们都可以称为 CDC 技术。通常我们说的 CDC 技术是一种用于捕获数据库中数据变更的技术。CDC 技术应用场景也非常广泛，包括：</p>
+<ul>
+<li><strong>数据分发</strong>，将一个数据源分发给多个下游，常用于业务解耦、微服务。</li>
+<li><strong>数据集成</strong>，将分散异构的数据源集成到数据仓库中，消除数据孤岛，便于后续的分析。</li>
+<li><strong>数据迁移</strong>，常用于数据库备份、容灾等。</li>
+</ul>
+<p><img src="https://user-images.githubusercontent.com/5378924/221934643-e6cee2ef-e4ba-4cb1-b85a-2f8a2e7940bc.png" alt></p>
+<p>Flink CDC 基于数据库日志的 Change Data Caputre 技术，实现了全量和增量的一体化读取能力，并借助 Flink 优秀的管道能力和丰富的上下游生态，支持捕获多种数据库的变更，并将这些变更实时同步到下游存储。</p>
+<p>目前，Flink CDC 的上游已经支持了 MySQL、MariaDB、PG、Oracle、MongoDB 等丰富的数据源，对 Oceanbase、TiDB、SQLServer 等数据库的支持也已经在社区的规划中。 </p>
+<p>Flink CDC 的下游则更加丰富，支持写入 Kafka、Pulsar 消息队列，也支持写入 Hudi、Iceberg 等数据湖，还支持写入各种数据仓库。</p>
+<p>同时，通过 Flink SQL 原生支持的 Changelog 机制，可以让 CDC 数据的加工变得非常简单。用户可以通过 SQL 便能实现数据库全量和增量数据的清洗、打宽、聚合等操作，极大地降低了用户门槛。 此外， Flink DataStream API 支持用户编写代码实现自定义逻辑，给用户提供了深度定制业务的自由度。</p>
+<p><img src="https://user-images.githubusercontent.com/5378924/221934717-2d4de44c-7eb3-47a0-ac7e-a95c2afba0d6.png" alt></p>
+<p>Flink CDC 技术的核心是支持将表中的全量数据和增量数据做实时一致性的同步与加工，让用户可以方便地获每张表的实时一致性快照。比如一张表中有历史的全量业务数据，也有增量的业务数据在源源不断写入，更新。Flink CDC 会实时抓取增量的更新记录，实时提供与数据库中一致性的快照，如果是更新记录，会更新已有数据。如果是插入记录，则会追加到已有数据，整个过程中，Flink CDC 提供了一致性保障，即不重不丢。</p>
+<p>那么 Flink CDC 技术能给现有的数据入仓入湖架构带来什么样的改变呢？我们可以先来看看传统数据入仓的架构。</p>
+<p><img src="https://user-images.githubusercontent.com/5378924/221934773-0366ae9a-180c-41ad-956b-add6254772f2.png" alt></p>
+<p>在早期的数据入仓架构中，一般会每天 SELECT 全量数据导入数仓后再做离线分析。这种架构有几个明显的缺点：</p>
+<ul>
+<li>每天查询全量的业务表会影响业务自身稳定性。</li>
+<li>离线天级别调度的方式，天级别的产出时效性差。</li>
+<li>基于查询方式，随着数据量的不断增长，对数据库的压力也会不断增加，架构性能瓶颈明显。</li>
+</ul>
+<p><img src="https://user-images.githubusercontent.com/5378924/221934809-1c4fdbe9-14e8-495e-9629-0f6d30d9208a.png" alt></p>
+<p>到了数据仓库的 2.0 时代，数据入仓进化到了 Lambda 架构，增加了实时同步导入增量的链路。整体来说，Lambda 架构的扩展性更好，也不再影响业务的稳定性，但仍然存在一些问题：</p>
+<ul>
+<li>依赖离线的定时合并，只能做到小时级产出，延时还是较大；</li>
+<li>全量和增量是割裂的两条链路； </li>
+<li>整个架构链路长，需要维护的组件比较多，该架构的全量链路需要维护 DataX 或 Sqoop 组件，增量链路要维护 Canal 和 Kafka - 组件，同时还要维护全量和增量的定时合并链路。</li>
+</ul>
+<p><img src="https://user-images.githubusercontent.com/5378924/221934838-24bc9edf-2c68-4dfe-8b40-002d101b28cf.png" alt></p>
+<p>对于传统数据入仓架构存在的问题，Flink CDC 的出现为数据入湖架构提供了一些新思路。借助 Flink CDC 技术的全增量一体化实时同步能力，结合数据湖提供的更新能力，整个架构变得非常简洁。我们可以直接使用 Flink CDC 读取 MySQL 的全量和增量数据，并直接写入和更新到 Hudi 中。</p>
+<p>这种简洁的架构有着明显的优势。首先，不会影响业务稳定性。其次，提供分钟级产出，满足近实时业务的需求。同时，全量和增量的链路完成了统一，实现了一体化同步。最后，该架构的链路更短，需要维护的组件更少。</p>
+<h2 id="二、Flink-CDC-的核心特性"><a href="#二、Flink-CDC-的核心特性" class="headerlink" title="二、Flink CDC 的核心特性"></a>二、Flink CDC 的核心特性</h2><p><img src="https://user-images.githubusercontent.com/5378924/221934889-6df96fc4-db4e-4ef9-b5f3-0587937929ac.png" alt></p>
+<p>Flink CDC 的核心特性可以分成四个部分：</p>
+<ul>
+<li>一是通过增量快照读取算法，实现了无锁读取，并发读取，断点续传等功能。</li>
+<li>二是设计上对入湖友好，提升了 CDC 数据入湖的稳定性。</li>
+<li>三是支持异构数据源的融合，能方便地做 Streaming ETL的加工。</li>
+<li>四是支持分库分表合并入湖。接下来我们会分别介绍下这几个特性。</li>
+</ul>
+<p><img src="https://user-images.githubusercontent.com/5378924/221934930-ab4365be-f221-49d6-84c5-42a543658e1f.png" alt></p>
+<p>在 Flink CDC 1.x 版本时，MySQL CDC 存在三大痛点，影响了生产可用性。</p>
+<ul>
+<li>一是 MySQL CDC 需要通过全局锁去保证全量和增量数据的一致性，而 MySQL 的全局锁会影响线上业务。</li>
+<li>二是只支持单并发读取，大表读取非常耗时。</li>
+<li>三是在全量同步阶段，作业失败后只能重新同步，稳定性较差。针对这些问题，Flink CDC 社区提出了 “增量快照读取算法”，同时实现了无锁读取、并行读取、断点续传等能力，一并解决了上述痛点。</li>
+</ul>
+<p><img src="https://user-images.githubusercontent.com/5378924/221934963-fc0ee42f-8a06-425e-99f5-39b517dcb117.png" alt></p>
+<p>简单来说，增量快照读取算法的核心思路就是在全量读取阶段把表分成一个个 chunk 进行并发读取，在进入增量阶段后只需要一个 task 进行单并发读取 binlog 日志，在全量和增量自动切换时，通过无锁算法保障一致性。这种设计在提高读取效率的同时，进一步节约了资源。实现了全增量一体化的数据同步。这也是流批一体道路上一个非常重要的落地。 </p>
+<p><img src="https://user-images.githubusercontent.com/5378924/221935011-e02add2d-d3b9-4493-8bed-b40a597b16ab.png" alt></p>
+<p>Flink CDC 是一个流式入湖友好的框架。在早期版本的 Flink CDC 设计中，没有考虑数据湖场景，全量阶段不支持 Checkpoint，全量数据会在一个 Checkpoint 中处理，这对依靠 Checkpoint 提交数据的数据湖很不友好。Flink CDC 2.0 设计之初考虑了数据湖场景，是一种流式入湖友好的设计。设计上将全量数据进行分片，Flink CDC 可以将 checkpoint 粒度从表粒度优化到 chunk 粒度，大大减少了数据湖写入时的 Buffer 使用，对数据湖写入更加友好。</p>
+<p><img src="https://user-images.githubusercontent.com/5378924/221935048-73e9bda1-03d3-4300-9137-5b74e0ce06c2.png" alt></p>
+<p>Flink CDC 区别于其他数据集成框架的一个核心点，就是在于 Flink 提供的流批一体计算能力。这使得 Flink CDC 成为了一个完整的 ETL 工具，不仅仅拥有出色的 E 和 L 的能力，还拥有强大的 Transformation 能力。因此我们可以轻松实现基于异构数据源的数据湖构建。</p>
+<p>在上图左侧的 SQL 中，我们可以将 MySQL 中的实时产品表、实时订单表和 PostgreSQL 中的实时物流信息表进行实时关联，即 Streaming Join，关联后的结果实时更新到 Hudi 中，非常轻松地完成异构数据源的数据湖构建。</p>
+<p><img src="https://user-images.githubusercontent.com/5378924/221935142-0b288405-9b50-416b-8b83-3644d23b1ebf.png" alt></p>
+<p>在 OLTP 系统中，为了解决单表数据量大的问题，通常采用分库分表的方式将单个大表进行拆分以提高系统的吞吐量。但是为了方便数据分析，通常需要将分库分表拆分出的表在同步到数据仓库、数据湖时，再合并成一个大表。Flink CDC 可以轻松完成这个任务。</p>
+<p>在上图左侧的 SQL 中，我们声明了一张 user_source 表去捕获所有 user 分库分表的数据，我们通过表的配置项 database-name、table-name 使用正则表达式来匹配这些表。并且，user_source 表也定义了两个 metadata 列来区分数据是来自哪个库和表。在 Hudi 表的声明中，我们将库名、表名和原表的主键声明成 Hudi 中的联合主键。在声明完两张表后，一条简单的 INSERT INTO 语句就可以将所有分库分表的数据合并写入 Hudi 的一张表中，完成基于分库分表的数据湖构建，方便后续在湖上的统一分析。</p>
+<h2 id="三、Flink-CDC-的开源生态"><a href="#三、Flink-CDC-的开源生态" class="headerlink" title="三、Flink CDC 的开源生态"></a>三、Flink CDC 的开源生态</h2><p><img src="https://user-images.githubusercontent.com/5378924/221935195-71903539-60ea-4aba-bd2f-c67f7d5f72f5.png" alt></p>
+<p>Flink CDC 是一个独立的开源项目，项目代码托管在 <a href="https://github.com/ververica/flink-cdc-connectors" target="_blank" rel="noopener">GitHub</a> 上。采取小步快跑的发布节奏，今年社区已经发布了 5 个版本。1.x 系列的三个版本推出了一些小功能；2.0 版本 MySQL CDC 支持了无锁读取、并发读取、断点续传等高级功能，commits 达到了 91 个，贡献者达到了 15 人；2.1 版本则支持了 Oracle、MongoDB 数据库，commits 达到了115个，贡献者达到了28人。社区的 commits 和 贡献者增长非常明显。</p>
+<p>文档和帮助手册也是开源社区非常重要的一部分，为了更好地帮助用户，Flink CDC 社区推出了版本化的文档网站，如 <a href="https://ververica.github.io/flink-cdc-connectors/release-2.1/" target="_blank" rel="noopener">2.1 版本的文档</a> 。文档中还提供了很多快速入门的教程，用户只要有个 Docker 环境就能上手 Flink CDC。此外，还提供了 <a href="https://github.com/ververica/flink-cdc-connectors/wiki/FAQ(ZH" target="_blank" rel="noopener">FAQ 指导手册</a>)，快速解决用户遇到的常见问题。</p>
+<p><img src="https://user-images.githubusercontent.com/5378924/221935245-3e7cd218-6b7d-4dc9-a675-3af6f70dc93d.png" alt></p>
+<p>在过去的 2021 年，Flink CDC 社区取得了迅速的发展，GitHub 的 PR 和 issue 相当活跃，GitHub Star 更是年度同比增长 330%。</p>
+<h2 id="四、Flink-CDC-在阿里巴巴的实践和改进"><a href="#四、Flink-CDC-在阿里巴巴的实践和改进" class="headerlink" title="四、Flink CDC 在阿里巴巴的实践和改进"></a>四、Flink CDC 在阿里巴巴的实践和改进</h2><p>Flink CDC 入湖入仓在阿里巴巴也有大规模的实践和落地，过程中也遇到了一些痛点和挑战。我们会介绍下我们是如何改进和解决的。</p>
+<p><img src="https://user-images.githubusercontent.com/5378924/221935292-6f35e6d7-f16f-4f2d-a002-5384c5b09009.png" alt></p>
+<p>我们先来看下 CDC 入湖遇到的一些痛点和挑战。这是某个用户原有的 CDC 数据入湖架构，分为两个链路：</p>
+<ul>
+<li>有一个全量同步作业做一次性的全量数据拉取；</li>
+<li>还有一个增量作业通过 Canal 和处理引擎将 Binlog 数据准实时地同步到 Hudi 表中。</li>
+</ul>
+<p>这个架构虽然利用了 Hudi 的更新能力，无需周期性地调度全量合并任务，能做到分钟级延迟。但是全量和增量仍是割裂的两个作业，全量和增量的切换仍需要人工的介入，并且需要指定一个准确的增量启动位点，否则的话就会有丢失数据的风险。可以看到这种架构是流批割裂的，并不是一个统一的整体。刚刚雪尽也介绍了 Flink CDC 最大的一个优势之一就是全增量的自动切换，所以我们用 Flink CDC 替换了用户原有的入湖架构。</p>
+<p><img src="https://user-images.githubusercontent.com/5378924/221935344-0c55c457-efa2-43a9-89b9-8dfa03811f4d.png" alt></p>
+<p>但是用户用了 Flink CDC 后，<strong>遇到的第一个痛点</strong>就是需要将 MySQL 的 DDL 手工映射成 Flink 的 DDL。手工映射表结构是比较繁琐的，尤其是当表和字段数非常多的时候。而且手工映射也容易出错，比如 说 MySQL 的 BIGINT UNSINGED，它不能映射成 Flink 的 BIGINT，而是要映射成 DECIMAL(20)。 如果系统能自动帮助用户自动去映射表结构就会简单安全很多。</p>
+<p><img src="https://user-images.githubusercontent.com/5378924/221935361-936fc8f9-5668-4829-9041-d6986d05bec8.png" alt></p>
+<p>用户遇到的<strong>另一个痛点</strong>是表结构的变更导致入湖链路难以维护。例如用户有一张表，原先有 id 和 name 两列，突然增加了一列 Address。新增的这一列数据可能就无法同步到数据湖中，甚至导致入湖链路的挂掉，影响稳定性。除了加列的变更，还可能会有删列、类型变更等等。国外的 Fivetran 做过一个<a href="https://fivetran.com/blog/analyst-survey" target="_blank" rel="noopener">调研报告</a> ，发现 60% 的公司，schema 每个月都会变化，30% 每周都会变化。这说明基本每个公司都会面临 schema 变更带来的数据集成上的挑战。</p>
+<p><img src="https://user-images.githubusercontent.com/5378924/221935387-1b7f0ce4-cfb7-4c33-bee4-26534c2b8d6e.png" alt></p>
+<p><strong>最后一个是整库入湖的挑战</strong>。因为用户主要使用 SQL，这就需要为每个表的数据同步链路定义一个 INSERT INTO 语句。有些用户的 MySQL 实例中甚至有上千张的业务表，用户就要写上千个 INSERT INTO 语句。更令人望而生却的是，每一个 INSERT INTO 任务都会创建至少一个数据库连接，读取一次 Binlog 数据。千表入湖的话就需要上千个连接，上千次的 Binlog 重复读取。这就会对 MySQL 和网络造成很大的压力。</p>
+<p><img src="https://user-images.githubusercontent.com/5378924/221935471-c4c1578f-738a-4e81-83c8-ceab33bfee82.png" alt></p>
+<p>刚刚我们介绍了 CDC 数据入湖的很多痛点和挑战，我们可以站在用户的角度想一想，数据库入湖这个场景用户到底想要的是什么呢？我们可以先把中间的数据集成系统看成一个黑盒，用户会期望这个黑盒提供什么样的能力来简化入湖的工作呢？</p>
+<p><img src="https://user-images.githubusercontent.com/5378924/221935553-7ba2fc2e-3ef5-4226-8dc1-8b315d353c90.png" alt></p>
+<ul>
+<li>首先，用户肯定想把数据库中全量和增量的数据都同步过去，这就需要这个系统具有全增量一体化、全增量自动切换的能力，而不是割裂的全量链路 + 增量链路。</li>
+<li>其次，用户肯定不想为每个表去手动映射 schema，这就需要系统具有元信息自动发现的能力，省去用户在 Flink 中创建 DDL 的过程，甚至帮用户自动在 Hudi 中创建目标表。</li>
+<li>另外，用户还希望源端表结构的变更也能自动同步过去，不管是加列减列和改列，还是加表减表和改表，都能够实时的自动的同步到目标端，从而不丢失任何在源端发生的新增数据，自动化地构建与源端数据库保持数据一致的 ODS 层。</li>
+<li>最后，还需要有具备生产可用的整库同步能力，不能对源端造成太大压力，影响在线业务。</li>
+</ul>
+<p>这四个核心功能基本组成了用户理想中所期待的数据集成系统，而这一切如果只需要一行 SQL，一个Job就能完成的话，那就更完美了。我们把中间的这个系统称为 “全自动化数据集成”，因为它全自动地完成了数据库的入湖，解决了目前遇到的几个核心痛点。而且目前看来，Flink 是实现这一目标非常适合的引擎。</p>
+<p><img src="https://user-images.githubusercontent.com/5378924/221935585-7bb95c9a-5a06-4017-9fce-4b9ac6131c74.png" alt></p>
+<p>所以我们花了很多精力，基于 Flink 去打造这个 “全自动化数据集成”。主要就是围绕刚刚说的这四点。</p>
+<ul>
+<li>首先 Flink CDC 已经具备了全增量自动切换的能力，这也是 Flink CDC 的亮点之一。</li>
+<li>在元信息的自动发现上，可以通过 Flink 的 Catalog 接口无缝对接上，我们开发了 MySQL Catalog 来自动发现 MySQL 中的表和 schema，还开发了 Hudi Catalog 自动地去 Hudi 中创建目标表的元信息。</li>
+<li>在表结构变更的自动同步方面，我们引入了一个 Schema Evolution 的内核，使得 Flink Job 无需依赖外部服务就能实时同步 schema 变更。</li>
+<li>在整库同步方面，我们引入了 CDAS 语法，一行 SQL 语句就能完成整库同步作业的定义，并且引入了 source 合并的优化，减轻对源端数据库的压力。</li>
+</ul>
+<p><img src="https://user-images.githubusercontent.com/5378924/221935687-4685de73-c3ba-4263-a061-7425fe017144.png" alt></p>
+<p>为了支持整库同步，我们还引入了 CDAS 和 CTAS 的数据同步语法。它的语法非常简单，CDAS 语法就是 create database as database，主要用于整库同步，像这里展示的这行语句就完成了从 MySQL 的 tpc_ds 库，整库同步至 Hudi 的 ods 库中。与之类似的，我们还有一个 CTAS 语法，可以方便的用来支持表级别的同步，还可以通过正则表达式指定库名和表名，来完成分库分表合并同步。像这里就完成了 MySQL 的 user 分库分表合并到了 Hudi 的 users 表中。CDAS CTAS 的语法，会自动地去目标端创建目标表，然后启动一个 Flink Job 自动同步全量 + 增量的数据，并且也会实时同步表结构变更。</p>
+<p><img src="https://user-images.githubusercontent.com/5378924/221935727-9959b785-ea60-40e8-9db7-2e5bc78993b3.png" alt></p>
+<p>之前提到千表入湖时，建立的数据库连接过多，Binlog 重复读取会造成源库的巨大压力。为了解决这个问题，我们引入了 source 合并的优化，我们会尝试合并同一作业中的 source，如果都是读的同一数据源，则会被合并成一个 source 节点，这时数据库只需要建立一个连接，binlog 也只需读取一次，实现了整库的读取，降低了对数据库的压力。</p>
+<p>为了更直观地了解我们是如何简化数据入湖入仓的工作，我们还额外提供了一个 Demo 视频，感兴趣的朋友可以在 Flink Forward Asia 2021 大会上，观看《Flink CDC 如何简化实时数据入湖入仓》的分享。</p>
+<h2 id="五、Flink-CDC-的未来规划"><a href="#五、Flink-CDC-的未来规划" class="headerlink" title="五、Flink CDC 的未来规划"></a>五、Flink CDC 的未来规划</h2><p><img src="https://user-images.githubusercontent.com/5378924/221935772-38974f81-1425-4489-a183-059098b6119f.png" alt></p>
+<p>最后关于 Flink CDC 的未来主要有三个方面的规划。</p>
+<ul>
+<li>第一，我们会继续完善 CDAS 和 CTAS 的语法和接口，打磨 Schema Evolution 的内核，为开源做准备。</li>
+<li>第二，我们会扩展更多的 CDC 数据源，包括 TiDB、OceanBase、SQLServer 这些都已经规划中了。</li>
+<li>第三，我们会将目前的增量快照读取算法抽象成通用框架，使得有更多的数据库能通过简单几个接口就对接到这个框架上，具备全增量一体化的能力。</li>
+</ul>
+<p>也希望有更多的志同道合之士能加入到 Flink CDC 开源社区的建设和贡献中，一起打造新一代的数据集成框架！</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+        
+<hr>
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+  <img id="wechat_subscriber_qcode" src="https://user-images.githubusercontent.com/5378924/221934214-4ca3bc5d-6d38-4a4a-a6bc-a1dd53563879.png" alt="hoxis wechat" style="width: auto; height:200px; max-width: 100%;">
+</div>
+<div class="copyright-txt">
+  <a href="/copyright"><i class="fa fa-copyright"></i>著作权归作者所有</a>
+</div>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Flink/" rel="tag">#Flink</a>
+          
+            <a href="/tags/Flink-CDC/" rel="tag">#Flink CDC</a>
+          
+        </div>
+      
+
+      
+      <div class="post-spread">
+        
+          <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-56d648eefec3350b" async="async"></script>
+<!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_sharing_toolbox"></div>
+        
+      </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2021/02/25/build-stream-batch-unified-ETL-based-on-flink-sql/" rel="next" title="基于 Flink SQL 构建流批一体的 ETL 数据集成">
+                <i class="fa fa-chevron-left"></i> 基于 Flink SQL 构建流批一体的 ETL 数据集成
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2022/12/14/migrate-from-hive-sql-to-flink-sql/" rel="prev" title="Flink 1.16：Hive SQL 如何平迁到 Flink SQL">
+                Flink 1.16：Hive SQL 如何平迁到 Flink SQL <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
 
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/default_avatar.jpg" alt="WuChong">
+          <p class="site-author-name" itemprop="name">WuChong</p>
+          <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，<br>你就应该静下心来学习。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">90</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+<!--
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">分类</span>
+            </a>
+          </div>
+          -->
+
+          
+          
+          
+            <div class="site-state-item site-state-categories">
+              
+              <a href="/categories">
+              
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">77</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-sa/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="https://flink.apache.org/" target="_blank">Apache Flink</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、Flink-CDC-介绍"><span class="nav-text">一、Flink CDC 介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、Flink-CDC-的核心特性"><span class="nav-text">二、Flink CDC 的核心特性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、Flink-CDC-的开源生态"><span class="nav-text">三、Flink CDC 的开源生态</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、Flink-CDC-在阿里巴巴的实践和改进"><span class="nav-text">四、Flink CDC 在阿里巴巴的实践和改进</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、Flink-CDC-的未来规划"><span class="nav-text">五、Flink CDC 的未来规划</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WuChong</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.scheme !== 'Pisces' && (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always')) {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'wuchong';
+      var disqus_identifier = 'blog/2022/01/10/how-flink-cdc-simplifies-real-time-data-into-lakes-and-warehouses/';
+      var disqus_title = 'Flink CDC 如何简化实时数据入湖入仓';
+      var disqus_url = 'http://wuchong.me/blog/2022/01/10/how-flink-cdc-simplifies-real-time-data-into-lakes-and-warehouses/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
+  
+
+
+  
+  
+
+
+</body>
+</html>

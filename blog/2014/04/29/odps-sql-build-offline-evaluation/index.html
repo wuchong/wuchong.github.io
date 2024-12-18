@@ -1,27 +1,922 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!doctype html>
 
 
-{% block title %} {{ page.title }} | {{ config.title }} {% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next mist use-motion">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css">
+
+
+    <meta name="author" content="WuChong">
+
+
+
+  <meta name="keywords" content="阿里推荐大赛,ODPS,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jark's Blog" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0">
+
+
+
+
+
+
+<meta name="description" content="上一篇文章介绍了 ODPS SQL 的大概使用方法，几个 tips，和讲到一半的离线评估。现在上来把上次的坑填完。">
+<meta name="keywords" content="阿里推荐大赛,ODPS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="阿里推荐大赛：ODPS SQL 构建离线评估">
+<meta property="og:url" content="http://wuchong.me/blog/2014/04/29/odps-sql-build-offline-evaluation/index.html">
+<meta property="og:site_name" content="Jark&#39;s Blog">
+<meta property="og:description" content="上一篇文章介绍了 ODPS SQL 的大概使用方法，几个 tips，和讲到一半的离线评估。现在上来把上次的坑填完。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://ww4.sinaimg.cn/large/81b78497jw1efwukhfcz8g207n016a9t.gif">
+<meta property="og:updated_time" content="2022-08-03T06:46:44.510Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="阿里推荐大赛：ODPS SQL 构建离线评估">
+<meta name="twitter:description" content="上一篇文章介绍了 ODPS SQL 的大概使用方法，几个 tips，和讲到一半的离线评估。现在上来把上次的坑填完。">
+<meta name="twitter:image" content="http://ww4.sinaimg.cn/large/81b78497jw1efwukhfcz8g207n016a9t.gif">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 4141040,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> 阿里推荐大赛：ODPS SQL 构建离线评估 | Jark's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Jark's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-talks">
+          <a href="/talks" rel="section">
+            
+              <i class="menu-item-icon fa fa-microphone-stand fa-fw"></i> <br>
+            
+            演讲
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input">
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', '8Exkz7xsCTJyyCHiK9TY','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                阿里推荐大赛：ODPS SQL 构建离线评估
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2014-04-29T21:11:33+08:00" content="2014-04-29">
+              2014-04-29
+            </time>
+          </span>
+
+          
+            <span class="post-category">
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/程序设计/" itemprop="url" rel="index">
+                    <span itemprop="name">程序设计</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2014/04/29/odps-sql-build-offline-evaluation/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="blog/2014/04/29/odps-sql-build-offline-evaluation/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+<!--
+    
+      <div class="post-body">
+    
+    -->
+
+
+    <div class="post-body" itemprop="articleBody">
+    
+
+      
+      
+
+      
+        <p><a href="http://wuchong.me/blog/2014/04/26/odps-sql-introduction/">上一篇文章</a>介绍了 ODPS SQL 的大概使用方法，几个 tips，和讲到一半的离线评估。现在上来把上次的坑填完。希望对于还没有开始离线调优的团队有点帮助。</p>
+<h2 id="划分训练集、验证集"><a href="#划分训练集、验证集" class="headerlink" title="划分训练集、验证集"></a>划分训练集、验证集</h2><p>回顾训练集、验证集的划分。</p>
+<p>根据时间，可以将前三月划分为训练集：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> train_set <span class="keyword">as</span></span><br><span class="line"><span class="keyword">select</span> * </span><br><span class="line"><span class="keyword">from</span> t_alibaba_bigdata_user_brand_total_1</span><br><span class="line"><span class="keyword">where</span> visit_datetime &lt;= <span class="string">'07-15'</span>;</span><br></pre></td></tr></table></figure>
+<p>同理，验证集如下，注意去重：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> validate_set <span class="keyword">as</span></span><br><span class="line"><span class="keyword">select</span></span><br><span class="line">    user_id,</span><br><span class="line">    wm_concat(<span class="string">','</span>,brand_id) <span class="keyword">as</span> brand</span><br><span class="line"><span class="keyword">from</span>(</span><br><span class="line">    <span class="keyword">select</span> <span class="keyword">distinct</span> user_id,brand_id</span><br><span class="line">    <span class="keyword">from</span> t_alibaba_bigdata_user_brand_total_1</span><br><span class="line">    <span class="keyword">where</span> <span class="keyword">type</span> = <span class="string">'1'</span> <span class="keyword">and</span> visit_datetime &gt; <span class="string">'07-15'</span></span><br><span class="line">)a</span><br><span class="line"><span class="keyword">group</span> <span class="keyword">by</span> user_id;</span><br></pre></td></tr></table></figure>
+<p>这里<code>distinct</code>关键字的作用就是去重，当然也可以用<code>group by</code>实现。两者效果一样，那效率呢？在 MySQL 中（如果没记错的话，天池的底层数据库是基于 MySQL 的），两者的实现原理很相似。区别在于<code>distinct</code>会读取所有的记录，而<code>group by</code>是在分组之后每组只返回一条记录，也就是说后者读取的条数要少很多，效率会更高一些。所以可以用以下代码代替上述的子查询：</p>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">select user_id,brand_id</span><br><span class="line"><span class="keyword">from</span> t_alibaba_bigdata_user_brand_total_1</span><br><span class="line">where<span class="built_in"> type </span>= <span class="string">'1'</span> <span class="keyword">and</span> visit_datetime &gt; <span class="string">'07-15'</span></span><br><span class="line">group by user_id,brand_id</span><br></pre></td></tr></table></figure>
+<p>扯远了… 回来吧。计算推荐集、验证集条数的方法之前也给出了：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">sum</span>(regexp_count(brand,<span class="string">','</span>)+<span class="number">1</span>) <span class="keyword">from</span> t_tmall_add_user_brand_predict_dh;</span><br></pre></td></tr></table></figure>
+<p>接下来要计算推荐集和验证集之间的重复条数，这里可以用 UDF 方便地实现。<br><a id="more"></a></p>
+<h2 id="UDF-计算重复条数"><a href="#UDF-计算重复条数" class="headerlink" title="UDF 计算重复条数"></a>UDF 计算重复条数</h2><p>在我们 Eclipse 中的 ODPS 项目下新建 UDF。填入 Package 名称为：<code>jark.udf</code>，和 UDF 类名：<code>CountHits</code>，点击确认。插件会自动帮我们生成<code>jark.udf</code>包用于写 UDF 代码，和<code>test.jark.udf</code>包用于本地测试。</p>
+<p>编辑<code>CountHits.java</code>文件，注意下文的<code>Long</code>不能替换为<code>long</code>类型，否则在ODPS上运行会报<code>Method Not Found</code>错误。：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CountHits</span> <span class="keyword">extends</span> <span class="title">UDF</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Long <span class="title">evaluate</span> <span class="params">(String a,String b)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(a == <span class="keyword">null</span> || b == <span class="keyword">null</span>) <span class="keyword">return</span> <span class="number">0L</span>;     <span class="comment">//异常值</span></span><br><span class="line">        Set&lt;String&gt; set1 = <span class="keyword">new</span> HashSet&lt;String&gt;();</span><br><span class="line">        Set&lt;String&gt; set2 = <span class="keyword">new</span> HashSet&lt;String&gt;();</span><br><span class="line">        set1.addAll(Arrays.asList(a.split(<span class="string">","</span>)));</span><br><span class="line">        set2.addAll(Arrays.asList(b.split(<span class="string">","</span>)));</span><br><span class="line">        Long hits = <span class="number">0L</span>;</span><br><span class="line">        <span class="keyword">for</span>(String s : set2)&#123;</span><br><span class="line">            <span class="keyword">if</span>( set1.contains(s) )</span><br><span class="line">                hits++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> hits;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>本段函数的主要工作是在<code>a</code>串和<code>b</code>串去重后，计算它们中重复元素的个数。接下来在本地测试下 UDF 。在<code>test.jark.udf</code>包中有两个文件<code>TestCountHits.java</code>和<code>TestUDFBase.java</code>。由于如果 UDF 的输入参数是多个的话，本地测试默认的分隔符是逗号，与我们<code>brand</code>中的逗号冲突了。所以修改下<code>TestUDFBase.java</code>文件的第15行的分隔符为空格（当然也可以其他符号）：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> String ODPS_SEPARATOR = <span class="string">" "</span>;</span><br></pre></td></tr></table></figure>
+<p>顺便修改第72行，去掉<code>(String)</code>，原因是<code>Long</code>型不能强制转换成<code>String</code>：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">return</span> callMeth.invoke(UDFClass, input_parameter.toArray()) + <span class="string">"\n"</span>;</span><br></pre></td></tr></table></figure>
+<p>在<code>TestCountHits.in</code>文件中输入测试输入：</p>
+<pre><code>123456,444,555,666 123456,666,777,888
+888,999 111,222
+111,111,222,222 111,222,222,333
+</code></pre><p>运行<code>TestCountHits.java</code>后，在<code>TestCountHits.out</code>文件中得到测试结果：</p>
+<pre><code>2
+0
+2
+</code></pre><p>测试输入应更为复杂，以上只是示例。在确认 UDF 没有问题后，准备上传。将Package <code>jark.udf</code>打成 jar 包，命名为<code>jark-udf.jar</code>，置于<code>C:/TOOLS</code>下，执行以下命令:</p>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">create<span class="built_in"> resource </span>jar C:/TOOLS/jark-udf.jar</span><br><span class="line">create function count_hits jark.udf.CountHits jark-udf.jar</span><br></pre></td></tr></table></figure>
+<p>上述命令作用分别是将用户 jar 包上传到 ODPS 和在 ODPS 上注册函数并命名为<code>count_hits</code>。现在使用<code>ls functions</code>命令应该就能看到我们刚刚注册的函数了。</p>
+<p>现在，我们就能像调用一般内建函数一样调用我们自己的<code>count_hits</code>函数了。计算推荐集和验证集中的重复条数，有下面代码：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">sum</span>(count_hits(a.brand,b.brand)) hits <span class="keyword">from</span> t_tmall_add_user_brand_predict_dh a </span><br><span class="line"><span class="keyword">join</span> validate_set b <span class="keyword">on</span> a.user_id = b.user_id;</span><br></pre></td></tr></table></figure>
+<p>上面演示了一般 UDF 的创建使用过程，其他类似的 UDF 都可以参考以上过程构建。UDF 是 SQL 的一大工具 ，很多规则算法都可以用过 UDF 方便地实现。</p>
+<h2 id="计算评测值"><a href="#计算评测值" class="headerlink" title="计算评测值"></a>计算评测值</h2><p>我们知道准确率的计算公式：$precision = hits / pnums$，为<code>pnums</code>为推荐条数。</p>
+<p>召回率的计算公式有：$recall = hits / vnums$，<code>vnums</code>为验证集条数。</p>
+<p>而 F1 的计算公式有：</p>
+<p><img src="http://ww4.sinaimg.cn/large/81b78497jw1efwukhfcz8g207n016a9t.gif" alt></p>
+<p>为了计算方便，我们用<code>full outer join</code>连接验证集和推荐集，并将计算出的 <code>hits</code>、<code>pnums</code>、<code>vnums</code> 放到临时表里。感谢 <a href="http://weibo.com/hadoop" target="_blank" rel="noopener">@木同学style</a> 的建议。</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">sum</span>(count_hits(p.brand,v.brand) hits,</span><br><span class="line">       <span class="keyword">sum</span>(regexp_count(p.brand,<span class="string">','</span>)+<span class="number">1</span>) pnums,</span><br><span class="line">       <span class="keyword">sum</span>(regexp_count(v.brand,<span class="string">','</span>)+<span class="number">1</span>) vnums</span><br><span class="line"><span class="keyword">from</span> t_tmall_add_user_brand_predict_dh p</span><br><span class="line">     <span class="keyword">full</span> <span class="keyword">outer</span> <span class="keyword">join</span> validate_set v <span class="keyword">on</span> p.user_id = v.user_id</span><br></pre></td></tr></table></figure>
+<p>有了这三个值后，就可以用上面的公式轻松计算出评测值了。</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> (hits/pnums) <span class="keyword">precision</span>, (hits/vnums) recall,(<span class="number">2</span>*hits/(pnums+vnums)) F1</span><br><span class="line"><span class="keyword">from</span> (</span><br><span class="line">    <span class="keyword">select</span> hits , pnums , vnums</span><br><span class="line">    <span class="keyword">from</span> ...</span><br><span class="line">)a;</span><br></pre></td></tr></table></figure>
+<p>OK，感觉讲的有点啰嗦了… 整合上面计算评测值的代码后，有如下代码：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> evaluation <span class="keyword">as</span></span><br><span class="line"><span class="keyword">select</span> (hits/pnums) <span class="keyword">precision</span> , (hits/vnums) recall , (<span class="number">2</span>*hits/(pnums+vnums)) F1 , </span><br><span class="line">        hits , pnums , vnums , <span class="keyword">getdate</span>() eval_time</span><br><span class="line"><span class="keyword">from</span> (</span><br><span class="line">    <span class="keyword">select</span> <span class="keyword">sum</span>(count_hits(p.brand,v.brand) hits,</span><br><span class="line">           <span class="keyword">sum</span>(regexp_count(p.brand,<span class="string">','</span>)+<span class="number">1</span>) pnums,</span><br><span class="line">           <span class="keyword">sum</span>(regexp_count(v.brand,<span class="string">','</span>)+<span class="number">1</span>) vnums</span><br><span class="line">    <span class="keyword">from</span> t_tmall_add_user_brand_predict_dh p</span><br><span class="line">         <span class="keyword">full</span> <span class="keyword">outer</span> <span class="keyword">join</span> validate_set v <span class="keyword">on</span> p.user_id = v.user_id</span><br><span class="line">)a;</span><br></pre></td></tr></table></figure>
+<p>我们将评测值写到了<code>evaluation</code>表中，可供组员查看分析。运行一次上面代码后，若以后再进行评测，可以将第一行改成<code>insert into/overwrite table evaluation</code>后直接运行，个人喜欢用<code>into</code>，这样可以与上次的结果进行比较。</p>
+<p>现在已有的模型算法就可以在本地测试调优后，再上传到线上进行评估了。</p>
+<h2 id="关于数据集的几点想法"><a href="#关于数据集的几点想法" class="headerlink" title="关于数据集的几点想法"></a>关于数据集的几点想法</h2><p>对于离线评估我也并没有深刻的见解，只是想无责任地说点个人的想法，还望大家一起讨论纠正。</p>
+<ol>
+<li><p>上面的训练集和验证集的划分有一定的局限性。主要是模型可能会高度依赖于训练集和验证集的构成，导致过拟合的问题。要消除这种依赖，可以借鉴<a href="http://zh.wikipedia.org/zh-cn/%E8%87%AA%E5%8A%A9%E6%B3%95" target="_blank" rel="noopener">自助法</a>，每次训练时从训练集中随机抽取一部分，验证时也随机从验证集中抽取一部分，抽取比例一样，例如抽取63.2%。XLab/XLib 提供了随机采样的接口。</p>
+</li>
+<li><p>线上预测我们是用前四个月预测第五个月，时间划分是 4：1 的关系。所以离线划分训练集、验证集时，也按这个比例划分会更合理。即最后24天的数据作为验证集。</p>
+</li>
+<li><p>上面的离线评估是用来训练模型用的，当我们后期融合模型时如果继续在训练集上融合，还是会造成过拟合。所以可以在训练集上再拆分成训练集 A 和预测集 B，B 的生成方法和验证集类似，也取最后 <code>1/5</code>。在 A 上训练模型，B 上做出预测，得出融合系数。再在整个训练集上训练模型，在验证集上做出预测。最后将预测结果用得到的融合系数融合，融合结果再在验证集上得到最终预测结果。关于模型融合，是一门高深的学问，希望有经验的大大出来分享一下。</p>
+</li>
+<li><p>原始数据集噪声很大，相信很多同学都发现有垃圾用户、刷钻用户的存在。《推荐系统实践》里说「使用正确的用户数据对推荐系统至关重要」。所以，在忙着实现各种模型算法之前不如先做下数据清理。去噪的方法有很多，比如基于规则、基于离群点检测、基于聚类等等。</p>
+</li>
+</ol>
+<h2 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h2><p>本人小硕一枚，以前没有搞过机器学习，对各种模型也是一知半解。参加这个比赛最主要的目的是为了学习，学习 ODPS 学习模型算法，而不是名次（吐槽下淘汰赛制让我不得不把名次看重了）。所以，我会把平时的学习心得记录下来，最后就算离开了也有值得纪念的东西留下（没了虚拟机，什么都没了啊！！）。我写的这些东西相信很多同学上手都比我快（仰望首页的大神们），希望能有更多的同学出来分享自己的心得，营造更好的学习氛围。实在是有太多的东西值得学习。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+        
+<hr>
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+  <img id="wechat_subscriber_qcode" src="https://user-images.githubusercontent.com/5378924/221934214-4ca3bc5d-6d38-4a4a-a6bc-a1dd53563879.png" alt="hoxis wechat" style="width: auto; height:200px; max-width: 100%;">
+</div>
+<div class="copyright-txt">
+  <a href="/copyright"><i class="fa fa-copyright"></i>著作权归作者所有</a>
+</div>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/阿里推荐大赛/" rel="tag">#阿里推荐大赛</a>
+          
+            <a href="/tags/ODPS/" rel="tag">#ODPS</a>
+          
+        </div>
+      
+
+      
+      <div class="post-spread">
+        
+          <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-56d648eefec3350b" async="async"></script>
+<!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_sharing_toolbox"></div>
+        
+      </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2014/04/26/odps-sql-introduction/" rel="next" title="阿里推荐大赛：ODPS SQL 入门">
+                <i class="fa fa-chevron-left"></i> 阿里推荐大赛：ODPS SQL 入门
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2014/06/23/the-days-in-the-pit/" rel="prev" title="阿里推荐大赛：那些在坑里翻滚的日子">
+                阿里推荐大赛：那些在坑里翻滚的日子 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
 
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/default_avatar.jpg" alt="WuChong">
+          <p class="site-author-name" itemprop="name">WuChong</p>
+          <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，<br>你就应该静下心来学习。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">90</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+<!--
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">分类</span>
+            </a>
+          </div>
+          -->
+
+          
+          
+          
+            <div class="site-state-item site-state-categories">
+              
+              <a href="/categories">
+              
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">77</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-sa/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="https://flink.apache.org/" target="_blank">Apache Flink</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#划分训练集、验证集"><span class="nav-number">1.</span> <span class="nav-text">划分训练集、验证集</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UDF-计算重复条数"><span class="nav-number">2.</span> <span class="nav-text">UDF 计算重复条数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#计算评测值"><span class="nav-number">3.</span> <span class="nav-text">计算评测值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关于数据集的几点想法"><span class="nav-number">4.</span> <span class="nav-text">关于数据集的几点想法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#写在最后"><span class="nav-number">5.</span> <span class="nav-text">写在最后</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WuChong</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.scheme !== 'Pisces' && (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always')) {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'wuchong';
+      var disqus_identifier = 'blog/2014/04/29/odps-sql-build-offline-evaluation/';
+      var disqus_title = '阿里推荐大赛：ODPS SQL 构建离线评估';
+      var disqus_url = 'http://wuchong.me/blog/2014/04/29/odps-sql-build-offline-evaluation/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
+  
+
+
+  
+  
+
+
+</body>
+</html>

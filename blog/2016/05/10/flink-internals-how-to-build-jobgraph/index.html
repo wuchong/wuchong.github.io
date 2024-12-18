@@ -1,27 +1,881 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!doctype html>
 
 
-{% block title %} {{ page.title }} | {{ config.title }} {% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next mist use-motion">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css">
+
+
+    <meta name="author" content="WuChong">
+
+
+
+  <meta name="keywords" content="Flink原理与实现,Flink,源码分析">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jark's Blog" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0">
+
+
+
+
+
+
+<meta name="description" content="继前文Flink 原理与实现：架构和拓扑概览中介绍了Flink的四层执行图模型，本文将主要介绍 Flink 是如何将 StreamGraph 转换成 JobGraph 的。根据用户用Stream API编写的程序，构造出一个代表拓扑结构的StreamGraph的。以 WordCount 为例，转换图如下图所示：  StreamGraph 和 JobGraph 都是在 Client 端生成的，也就是">
+<meta name="keywords" content="Flink原理与实现,Flink,源码分析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flink 原理与实现：如何生成 JobGraph">
+<meta property="og:url" content="http://wuchong.me/blog/2016/05/10/flink-internals-how-to-build-jobgraph/index.html">
+<meta property="og:site_name" content="Jark&#39;s Blog">
+<meta property="og:description" content="继前文Flink 原理与实现：架构和拓扑概览中介绍了Flink的四层执行图模型，本文将主要介绍 Flink 是如何将 StreamGraph 转换成 JobGraph 的。根据用户用Stream API编写的程序，构造出一个代表拓扑结构的StreamGraph的。以 WordCount 为例，转换图如下图所示：  StreamGraph 和 JobGraph 都是在 Client 端生成的，也就是">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB1DzYXJFXXXXXJXVXXXXXXXXXX">
+<meta property="og:updated_time" content="2022-08-03T06:46:44.503Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Flink 原理与实现：如何生成 JobGraph">
+<meta name="twitter:description" content="继前文Flink 原理与实现：架构和拓扑概览中介绍了Flink的四层执行图模型，本文将主要介绍 Flink 是如何将 StreamGraph 转换成 JobGraph 的。根据用户用Stream API编写的程序，构造出一个代表拓扑结构的StreamGraph的。以 WordCount 为例，转换图如下图所示：  StreamGraph 和 JobGraph 都是在 Client 端生成的，也就是">
+<meta name="twitter:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB1DzYXJFXXXXXJXVXXXXXXXXXX">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 4141040,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> Flink 原理与实现：如何生成 JobGraph | Jark's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Jark's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-talks">
+          <a href="/talks" rel="section">
+            
+              <i class="menu-item-icon fa fa-microphone-stand fa-fw"></i> <br>
+            
+            演讲
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input">
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', '8Exkz7xsCTJyyCHiK9TY','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Flink 原理与实现：如何生成 JobGraph
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-05-10T13:25:53+08:00" content="2016-05-10">
+              2016-05-10
+            </time>
+          </span>
+
+          
+            <span class="post-category">
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Flink/" itemprop="url" rel="index">
+                    <span itemprop="name">Flink</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2016/05/10/flink-internals-how-to-build-jobgraph/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="blog/2016/05/10/flink-internals-how-to-build-jobgraph/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+<!--
+    
+      <div class="post-body">
+    
+    -->
+
+
+    <div class="post-body" itemprop="articleBody">
+    
+
+      
+      
+
+      
+        <p>继前文<a href="http://wuchong.me/blog/2016/05/03/flink-internals-overview/">Flink 原理与实现：架构和拓扑概览</a>中介绍了Flink的四层执行图模型，本文将主要介绍 Flink 是如何将 StreamGraph 转换成 JobGraph 的。根据用户用Stream API编写的程序，构造出一个代表拓扑结构的StreamGraph的。以 WordCount 为例，转换图如下图所示：</p>
+<p><img src="http://img3.tbcdn.cn/5476e8b07b923/TB1DzYXJFXXXXXJXVXXXXXXXXXX" alt></p>
+<p>StreamGraph 和 JobGraph 都是在 Client 端生成的，也就是说我们可以在 IDE 中通过断点调试观察 StreamGraph 和 JobGraph 的生成过程。</p>
+<a id="more"></a>
+<p>JobGraph 的相关数据结构主要在 <code>org.apache.flink.runtime.jobgraph</code> 包中。构造 JobGraph 的代码主要集中在 <code>StreamingJobGraphGenerator</code> 类中，入口函数是 <code>StreamingJobGraphGenerator.createJobGraph()</code>。我们首先来看下<code>StreamingJobGraphGenerator</code>的核心源码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StreamingJobGraphGenerator</span> </span>&#123;</span><br><span class="line">  <span class="keyword">private</span> StreamGraph streamGraph;</span><br><span class="line">  <span class="keyword">private</span> JobGraph jobGraph;</span><br><span class="line">  <span class="comment">// id -&gt; JobVertex</span></span><br><span class="line">  <span class="keyword">private</span> Map&lt;Integer, JobVertex&gt; jobVertices;</span><br><span class="line">  <span class="comment">// 已经构建的JobVertex的id集合</span></span><br><span class="line">  <span class="keyword">private</span> Collection&lt;Integer&gt; builtVertices;</span><br><span class="line">  <span class="comment">// 物理边集合（排除了chain内部的边）, 按创建顺序排序</span></span><br><span class="line">  <span class="keyword">private</span> List&lt;StreamEdge&gt; physicalEdgesInOrder;</span><br><span class="line">  <span class="comment">// 保存chain信息，部署时用来构建 OperatorChain，startNodeId -&gt; (currentNodeId -&gt; StreamConfig)</span></span><br><span class="line">  <span class="keyword">private</span> Map&lt;Integer, Map&lt;Integer, StreamConfig&gt;&gt; chainedConfigs;</span><br><span class="line">  <span class="comment">// 所有节点的配置信息，id -&gt; StreamConfig</span></span><br><span class="line">  <span class="keyword">private</span> Map&lt;Integer, StreamConfig&gt; vertexConfigs;</span><br><span class="line">  <span class="comment">// 保存每个节点的名字，id -&gt; chainedName</span></span><br><span class="line">  <span class="keyword">private</span> Map&lt;Integer, String&gt; chainedNames;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 构造函数，入参只有 StreamGraph</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">StreamingJobGraphGenerator</span><span class="params">(StreamGraph streamGraph)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.streamGraph = streamGraph;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 根据 StreamGraph，生成 JobGraph</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> JobGraph <span class="title">createJobGraph</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    jobGraph = <span class="keyword">new</span> JobGraph(streamGraph.getJobName());</span><br><span class="line">  </span><br><span class="line">    <span class="comment">// streaming 模式下，调度模式是所有节点（vertices）一起启动</span></span><br><span class="line">    jobGraph.setScheduleMode(ScheduleMode.ALL);</span><br><span class="line">    <span class="comment">// 初始化成员变量</span></span><br><span class="line">    init();</span><br><span class="line">  </span><br><span class="line">    <span class="comment">// 广度优先遍历 StreamGraph 并且为每个SteamNode生成hash id，</span></span><br><span class="line">    <span class="comment">// 保证如果提交的拓扑没有改变，则每次生成的hash都是一样的</span></span><br><span class="line">    Map&lt;Integer, <span class="keyword">byte</span>[]&gt; hashes = traverseStreamGraphAndGenerateHashes();</span><br><span class="line">  </span><br><span class="line">    <span class="comment">// 最重要的函数，生成JobVertex，JobEdge等，并尽可能地将多个节点chain在一起</span></span><br><span class="line">    setChaining(hashes);</span><br><span class="line">  </span><br><span class="line">    <span class="comment">// 将每个JobVertex的入边集合也序列化到该JobVertex的StreamConfig中</span></span><br><span class="line">    <span class="comment">// (出边集合已经在setChaining的时候写入了)</span></span><br><span class="line">    setPhysicalEdges();</span><br><span class="line">  </span><br><span class="line">    <span class="comment">// 根据group name，为每个 JobVertex 指定所属的 SlotSharingGroup </span></span><br><span class="line">    <span class="comment">// 以及针对 Iteration的头尾设置  CoLocationGroup</span></span><br><span class="line">    setSlotSharing();</span><br><span class="line">    <span class="comment">// 配置checkpoint</span></span><br><span class="line">    configureCheckpointing();</span><br><span class="line">    <span class="comment">// 配置重启策略（不重启，还是固定延迟重启）</span></span><br><span class="line">    configureRestartStrategy();</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="comment">// 将 StreamGraph 的 ExecutionConfig 序列化到 JobGraph 的配置中</span></span><br><span class="line">      InstantiationUtil.writeObjectToConfig(<span class="keyword">this</span>.streamGraph.getExecutionConfig(), <span class="keyword">this</span>.jobGraph.getJobConfiguration(), ExecutionConfig.CONFIG_KEY);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"Config object could not be written to Job Configuration: "</span>, e);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> jobGraph;</span><br><span class="line">  &#125;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>StreamingJobGraphGenerator</code>的成员变量都是为了辅助生成最终的JobGraph。<code>createJobGraph()</code>函数的逻辑也很清晰，首先为所有节点生成一个唯一的hash id，如果节点在多次提交中没有改变（包括并发度、上下游等），那么这个id就不会改变，这主要用于故障恢复。这里我们不能用 <code>StreamNode.id</code>来代替，因为这是一个从1开始的静态计数变量，同样的Job可能会得到不一样的id，如下代码示例的两个job是完全一样的，但是source的id却不一样了。然后就是最关键的chaining处理，和生成JobVetex、JobEdge等。之后就是写入各种配置相关的信息。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 范例1：A.id=1  B.id=2</span></span><br><span class="line">DataStream&lt;String&gt; A = ...</span><br><span class="line">DataStream&lt;String&gt; B = ...</span><br><span class="line">A.union(B).print();</span><br><span class="line"><span class="comment">// 范例2：A.id=2  B.id=1</span></span><br><span class="line">DataStream&lt;String&gt; B = ...</span><br><span class="line">DataStream&lt;String&gt; A = ...</span><br><span class="line">A.union(B).print();</span><br></pre></td></tr></table></figure>
+<p>下面具体分析下关键函数 <code>setChaining</code> 的实现：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 从source开始建立 node chains</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">setChaining</span><span class="params">(Map&lt;Integer, <span class="keyword">byte</span>[]&gt; hashes)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">for</span> (Integer sourceNodeId : streamGraph.getSourceIDs()) &#123;</span><br><span class="line">    createChain(sourceNodeId, sourceNodeId, hashes);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 构建node chains，返回当前节点的物理出边</span></span><br><span class="line"><span class="comment">// startNodeId != currentNodeId 时,说明currentNode是chain中的子节点</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> List&lt;StreamEdge&gt; <span class="title">createChain</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">    Integer startNodeId,</span></span></span><br><span class="line"><span class="function"><span class="params">    Integer currentNodeId,</span></span></span><br><span class="line"><span class="function"><span class="params">    Map&lt;Integer, <span class="keyword">byte</span>[]&gt; hashes)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!builtVertices.contains(startNodeId)) &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 过渡用的出边集合, 用来生成最终的 JobEdge, 注意不包括 chain 内部的边</span></span><br><span class="line">    List&lt;StreamEdge&gt; transitiveOutEdges = <span class="keyword">new</span> ArrayList&lt;StreamEdge&gt;();</span><br><span class="line"></span><br><span class="line">    List&lt;StreamEdge&gt; chainableOutputs = <span class="keyword">new</span> ArrayList&lt;StreamEdge&gt;();</span><br><span class="line">    List&lt;StreamEdge&gt; nonChainableOutputs = <span class="keyword">new</span> ArrayList&lt;StreamEdge&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将当前节点的出边分成 chainable 和 nonChainable 两类</span></span><br><span class="line">    <span class="keyword">for</span> (StreamEdge outEdge : streamGraph.getStreamNode(currentNodeId).getOutEdges()) &#123;</span><br><span class="line">      <span class="keyword">if</span> (isChainable(outEdge)) &#123;</span><br><span class="line">        chainableOutputs.add(outEdge);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        nonChainableOutputs.add(outEdge);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//==&gt; 递归调用</span></span><br><span class="line">    <span class="keyword">for</span> (StreamEdge chainable : chainableOutputs) &#123;</span><br><span class="line">      transitiveOutEdges.addAll(createChain(startNodeId, chainable.getTargetId(), hashes));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (StreamEdge nonChainable : nonChainableOutputs) &#123;</span><br><span class="line">      transitiveOutEdges.add(nonChainable);</span><br><span class="line">      createChain(nonChainable.getTargetId(), nonChainable.getTargetId(), hashes);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 生成当前节点的显示名，如："Keyed Aggregation -&gt; Sink: Unnamed"</span></span><br><span class="line">    chainedNames.put(currentNodeId, createChainedName(currentNodeId, chainableOutputs));</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果当前节点是起始节点, 则直接创建 JobVertex 并返回 StreamConfig, 否则先创建一个空的 StreamConfig</span></span><br><span class="line">    <span class="comment">// createJobVertex 函数就是根据 StreamNode 创建对应的 JobVertex, 并返回了空的 StreamConfig</span></span><br><span class="line">    StreamConfig config = currentNodeId.equals(startNodeId)</span><br><span class="line">        ? createJobVertex(startNodeId, hashes)</span><br><span class="line">        : <span class="keyword">new</span> StreamConfig(<span class="keyword">new</span> Configuration());</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 设置 JobVertex 的 StreamConfig, 基本上是序列化 StreamNode 中的配置到 StreamConfig 中.</span></span><br><span class="line">    <span class="comment">// 其中包括 序列化器, StreamOperator, Checkpoint 等相关配置</span></span><br><span class="line">    setVertexConfig(currentNodeId, config, chainableOutputs, nonChainableOutputs);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (currentNodeId.equals(startNodeId)) &#123;</span><br><span class="line">      <span class="comment">// 如果是chain的起始节点。（不是chain中的节点，也会被标记成 chain start）</span></span><br><span class="line">      config.setChainStart();</span><br><span class="line">      <span class="comment">// 我们也会把物理出边写入配置, 部署时会用到</span></span><br><span class="line">      config.setOutEdgesInOrder(transitiveOutEdges);</span><br><span class="line">      config.setOutEdges(streamGraph.getStreamNode(currentNodeId).getOutEdges());</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 将当前节点(headOfChain)与所有出边相连</span></span><br><span class="line">      <span class="keyword">for</span> (StreamEdge edge : transitiveOutEdges) &#123;</span><br><span class="line">        <span class="comment">// 通过StreamEdge构建出JobEdge，创建IntermediateDataSet，用来将JobVertex和JobEdge相连</span></span><br><span class="line">        connect(startNodeId, edge);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 将chain中所有子节点的StreamConfig写入到 headOfChain 节点的 CHAINED_TASK_CONFIG 配置中</span></span><br><span class="line">      config.setTransitiveChainedTaskConfigs(chainedConfigs.get(startNodeId));</span><br><span class="line"></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">// 如果是 chain 中的子节点</span></span><br><span class="line">      </span><br><span class="line">      Map&lt;Integer, StreamConfig&gt; chainedConfs = chainedConfigs.get(startNodeId);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (chainedConfs == <span class="keyword">null</span>) &#123;</span><br><span class="line">        chainedConfigs.put(startNodeId, <span class="keyword">new</span> HashMap&lt;Integer, StreamConfig&gt;());</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="comment">// 将当前节点的StreamConfig添加到该chain的config集合中</span></span><br><span class="line">      chainedConfigs.get(startNodeId).put(currentNodeId, config);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 返回连往chain外部的出边集合</span></span><br><span class="line">    <span class="keyword">return</span> transitiveOutEdges;</span><br><span class="line"></span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>每个 JobVertex 都会对应一个可序列化的 StreamConfig, 用来发送给 JobManager 和 TaskManager。最后在 TaskManager 中起 Task 时,需要从这里面反序列化出所需要的配置信息, 其中就包括了含有用户代码的StreamOperator。</p>
+<p><code>setChaining</code>会对source调用<code>createChain</code>方法，该方法会递归调用下游节点，从而构建出node chains。<code>createChain</code>会分析当前节点的出边，根据<a href="http://wuchong.me/blog/2016/05/09/flink-internals-understanding-execution-resources/#Operator-Chains">Operator Chains</a>中的chainable条件，将出边分成chainalbe和noChainable两类，并分别递归调用自身方法。之后会将StreamNode中的配置信息序列化到StreamConfig中。如果当前不是chain中的子节点，则会构建 JobVertex 和 JobEdge相连。如果是chain中的子节点，则会将StreamConfig添加到该chain的config集合中。一个node chains，除了 headOfChain node会生成对应的 JobVertex，其余的nodes都是以序列化的形式写入到StreamConfig中，并保存到headOfChain的 <code>CHAINED_TASK_CONFIG</code> 配置项中。直到部署时，才会取出并生成对应的ChainOperators，具体过程请见<a href="http://wuchong.me/blog/2016/05/09/flink-internals-understanding-execution-resources/#Operator-Chains">理解 Operator Chains</a>。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文主要对 Flink 中将 StreamGraph 转变成 JobGraph 的核心源码进行了分析。思想还是很简单的，StreamNode 转成 JobVertex，StreamEdge 转成 JobEdge，JobEdge 和 JobVertex 之间创建 IntermediateDataSet 来连接。关键点在于将多个 SteamNode chain 成一个 JobVertex的过程，这部分源码比较绕，有兴趣的同学可以结合源码单步调试分析。下一章将会介绍 JobGraph 提交到 JobManager 后是如何转换成分布式化的 ExecutionGraph 的。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+        
+<hr>
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+  <img id="wechat_subscriber_qcode" src="https://user-images.githubusercontent.com/5378924/221934214-4ca3bc5d-6d38-4a4a-a6bc-a1dd53563879.png" alt="hoxis wechat" style="width: auto; height:200px; max-width: 100%;">
+</div>
+<div class="copyright-txt">
+  <a href="/copyright"><i class="fa fa-copyright"></i>著作权归作者所有</a>
+</div>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Flink/" rel="tag">#Flink</a>
+          
+            <a href="/tags/Flink原理与实现/" rel="tag">#Flink原理与实现</a>
+          
+            <a href="/tags/源码分析/" rel="tag">#源码分析</a>
+          
+        </div>
+      
+
+      
+      <div class="post-spread">
+        
+          <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-56d648eefec3350b" async="async"></script>
+<!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_sharing_toolbox"></div>
+        
+      </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/05/09/flink-internals-understanding-execution-resources/" rel="next" title="Flink 原理与实现：理解 Flink 中的计算资源">
+                <i class="fa fa-chevron-left"></i> Flink 原理与实现：理解 Flink 中的计算资源
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/05/20/flink-internals-streams-and-operations-on-streams/" rel="prev" title="Flink 原理与实现：数据流上的类型和操作">
+                Flink 原理与实现：数据流上的类型和操作 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
 
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/default_avatar.jpg" alt="WuChong">
+          <p class="site-author-name" itemprop="name">WuChong</p>
+          <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，<br>你就应该静下心来学习。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">90</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+<!--
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">分类</span>
+            </a>
+          </div>
+          -->
+
+          
+          
+          
+            <div class="site-state-item site-state-categories">
+              
+              <a href="/categories">
+              
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">77</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-sa/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="https://flink.apache.org/" target="_blank">Apache Flink</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">1.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WuChong</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.scheme !== 'Pisces' && (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always')) {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'wuchong';
+      var disqus_identifier = 'blog/2016/05/10/flink-internals-how-to-build-jobgraph/';
+      var disqus_title = 'Flink 原理与实现：如何生成 JobGraph';
+      var disqus_url = 'http://wuchong.me/blog/2016/05/10/flink-internals-how-to-build-jobgraph/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
+  
+
+
+  
+  
+
+
+</body>
+</html>

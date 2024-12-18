@@ -1,27 +1,884 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!doctype html>
 
 
-{% block title %} {{ page.title }} | {{ config.title }} {% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next mist use-motion">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css">
+
+
+    <meta name="author" content="WuChong">
+
+
+
+  <meta name="keywords" content="Flink,Flink历史">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jark's Blog" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0">
+
+
+
+
+
+
+<meta name="description" content="作者：云邪（Jark）原文链接：http://wuchong.me/blog/2018/11/09/flink-tech-evolution-introduction/  Apache Flink 介绍Apache Flink 是近年来越来越流行的一款开源大数据计算引擎，它同时支持了批处理和流处理，也能用来做一些基于事件的应用。使用官网的一句话来介绍 Flink 就是 “Stateful Com">
+<meta name="keywords" content="Flink,Flink历史">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一文了解 Apache Flink 核心技术">
+<meta property="og:url" content="http://wuchong.me/blog/2018/11/09/flink-tech-evolution-introduction/index.html">
+<meta property="og:site_name" content="Jark&#39;s Blog">
+<meta property="og:description" content="作者：云邪（Jark）原文链接：http://wuchong.me/blog/2018/11/09/flink-tech-evolution-introduction/  Apache Flink 介绍Apache Flink 是近年来越来越流行的一款开源大数据计算引擎，它同时支持了批处理和流处理，也能用来做一些基于事件的应用。使用官网的一句话来介绍 Flink 就是 “Stateful Com">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://img.alicdn.com/tfs/TB1Ta88oyLaK1RjSZFxXXamPFXa-1627-845.png">
+<meta property="og:image" content="https://img.alicdn.com/tfs/TB1ksgRokvoK1RjSZFNXXcxMVXa-1481-566.png">
+<meta property="og:image" content="https://img.alicdn.com/tfs/TB1vZZYohjaK1RjSZFAXXbdLFXa-1470-575.png">
+<meta property="og:image" content="https://img.alicdn.com/tfs/TB1xds3ohYaK1RjSZFnXXa80pXa-1470-575.png">
+<meta property="og:image" content="https://img.alicdn.com/tfs/TB1T.sRoa6qK1RjSZFmXXX0PFXa-1470-616.png">
+<meta property="og:updated_time" content="2022-08-03T06:46:44.505Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="一文了解 Apache Flink 核心技术">
+<meta name="twitter:description" content="作者：云邪（Jark）原文链接：http://wuchong.me/blog/2018/11/09/flink-tech-evolution-introduction/  Apache Flink 介绍Apache Flink 是近年来越来越流行的一款开源大数据计算引擎，它同时支持了批处理和流处理，也能用来做一些基于事件的应用。使用官网的一句话来介绍 Flink 就是 “Stateful Com">
+<meta name="twitter:image" content="https://img.alicdn.com/tfs/TB1Ta88oyLaK1RjSZFxXXamPFXa-1627-845.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 4141040,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> 一文了解 Apache Flink 核心技术 | Jark's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Jark's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-talks">
+          <a href="/talks" rel="section">
+            
+              <i class="menu-item-icon fa fa-microphone-stand fa-fw"></i> <br>
+            
+            演讲
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input">
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', '8Exkz7xsCTJyyCHiK9TY','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                一文了解 Apache Flink 核心技术
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-11-09T15:41:49+08:00" content="2018-11-09">
+              2018-11-09
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2018/11/09/flink-tech-evolution-introduction/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="blog/2018/11/09/flink-tech-evolution-introduction/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+<!--
+    
+      <div class="post-body">
+    
+    -->
+
+
+    <div class="post-body" itemprop="articleBody">
+    
+
+      
+      
+
+      
+        <blockquote>
+<p>作者：云邪（Jark）<br>原文链接：<a href="http://wuchong.me/blog/2018/11/09/flink-tech-evolution-introduction/">http://wuchong.me/blog/2018/11/09/flink-tech-evolution-introduction/</a></p>
+</blockquote>
+<h2 id="Apache-Flink-介绍"><a href="#Apache-Flink-介绍" class="headerlink" title="Apache Flink 介绍"></a>Apache Flink 介绍</h2><p>Apache Flink 是近年来越来越流行的一款开源大数据计算引擎，它同时支持了批处理和流处理，也能用来做一些基于事件的应用。使用官网的一句话来介绍 Flink 就是 <strong>“Stateful Computations Over Streams”</strong>。</p>
+<p><strong>首先</strong> Flink 是一个<strong>纯流式的计算引擎</strong>，它的基本数据模型是数据流。流可以是无边界的无限流，即一般意义上的流处理。也可以是有边界的有限流，这样就是批处理。因此 Flink 用一套架构同时支持了流处理和批处理。<strong>其次</strong>，Flink 的一个优势是支持<strong>有状态的计算</strong>。如果处理一个事件（或一条数据）的结果只跟事件本身的内容有关，称为无状态处理；反之结果还和之前处理过的事件有关，称为有状态处理。稍微复杂一点的数据处理，比如说基本的聚合，数据流之间的关联都是有状态处理。</p>
+<p><img src="https://img.alicdn.com/tfs/TB1Ta88oyLaK1RjSZFxXXamPFXa-1627-845.png" alt></p>
+<a id="more"></a>
+<h2 id="Apache-Flink-基石"><a href="#Apache-Flink-基石" class="headerlink" title="Apache Flink 基石"></a>Apache Flink 基石</h2><p>Apache Flink 之所以能越来越受欢迎，我们认为离不开它最重要的四个基石：Checkpoint、State、Time、Window。</p>
+<p>首先是Checkpoint机制，这是 Flink 最重要的一个特性。Flink 基于 Chandy-Lamport 算法实现了分布式一致性的快照，从而提供了 exactly-once 的语义。在 Flink 之前的流计算系统（如 Strom，Samza）都没有很好地解决 exactly-once 的问题。提供了一致性的语义之后，Flink 为了让用户在编程时能够更轻松、更容易地去管理状态，引入了托管状态（managed state）并提供了 API 接口，让用户使用起来感觉就像在用 Java 的集合类一样。除此之外，Flink 还实现了 watermark 的机制，解决了基于事件时间处理时的数据乱序和数据迟到的问题。最后，流计算中的计算一般都会基于窗口来计算，所以 Flink 提供了一套开箱即用的窗口操作，包括滚动窗口、滑动窗口、会话窗口，还支持非常灵活的自定义窗口以满足特殊业务的需求。</p>
+<h2 id="Flink-API-历史变迁"><a href="#Flink-API-历史变迁" class="headerlink" title="Flink API 历史变迁"></a>Flink API 历史变迁</h2><p><img src="https://img.alicdn.com/tfs/TB1ksgRokvoK1RjSZFNXXcxMVXa-1481-566.png" alt></p>
+<p><strong>在 Flink 1.0.0 时期</strong>，加入了 State API，即 ValueState、ReducingState、ListState 等等。State API 可以认为是 Flink 里程碑式的创新，它能够让用户像使用 Java 集合一样地使用 Flink State，却能够自动享受到状态的一致性保证，不会因为故障而丢失状态。包括后来 Apache Beam 的 State API 也从中借鉴了很多。</p>
+<p><strong>在 Flink 1.1.0 时期</strong>，支持了 Session Window 以及迟到数据容忍的功能。</p>
+<p><strong>在 Flink 1.2.0 时期</strong>，提供了 ProcessFunction，这是一个 Lower-level 的API，用于实现更高级更复杂的功能。它除了能够注册各种类型的 State 外，还支持注册定时器（支持 EventTime 和 ProcessingTime），常用于开发一些基于事件、基于时间的应用程序。 </p>
+<p><strong>在 Flink 1.3.0 时期</strong>，提供了 Side Output 功能。算子的输出一般只有一种输出类型，但是有些时候可能需要输出另外的类型，比如除了输出主流外，还希望把一些异常数据、迟到数据以侧边流的形式进行输出，并分别交给下游不同节点进行处理。简而言之，Side Output 支持了多路输出的功能。</p>
+<p><strong>在 Flink 1.5.0 时期</strong>，加入了BroadcastState。BroadcastState是对 State API 的一个扩展。它用来存储上游被广播过来的数据，这个 operator 的每个并发上存的BroadcastState里面的数据都是一模一样的，因为它是从上游广播而来的。基于这种State可以比较好地去解决 CEP 中的动态规则的功能，以及 SQL 中不等值Join的场景。</p>
+<p><strong>在 Flink 1.6.0 时期</strong>，提供了State TTL功能、DataStream Interval Join功能。State TTL实现了在申请某个State时候可以在指定一个生命周期参数（TTL），指定该state过了多久之后需要被系统自动清除。在这个版本之前，如果用户想要实现这种状态清理操作需要使用ProcessFunction注册一个Timer，然后利用Timer的回调手动把这个State清除。从该版本开始，Flink框架可以基于TTL原生地解决这件事情。另外 DataStream Interval Join 功能也叫做 <strong>区间Join</strong>。例如左流的每一条数据去Join右流前后<strong>5分钟之内</strong>的数据，这种就是5分钟的区间Join。</p>
+<h2 id="Flink-High-Level-API-历史变迁"><a href="#Flink-High-Level-API-历史变迁" class="headerlink" title="Flink High-Level API 历史变迁"></a>Flink High-Level API 历史变迁</h2><p><img src="https://img.alicdn.com/tfs/TB1vZZYohjaK1RjSZFAXXbdLFXa-1470-575.png" alt></p>
+<p><strong>在 Flink 1.0.0 时期</strong>，Table API （结构化数据处理API）和 CEP（复杂事件处理API）这两个框架被首次加入到仓库中。Table API 是一种结构化的高级 API，支持 Java 语言和 Scala 语言，类似于 Spark 的 DataFrame API。但是当时社区对于 SQL 的需求很大，而 SQL 和 Table API 非常相近，他们都是一种处理结构化数据的语言，实现上可以共用很多内容。所以在 <strong>Flink 1.1.0</strong> 里面，社区基于Apache Calcite对整个 Table 模块做了重构，使得同时支持了 Table API 和 SQL 并共用了大部分代码。</p>
+<p><strong>在 Flink 1.2.0 时期</strong>，社区在Table API和SQL上支持丰富的内置窗口操作，包括Tumbling Window、Sliding Window、Session Window。</p>
+<p><strong>在 Flink 1.3.0 时期</strong>，社区首次提出了Dynamic Table这个概念，借助Dynamic Table，流和批之间可以相互进行转换。流可以是一张表，表也可以是一张流，这是流批统一的基础之一。其中Retraction机制是实现Dynamic Table的基础，基于Retraction才能够正确地实现多级Aggregate、多级Join，才能够保证流式 SQL 的语义与结果的正确性。另外，在该版本中还支持了 CEP 算子的可伸缩容（即改变并发）。</p>
+<p><strong>在 Flink 1.5.0 时期</strong>，在 Table API 和 SQL 上支持了Join操作，包括无限流的 Join 和带窗口的 Join。还添加了 SQL CLI 支持。SQL CLI 提供了一个类似Shell命令的对话框，可以交互式执行查询。</p>
+<h2 id="Flink-Checkpoint-amp-Recovery-历史变迁"><a href="#Flink-Checkpoint-amp-Recovery-历史变迁" class="headerlink" title="Flink Checkpoint &amp; Recovery 历史变迁"></a>Flink Checkpoint &amp; Recovery 历史变迁</h2><p><img src="https://img.alicdn.com/tfs/TB1xds3ohYaK1RjSZFnXXa80pXa-1470-575.png" alt></p>
+<p>Checkpoint机制在Flink很早期的时候就已经支持，是Flink一个很核心的功能，Flink 社区也一直努力提升 Checkpoint 和 Recovery 的效率。</p>
+<p><strong>在 Flink 1.0.0 时期</strong>，提供了 RocksDB 状态后端的支持，在这个版本之前所有的状态数据只能存在进程的内存里面，JVM 内存是固定大小的，随着数据越来越多总会发生 FullGC 和 OOM 的问题，所以在生产环境中很难应用起来。如果想要存更多数据、更大的State就要用到 RocksDB。RocksDB是一款基于文件的嵌入式数据库，它会把数据存到磁盘，同时又提供高效的读写性能。所以使用RocksDB不会发生OOM这种事情。</p>
+<p><strong>在 Flink 1.1.0 时期</strong>，支持了 RocksDB Snapshot 的异步化。在之前的版本，RocksDB 的 Snapshot 过程是同步的，它会阻塞主数据流的处理，很影响吞吐量。在支持异步化之后，吞吐量得到了极大的提升。</p>
+<p><strong>在 Flink 1.2.0 时期</strong>，通过引入KeyGroup的机制，支持了 KeyedState 和 OperatorState 的可扩缩容。也就是支持了对带状态的流计算任务改变并发的功能。</p>
+<p><strong>在 Flink 1.3.0 时期</strong>，支持了 Incremental Checkpoint （增量检查点）机制。Incemental Checkpoint 的支持标志着 Flink 流计算任务正式达到了生产就绪状态。增量检查点是每次只将本次 checkpoint 期间新增的状态快照并持久化存储起来。一般流计算任务，GB 级别的状态，甚至 TB 级别的状态是非常常见的，如果每次都把全量的状态都刷到分布式存储中，这个效率和网络代价是很大的。如果每次只刷新增的数据，效率就会高很多。在这个版本里面还引入了细粒度的recovery的功能，细粒度的recovery在做恢复的时候，只需要恢复失败节点的联通子图，不用对整个 Job 进行恢复，这样便能够提高恢复效率。</p>
+<p><strong>在 Flink 1.5.0 时期</strong>，引入了本地状态恢复的机制。因为基于checkpoint机制，会把State持久化地存储到某个分布式存储，比如HDFS，当发生 failover 的时候需要重新把数据从远程HDFS再下载下来，如果这个状态特别大那么下载耗时就会较长，failover 恢复所花的时间也会拉长。本地状态恢复机制会提前将状态文件在本地也备份一份，当Job发生failover之后，恢复时可以在本地直接恢复，不需从远程HDFS重新下载状态文件，从而提升了恢复的效率。</p>
+<h2 id="Flink-Runtime-历史变迁"><a href="#Flink-Runtime-历史变迁" class="headerlink" title="Flink Runtime 历史变迁"></a>Flink Runtime 历史变迁</h2><p><img src="https://img.alicdn.com/tfs/TB1T.sRoa6qK1RjSZFmXXX0PFXa-1470-616.png" alt></p>
+<p><strong>在 Flink 1.2.0 时期</strong>，提供了Async I/O功能。Async I/O 是阿里巴巴贡献给社区的一个呼声非常高的特性，主要目的是为了解决与外部系统交互时网络延迟成为了系统瓶颈的问题。例如，为了关联某些字段需要查询外部 HBase 表，同步的方式是每次查询的操作都是阻塞的，数据流会被频繁的I/O请求卡住。当使用异步I/O之后就可以同时地发起N个异步查询的请求，不会阻塞主数据流，这样便提升了整个job的吞吐量，提升CPU利用率。</p>
+<p><strong>在 Flink 1.3.0 时期</strong>，引入了HistoryServer的模块。HistoryServer主要功能是当job结束以后，会把job的状态以及信息都进行归档，方便后续开发人员做一些深入排查。</p>
+<p><strong>在 Flink 1.4.0 时期</strong>，提供了端到端的 exactly-once 的语义保证。Exactly-once 是指每条输入的数据只会作用在最终结果上有且只有一次，即使发生软件或硬件的故障，不会有丢数据或者重复计算发生。而在该版本之前，exactly-once 保证的范围只是 Flink 应用本身，并不包括输出给外部系统的部分。在 failover 时，这就有可能写了重复的数据到外部系统，所以一般会使用幂等的外部系统来解决这个问题。在 Flink 1.4 的版本中，Flink 基于两阶段提交协议，实现了端到端的 exactly-once 语义保证。内置支持了 Kafka 的端到端保证，并提供了 <code>TwoPhaseCommitSinkFunction</code> 供用于实现自定义外部存储的端到端 exactly-once 保证。</p>
+<p><strong>在 Flink 1.5.0 时期</strong>，Flink 发布了新的部署模型和处理模型（FLIP6）。新部署模型的开发工作已经持续了很久，该模型的实现对Flink核心代码改动特别大，可以说是自 Flink 项目创建以来，Runtime 改动最大的一次。简而言之，新的模型可以在YARN, MESOS调度系统上更好地动态分配资源、动态释放资源，并实现更高的资源利用率，还有提供更好的作业之间的隔离。</p>
+<p>除了 FLIP6 的改进，在该版本中，还对网站栈做了重构。重构的原因是在老版本中，上下游多个 task 之间的通信会共享同一个 TCP connection，导致某一个 task 发生反压时，所有共享该连接的 task 都会被阻塞，反压的粒度是 TCP connection 级别的。为了改进反压机制，Flink应用了在解决网络拥塞时一种经典的流控方法——基于Credit的流量控制。使得流控的粒度精细到具体某个 task 级别，有效缓解了反压对吞吐量的影响。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>Flink 同时支持了流处理和批处理，目前流计算的模型已经相对比较成熟和领先，也经历了各个公司大规模生产的验证。社区在接下来将继续加强流计算方面的性能和功能，包括对 Flink SQL 扩展更丰富的功能和引入更多的优化。另一方面也将加大力量提升批处理、机器学习等生态上的能力。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+        
+<hr>
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+  <img id="wechat_subscriber_qcode" src="https://user-images.githubusercontent.com/5378924/221934214-4ca3bc5d-6d38-4a4a-a6bc-a1dd53563879.png" alt="hoxis wechat" style="width: auto; height:200px; max-width: 100%;">
+</div>
+<div class="copyright-txt">
+  <a href="/copyright"><i class="fa fa-copyright"></i>著作权归作者所有</a>
+</div>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Flink/" rel="tag">#Flink</a>
+          
+        </div>
+      
+
+      
+      <div class="post-spread">
+        
+          <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-56d648eefec3350b" async="async"></script>
+<!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_sharing_toolbox"></div>
+        
+      </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2018/11/07/use-flink-calculate-hot-items/" rel="next" title="Flink 零基础实战教程：如何计算实时热门商品">
+                <i class="fa fa-chevron-left"></i> Flink 零基础实战教程：如何计算实时热门商品
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2018/11/18/flink-tips-watermarks-in-apache-flink-made-easy/" rel="prev" title="Flink 小贴士 (3): 轻松理解 Watermark">
+                Flink 小贴士 (3): 轻松理解 Watermark <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
 
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/default_avatar.jpg" alt="WuChong">
+          <p class="site-author-name" itemprop="name">WuChong</p>
+          <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，<br>你就应该静下心来学习。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">90</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+<!--
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">分类</span>
+            </a>
+          </div>
+          -->
+
+          
+          
+          
+            <div class="site-state-item site-state-categories">
+              
+              <a href="/categories">
+              
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">77</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-sa/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="https://flink.apache.org/" target="_blank">Apache Flink</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Apache-Flink-介绍"><span class="nav-number">1.</span> <span class="nav-text">Apache Flink 介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Apache-Flink-基石"><span class="nav-number">2.</span> <span class="nav-text">Apache Flink 基石</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Flink-API-历史变迁"><span class="nav-number">3.</span> <span class="nav-text">Flink API 历史变迁</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Flink-High-Level-API-历史变迁"><span class="nav-number">4.</span> <span class="nav-text">Flink High-Level API 历史变迁</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Flink-Checkpoint-amp-Recovery-历史变迁"><span class="nav-number">5.</span> <span class="nav-text">Flink Checkpoint &amp; Recovery 历史变迁</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Flink-Runtime-历史变迁"><span class="nav-number">6.</span> <span class="nav-text">Flink Runtime 历史变迁</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WuChong</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.scheme !== 'Pisces' && (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always')) {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'wuchong';
+      var disqus_identifier = 'blog/2018/11/09/flink-tech-evolution-introduction/';
+      var disqus_title = '一文了解 Apache Flink 核心技术';
+      var disqus_url = 'http://wuchong.me/blog/2018/11/09/flink-tech-evolution-introduction/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
+  
+
+
+  
+  
+
+
+</body>
+</html>

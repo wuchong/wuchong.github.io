@@ -1,27 +1,900 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!doctype html>
 
 
-{% block title %} {{ page.title }} | {{ config.title }} {% endblock %}
 
-{% block page_class %}page-post-detail{% endblock %}
+  
 
 
-{% block content %}
+<html class="theme-next mist use-motion">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css">
+
+
+    <meta name="author" content="WuChong">
+
+
+
+  <meta name="keywords" content="shadowsocks,科学上网,安装">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jark's Blog" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0">
+
+
+
+
+
+
+<meta name="description" content="最近国内的网络形式越来越严峻，在日益高筑的围墙之下，掌握一门穿墙之术越来越成为需要。相对于 VPN 而已， Shadowsocks 更为轻量级，安装配置过程极其简单。而客户端也可以在windows、mac、iOS和android上轻松运行，被人们所深深喜爱。下面说说 Shadowosocks 的安装和优化。">
+<meta name="keywords" content="shadowsocks,科学上网,安装">
+<meta property="og:type" content="article">
+<meta property="og:title" content="科学上网之 Shadowsocks 安装及优化加速">
+<meta property="og:url" content="http://wuchong.me/blog/2015/02/02/shadowsocks-install-and-optimize/index.html">
+<meta property="og:site_name" content="Jark&#39;s Blog">
+<meta property="og:description" content="最近国内的网络形式越来越严峻，在日益高筑的围墙之下，掌握一门穿墙之术越来越成为需要。相对于 VPN 而已， Shadowsocks 更为轻量级，安装配置过程极其简单。而客户端也可以在windows、mac、iOS和android上轻松运行，被人们所深深喜爱。下面说说 Shadowosocks 的安装和优化。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2022-08-03T06:46:44.511Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="科学上网之 Shadowsocks 安装及优化加速">
+<meta name="twitter:description" content="最近国内的网络形式越来越严峻，在日益高筑的围墙之下，掌握一门穿墙之术越来越成为需要。相对于 VPN 而已， Shadowsocks 更为轻量级，安装配置过程极其简单。而客户端也可以在windows、mac、iOS和android上轻松运行，被人们所深深喜爱。下面说说 Shadowosocks 的安装和优化。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 4141040,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> 科学上网之 Shadowsocks 安装及优化加速 | Jark's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Jark's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">当你的才华还撑不起你的野心时，你就应该静下心来学习。</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-talks">
+          <a href="/talks" rel="section">
+            
+              <i class="menu-item-icon fa fa-microphone-stand fa-fw"></i> <br>
+            
+            演讲
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input">
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', '8Exkz7xsCTJyyCHiK9TY','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                科学上网之 Shadowsocks 安装及优化加速
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-02-02T20:58:49+08:00" content="2015-02-02">
+              2015-02-02
+            </time>
+          </span>
+
+          
+            <span class="post-category">
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/杂项资源/" itemprop="url" rel="index">
+                    <span itemprop="name">杂项资源</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2015/02/02/shadowsocks-install-and-optimize/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="blog/2015/02/02/shadowsocks-install-and-optimize/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+<!--
+    
+      <div class="post-body">
+    
+    -->
+
+
+    <div class="post-body" itemprop="articleBody">
+    
+
+      
+      
+
+      
+        <p>最近国内的网络形式越来越严峻，在日益高筑的围墙之下，掌握一门穿墙之术越来越成为需要。相对于 VPN 而已， Shadowsocks 更为轻量级，安装配置过程极其简单。而客户端也可以在windows、mac、iOS和android上轻松运行，被人们所深深喜爱。感谢 <a href="https://twitter.com/clowwindy" target="_blank" rel="noopener">@clowwindy</a>，带给我们一款如此好用的<a href="https://github.com/shadowsocks/shadowsocks" target="_blank" rel="noopener">开源软件</a>。下面说说 Shadowosocks 的安装和优化。</p>
+<a id="more"></a>
+<h2 id="1-服务端安装"><a href="#1-服务端安装" class="headerlink" title="1. 服务端安装"></a>1. 服务端安装</h2><p>官方推荐 Ubuntu 14.04 LTS 作为服务器以便使用 TCP Fast Open。服务器端的安装非常简单。</p>
+<p>Debian / Ubuntu:<br><figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">apt-get <span class="keyword">install</span> python-pip</span><br><span class="line">pip <span class="keyword">install</span> shadowsocks</span><br></pre></td></tr></table></figure></p>
+<p>CentOS:<br><figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">yum <span class="keyword">install</span> python-setuptools &amp;&amp; easy_install pip</span><br><span class="line">pip <span class="keyword">install</span> shadowsocks</span><br></pre></td></tr></table></figure></p>
+<p>然后直接在后台运行：<br><figure class="highlight crmsh"><table><tr><td class="code"><pre><span class="line">ssserver -p <span class="number">8000</span> -k password -m rc4-md5 -d <span class="literal">start</span></span><br></pre></td></tr></table></figure></p>
+<p>当然也可以使用配置文件进行配置，方法创建<code>/etc/shadowsocks.json</code>文件，填入如下内容：<br><figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"server"</span>:<span class="string">"my_server_ip"</span>,</span><br><span class="line">    <span class="attr">"server_port"</span>:<span class="number">8000</span>,</span><br><span class="line">    <span class="attr">"local_address"</span>: <span class="string">"127.0.0.1"</span>,</span><br><span class="line">    <span class="attr">"local_port"</span>:<span class="number">1080</span>,</span><br><span class="line">    <span class="attr">"password"</span>:<span class="string">"mypassword"</span>,</span><br><span class="line">    <span class="attr">"timeout"</span>:<span class="number">300</span>,</span><br><span class="line">    <span class="attr">"method"</span>:<span class="string">"rc4-md5"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>然后使用配置文件在后台运行：<br><figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">ssserver -c <span class="regexp">/etc/</span>shadowsocks.json -d start</span><br></pre></td></tr></table></figure></p>
+<p>如果要停止运行，将命令中的<code>start</code>改成<code>stop</code>。</p>
+<p>TIPS: 加密方式推荐使用<code>rc4-md5</code>，因为 RC4 比 AES 速度快好几倍，如果用在路由器上会带来显著性能提升。旧的 RC4 加密之所以不安全是因为 Shadowsocks 在每个连接上重复使用 key，没有使用 IV。现在已经重新正确实现，可以放心使用。更多可以看 <a href="https://github.com/clowwindy/shadowsocks/issues/178" target="_blank" rel="noopener">issue</a>。</p>
+<h2 id="2-客户端安装"><a href="#2-客户端安装" class="headerlink" title="2. 客户端安装"></a>2. 客户端安装</h2><p>客户端安装比较入门，这里就不说了，可以参考<a href="http://www.jianshu.com/p/08ba65d1f91a" target="_blank" rel="noopener">这篇文章</a>。</p>
+<h2 id="3-加速优化"><a href="#3-加速优化" class="headerlink" title="3. 加速优化"></a>3. 加速优化</h2><p>下面介绍几种简单的优化方法，也是比较推荐的几种，能够得到立竿见影的效果。当然还有一些黑科技我没提到，如有大神路过，也可留言指出。</p>
+<h3 id="3-1-内核参数优化"><a href="#3-1-内核参数优化" class="headerlink" title="3.1  内核参数优化"></a>3.1  内核参数优化</h3><p>首先，将 Linux 内核升级到 3.5 或以上。</p>
+<p><strong>第一步，增加系统文件描述符的最大限数</strong></p>
+<p>编辑文件 <code>limits.conf</code><br><figure class="highlight vim"><table><tr><td class="code"><pre><span class="line"><span class="keyword">vi</span> /etc/security/limits.<span class="keyword">conf</span></span><br></pre></td></tr></table></figure></p>
+<p>增加以下两行<br><figure class="highlight asciidoc"><table><tr><td class="code"><pre><span class="line"><span class="bullet">* </span>soft nofile 51200</span><br><span class="line"><span class="bullet">* </span>hard nofile 51200</span><br></pre></td></tr></table></figure></p>
+<p>启动shadowsocks服务器之前，设置以下参数<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">ulimit</span> -n 51200</span><br></pre></td></tr></table></figure></p>
+<p><strong>第二步，调整内核参数</strong><br>修改配置文件 <code>/etc/sysctl.conf</code><br><figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="attr">fs.file-max</span> = <span class="number">51200</span></span><br><span class="line"></span><br><span class="line"><span class="attr">net.core.rmem_max</span> = <span class="number">67108864</span></span><br><span class="line"><span class="attr">net.core.wmem_max</span> = <span class="number">67108864</span></span><br><span class="line"><span class="attr">net.core.netdev_max_backlog</span> = <span class="number">250000</span></span><br><span class="line"><span class="attr">net.core.somaxconn</span> = <span class="number">4096</span></span><br><span class="line"></span><br><span class="line"><span class="attr">net.ipv4.tcp_syncookies</span> = <span class="number">1</span></span><br><span class="line"><span class="attr">net.ipv4.tcp_tw_reuse</span> = <span class="number">1</span></span><br><span class="line"><span class="attr">net.ipv4.tcp_tw_recycle</span> = <span class="number">0</span></span><br><span class="line"><span class="attr">net.ipv4.tcp_fin_timeout</span> = <span class="number">30</span></span><br><span class="line"><span class="attr">net.ipv4.tcp_keepalive_time</span> = <span class="number">1200</span></span><br><span class="line"><span class="attr">net.ipv4.ip_local_port_range</span> = <span class="number">10000</span> <span class="number">65000</span></span><br><span class="line"><span class="attr">net.ipv4.tcp_max_syn_backlog</span> = <span class="number">8192</span></span><br><span class="line"><span class="attr">net.ipv4.tcp_max_tw_buckets</span> = <span class="number">5000</span></span><br><span class="line"><span class="attr">net.ipv4.tcp_fastopen</span> = <span class="number">3</span></span><br><span class="line"><span class="attr">net.ipv4.tcp_rmem</span> = <span class="number">4096</span> <span class="number">87380</span> <span class="number">67108864</span></span><br><span class="line"><span class="attr">net.ipv4.tcp_wmem</span> = <span class="number">4096</span> <span class="number">65536</span> <span class="number">67108864</span></span><br><span class="line"><span class="attr">net.ipv4.tcp_mtu_probing</span> = <span class="number">1</span></span><br><span class="line"><span class="attr">net.ipv4.tcp_congestion_control</span> = hybla</span><br></pre></td></tr></table></figure></p>
+<p>修改后执行 <code>sysctl -p</code> 使配置生效</p>
+<h3 id="3-2-锐速"><a href="#3-2-锐速" class="headerlink" title="3.2 锐速"></a>3.2 锐速</h3><p>锐速是一款非常不错的TCP底层加速软件，可以非常方便快速地完成服务器网络的优化，配合 ShadowSocks 效果奇佳。目前锐速官方也出了永久免费版本，适用带宽20M、3000加速连接，个人使用是足够了。如果需要，先要在锐速官网注册个账户。</p>
+<p>然后确定自己的内核是否在锐速的支持列表里，如果不在，请先更换内核，如果不确定，请使用 <a href="http://my.serverspeeder.com/w.do?m=lslm" target="_blank" rel="noopener">手动安装</a>。</p>
+<p>确定自己的内核版本在支持列表里，就可以使用以下命令快速安装了。<br><figure class="highlight stylus"><table><tr><td class="code"><pre><span class="line">wget http:<span class="comment">//my.serverspeeder.com/d/ls/serverSpeederInstaller.tar.gz</span></span><br><span class="line">tar xzvf serverSpeederInstaller<span class="selector-class">.tar</span>.gz</span><br><span class="line">bash serverSpeederInstaller.sh</span><br></pre></td></tr></table></figure></p>
+<p>输入在官网注册的账号密码进行安装，参数设置直接回车默认即可，<br>最后两项输入 y 开机自动启动锐速，y 立刻启动锐速。之后可以通过<code>lsmod</code>查看是否有appex模块在运行。</p>
+<p>到这里还没结束，我们还要修改锐速的3个参数，<code>vi /serverspeeder/etc/config</code><br><figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="attr">rsc</span>=<span class="string">"1"</span> <span class="comment">#RSC网卡驱动模式  </span></span><br><span class="line"><span class="attr">advinacc</span>=<span class="string">"1"</span> <span class="comment">#流量方向加速  </span></span><br><span class="line"><span class="attr">maxmode</span>=<span class="string">"1"</span> <span class="comment">#最大传输模式</span></span><br></pre></td></tr></table></figure></p>
+<p>digitalocean vps的网卡支持rsc和gso高级算法，所以可以开启<code>rsc=&quot;1&quot;</code>，<code>gso=&quot;1&quot;</code>。</p>
+<p>重新启动锐速<br><figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">service serverSpeeder restart</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="3-3-net-speeder"><a href="#3-3-net-speeder" class="headerlink" title="3.3 net-speeder"></a>3.3 net-speeder</h3><p>net-speeder 原理非常简单粗暴，就是发包翻倍，这会占用大量的国际出口带宽，本质是损人利己，不建议使用。</p>
+<p><strong>(1) Ubuntu/Debian 下安装依赖包</strong><br><figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">apt-<span class="builtin-name">get</span> install libnet1</span><br><span class="line">apt-<span class="builtin-name">get</span> install libpcap0.8</span><br><span class="line">apt-<span class="builtin-name">get</span> install libnet1-dev</span><br><span class="line">apt-<span class="builtin-name">get</span> install libpcap0.8-dev</span><br></pre></td></tr></table></figure></p>
+<p><strong>(2) Centos 下安装依赖包</strong><br>需要配置 epel 第三方源。下载 epel ：<a href="http://dl.fedoraproject.org/pub/epel/" target="_blank" rel="noopener">http://dl.fedoraproject.org/pub/epel/</a> 。例如，Centos 7 x64：<br><figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">wget http:<span class="regexp">//</span>dl.fedoraproject.org<span class="regexp">/pub/</span>epel<span class="regexp">/7/</span>x86_64<span class="regexp">/e/</span>epel-release-<span class="number">7</span>-<span class="number">5</span>.noarch.rpm</span><br><span class="line">rpm -ivh epel-release-<span class="number">7</span>-<span class="number">5</span>.noarch.rpm</span><br><span class="line">yum repolist</span><br></pre></td></tr></table></figure></p>
+<p>然后安装依赖包：<br><figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">yum <span class="keyword">install</span> libnet libpcap libnet-devel libpcap-devel</span><br></pre></td></tr></table></figure></p>
+<p><strong>(3) 下载官方的 tar.gz 压缩包。解压安装运行：</strong><br><figure class="highlight vim"><table><tr><td class="code"><pre><span class="line">wget http://net-speeder.googlecode.<span class="keyword">com</span>/<span class="keyword">files</span>/net_speeder-v0.<span class="number">1</span>.tar.gz </span><br><span class="line">tar zxvf net_speeder-v0.<span class="number">1</span>.tar.gz</span><br><span class="line"><span class="keyword">cd</span> net_speeder</span><br><span class="line">chmod <span class="number">777</span> *</span><br><span class="line"><span class="keyword">sh</span> build.<span class="keyword">sh</span> -DCOOKED</span><br></pre></td></tr></table></figure></p>
+<p>首先你需要知道你的网卡设备名，可以使用 ifconfig 查看。假设是eth0，那么运行方法是:<br><figure class="highlight jboss-cli"><table><tr><td class="code"><pre><span class="line"><span class="string">./net_speeder</span> eth0 <span class="string">"ip"</span></span><br></pre></td></tr></table></figure></p>
+<p>关闭 net-speeder<br><figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">killall net_speeder</span></span><br></pre></td></tr></table></figure></p>
+<p>哦，对了，作者已经将 net-speeder 迁移到 <a href="https://github.com/snooda/net-speeder" target="_blank" rel="noopener">GitHub</a> 了，感兴趣的可以关注、贡献。</p>
+<p>以上几种方法是我用过的几种比较有效的加速方法。有任何错误之处还请在下面留言指出。</p>
+<blockquote>
+<p><strong>如果你不想折腾服务端安装和优化，你可以使用<a href="http://cdcafe.org" target="_blank" rel="noopener">虫洞咖啡厅</a>提供的免费 shadowsocks 服务。</strong></p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+        
+<hr>
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+  <img id="wechat_subscriber_qcode" src="https://user-images.githubusercontent.com/5378924/221934214-4ca3bc5d-6d38-4a4a-a6bc-a1dd53563879.png" alt="hoxis wechat" style="width: auto; height:200px; max-width: 100%;">
+</div>
+<div class="copyright-txt">
+  <a href="/copyright"><i class="fa fa-copyright"></i>著作权归作者所有</a>
+</div>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/shadowsocks/" rel="tag">#shadowsocks</a>
+          
+        </div>
+      
+
+      
+      <div class="post-spread">
+        
+          <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-56d648eefec3350b" async="async"></script>
+<!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_sharing_toolbox"></div>
+        
+      </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2014/12/31/2014-summary/" rel="next" title="2014年终总结">
+                <i class="fa fa-chevron-left"></i> 2014年终总结
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2015/02/17/trip-of-sanya/" rel="prev" title="北纬18°，三亚的碧海琼天">
+                北纬18°，三亚的碧海琼天 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
 
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/default_avatar.jpg" alt="WuChong">
+          <p class="site-author-name" itemprop="name">WuChong</p>
+          <p class="site-description motion-element" itemprop="description">当你的才华还撑不起你的野心时，<br>你就应该静下心来学习。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">90</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+<!--
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">分类</span>
+            </a>
+          </div>
+          -->
+
+          
+          
+          
+            <div class="site-state-item site-state-categories">
+              
+              <a href="/categories">
+              
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">77</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-sa/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons">
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            <p class="site-author-name">Links</p>
+            
+              <span class="links-of-author-item">
+                <a href="https://flink.apache.org/" target="_blank">Apache Flink</a>
+              </span>
+            
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-服务端安装"><span class="nav-number">1.</span> <span class="nav-text">1. 服务端安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-客户端安装"><span class="nav-number">2.</span> <span class="nav-text">2. 客户端安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-加速优化"><span class="nav-number">3.</span> <span class="nav-text">3. 加速优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-内核参数优化"><span class="nav-number">3.1.</span> <span class="nav-text">3.1  内核参数优化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-锐速"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 锐速</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-net-speeder"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 net-speeder</span></a></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WuChong</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.scheme !== 'Pisces' && (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always')) {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'wuchong';
+      var disqus_identifier = 'blog/2015/02/02/shadowsocks-install-and-optimize/';
+      var disqus_title = '科学上网之 Shadowsocks 安装及优化加速';
+      var disqus_url = 'http://wuchong.me/blog/2015/02/02/shadowsocks-install-and-optimize/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for (i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+    });
+  </script>
+
+  
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/MathJax.js"></script>
+    <script type="text/javascript" src="http://cdn.staticfile.org/mathjax/2.4.0/config/TeX-AMS-MML_HTMLorMML.js"></script>
+  
+
+
+  
+  
+
+
+</body>
+</html>
